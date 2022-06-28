@@ -1,22 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity 0.8.10;
 
 import "./IMarketPlace.sol";
+import "./libraries/DataTypes.sol";
+import "./MarketPlaceStorage.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
-contract MarketPlace is IMarketPlace {
-    uint8 constant SELL = 0;
-    uint8 constant OFFER = 1;
-
-    struct Order {
-        address owner;
-        uint8 orderType;
-        address nftAddress;
-        uint256 tokenId;
-        address payToken;
-        uint256 price;
-        uint256 deadline;
-    }
-
+contract MarketPlace is IMarketPlace, Initializable, MarketPlaceStorage {
     event ItemListed(
         address indexed owner,
         address indexed nftAddress,
@@ -62,6 +52,33 @@ contract MarketPlace is IMarketPlace {
         address payToken,
         uint256 price
     );
+
+    function initialize(address _web3Entry) external initializer {
+        Web3Entry = _web3Entry;
+    }
+
+    function getRoyalty(address token)
+        external
+        view
+        returns (DataTypes.Royalty memory)
+    {
+        return royalties[token];
+    }
+
+    function setRoyalty(
+        address token,
+        uint256 characterId,
+        uint256 noteId,
+        address receiver,
+        uint8 percentage
+    ) external {
+        require(percentage <= 100, "InvalidPercentage");
+
+        // TODO: check token address and owner
+
+        royalties[token].receiver = receiver;
+        royalties[token].percentage = percentage;
+    }
 
     // ask orders
     function listItem(
