@@ -1,0 +1,30 @@
+{
+  "name": "crossbell-marketplace-contracts",
+  "version": "1.0.0",
+  "description": "crossbell marketplace contracts",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "prettier": "^2.3.2",
+    "prettier-plugin-solidity": "^1.0.0-beta.13",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^3.4.0"
+  },
+  "scripts": {
+    "format": "prettier --write src script test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Crossbell-Box/crossbell-marketplace-contracts.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Crossbell-Box/crossbell-marketplace-contracts/issues"
+  },
+  "homepage": "https://github.com/Crossbell-Box/crossbell-marketplace-contracts#readme"
+}
