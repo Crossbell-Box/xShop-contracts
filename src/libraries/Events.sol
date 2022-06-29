@@ -2,6 +2,13 @@
 pragma solidity 0.8.10;
 
 library Events {
+    event RoyaltySet(
+        address indexed owner,
+        address indexed nftAddress,
+        address receiver,
+        uint256 percentage
+    );
+
     event ItemListed(
         address indexed owner,
         address indexed nftAddress,

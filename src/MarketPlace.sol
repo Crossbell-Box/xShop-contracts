@@ -46,6 +46,8 @@ contract MarketPlace is IMarketPlace, Initializable, MarketPlaceStorage {
 
         royalties[token].receiver = receiver;
         royalties[token].percentage = percentage;
+
+        emit Events.RoyaltySet(msg.sender, token, receiver, percentage);
     }
 
     // ask orders
