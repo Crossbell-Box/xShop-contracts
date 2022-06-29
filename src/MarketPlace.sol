@@ -21,23 +21,43 @@ contract MarketPlace is
     uint256 internal constant REVISION = 1;
     bytes4 constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 
-    modifier notListed(
+    modifier expiredOrNotListed(
         address _nftAddress,
         uint256 _tokenId,
         address _owner
     ) {
         DataTypes.Order memory order = listings[_nftAddress][_tokenId][_owner];
-        require(order.deadline < _getNow(), "AlreadyListed");
+        require(order.deadline < _now(), "AlreadyListed");
         _;
     }
 
-    modifier offerNotExists(
+    modifier validListing(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _owner
+    ) {
+        DataTypes.Order memory order = listings[_nftAddress][_tokenId][_owner];
+        require(order.deadline >= _now(), "ExpiredOrNotListed");
+        _;
+    }
+
+    modifier validOffer(
         address _nftAddress,
         uint256 _tokenId,
         address _owner
     ) {
         DataTypes.Order memory order = offers[_nftAddress][_tokenId][_owner];
-        require(order.deadline < _getNow(), "AlreadyOffered");
+        require(order.deadline >= _now(), "OfferExpired");
+        _;
+    }
+
+    modifier offerExpiredOrNotExists(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _owner
+    ) {
+        DataTypes.Order memory order = offers[_nftAddress][_tokenId][_owner];
+        require(order.deadline < _now(), "AlreadyOffered");
         _;
     }
 
@@ -94,15 +114,15 @@ contract MarketPlace is
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external notListed(_nftAddress, _tokenId, _msgSender()) {
-        require(_deadline > _getNow(), "InvalidDeadline");
+    ) external expiredOrNotListed(_nftAddress, _tokenId, _msgSender()) {
+        _validDeadline(_deadline);
         require(
             IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
             "TokenNotERC721"
         );
         require(
             IERC721(_nftAddress).ownerOf(_tokenId) == _msgSender(),
-            "NotTokenOwner"
+            "NotERC721TokenOwner"
         );
 
         _validPayToken(_payToken);
@@ -130,21 +150,15 @@ contract MarketPlace is
     function updateListing(
         address _nftAddress,
         uint256 _tokenId,
-        address _payToken,
         uint256 _newPrice,
         uint256 _deadline
-    ) external {
-        require(_deadline > _getNow(), "InvalidDeadline");
+    ) external validListing(_nftAddress, _tokenId, _msgSender()) {
+        _validDeadline(_deadline);
 
         DataTypes.Order storage order = listings[_nftAddress][_tokenId][
             _msgSender()
         ];
-        require(order.deadline >= _getNow(), "NotListed");
-
-        _validPayToken(_payToken);
-
         // update sell order
-        order.payToken = _payToken;
         order.price = _newPrice;
         order.deadline = _deadline;
 
@@ -152,18 +166,13 @@ contract MarketPlace is
             _msgSender(),
             _nftAddress,
             _tokenId,
-            _payToken,
+            order.payToken,
             _newPrice,
             _deadline
         );
     }
 
     function cancelListing(address _nftAddress, uint256 _tokenId) external {
-        require(
-            listings[_nftAddress][_tokenId][_msgSender()].deadline >=
-                block.timestamp,
-            "NotListed"
-        );
         delete listings[_nftAddress][_tokenId][_msgSender()];
 
         emit Events.ItemCanceled(_msgSender(), _nftAddress, _tokenId);
@@ -174,13 +183,30 @@ contract MarketPlace is
         uint256 _tokenId,
         address _owner,
         address _payToken
-    ) external {
+    ) external validListing(_nftAddress, _tokenId, _owner) {
         DataTypes.Order memory order = listings[_nftAddress][_tokenId][_owner];
-        require(order.deadline >= _getNow(), "NotListed");
         require(order.payToken == _payToken, "InvalidPayToken");
 
-        // TODO: royalty fee
-        IERC20(_payToken).transferFrom(_msgSender(), order.owner, order.price);
+        DataTypes.Royalty memory royalty = royalties[order.nftAddress];
+        if (royalty.receiver != address(0)) {
+            uint256 feeAmount = (order.price * royalty.percentage) / 100;
+            IERC20(order.payToken).transferFrom(
+                _msgSender(),
+                royalty.receiver,
+                feeAmount
+            );
+            IERC20(order.payToken).transferFrom(
+                _msgSender(),
+                order.owner,
+                order.price - feeAmount
+            );
+        } else {
+            IERC20(order.payToken).transferFrom(
+                _msgSender(),
+                order.owner,
+                order.price
+            );
+        }
 
         IERC721(_nftAddress).safeTransferFrom(_owner, _msgSender(), _tokenId);
 
@@ -203,8 +229,8 @@ contract MarketPlace is
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external offerNotExists(_nftAddress, _tokenId, _msgSender()) {
-        require(_deadline > block.timestamp, "InvalidDeadline");
+    ) external offerExpiredOrNotExists(_nftAddress, _tokenId, _msgSender()) {
+        _validDeadline(_deadline);
         require(
             IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
             "TokenNotERC721"
@@ -233,12 +259,6 @@ contract MarketPlace is
     }
 
     function cancelOffer(address _nftAddress, uint256 _tokenId) external {
-        require(
-            offers[_nftAddress][_tokenId][_msgSender()].deadline >=
-                block.timestamp,
-            "NotOffered"
-        );
-
         delete offers[_nftAddress][_tokenId][_msgSender()];
 
         emit Events.OfferCanceled(_msgSender(), _nftAddress, _tokenId);
@@ -250,15 +270,15 @@ contract MarketPlace is
         address _payToken,
         uint256 _newPrice,
         uint256 _deadline
-    ) external {
-        require(_deadline > _getNow(), "InvalidDeadline");
+    ) external validOffer(_nftAddress, _tokenId, _msgSender()) {
+        _validDeadline(_deadline);
 
         _validPayToken(_payToken);
 
         DataTypes.Order storage order = listings[_nftAddress][_tokenId][
             _msgSender()
         ];
-        require(order.deadline >= _getNow(), "NotListed");
+        require(order.deadline >= _now(), "NotListed");
         // update buy order
         order.payToken = _payToken;
         order.price = _newPrice;
@@ -277,11 +297,51 @@ contract MarketPlace is
     function acceptOffer(
         address _nftAddress,
         uint256 _tokenId,
-        address _creator
-    ) external {}
+        address _owner
+    ) external validOffer(_nftAddress, _tokenId, _owner) {
+        DataTypes.Order memory order = offers[_nftAddress][_tokenId][_owner];
 
-    function _getNow() internal view virtual returns (uint256) {
+        DataTypes.Royalty memory royalty = royalties[order.nftAddress];
+        if (royalty.receiver != address(0)) {
+            uint256 feeAmount = (order.price * royalty.percentage) / 100;
+            IERC20(order.payToken).transferFrom(
+                order.owner,
+                royalty.receiver,
+                feeAmount
+            );
+            IERC20(order.payToken).transferFrom(
+                order.owner,
+                _msgSender(),
+                order.price - feeAmount
+            );
+        } else {
+            IERC20(order.payToken).transferFrom(
+                order.owner,
+                _msgSender(),
+                order.price
+            );
+        }
+
+        IERC721(_nftAddress).safeTransferFrom(_msgSender(), _owner, _tokenId);
+
+        emit Events.ItemSold(
+            _msgSender(),
+            order.owner,
+            _nftAddress,
+            _tokenId,
+            order.payToken,
+            order.price
+        );
+
+        delete offers[_nftAddress][_tokenId][_owner];
+    }
+
+    function _now() internal view virtual returns (uint256) {
         return block.timestamp;
+    }
+
+    function _validDeadline(uint256 _deadline) internal view {
+        require(_deadline > _now(), "InvalidDeadline");
     }
 
     function getRevision() external pure returns (uint256) {

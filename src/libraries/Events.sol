@@ -36,7 +36,7 @@ library Events {
     event OfferCreated(
         address indexed owner,
         address indexed nftAddress,
-        uint256 tokenId,
+        uint256 indexed tokenId,
         address payToken,
         uint256 price,
         uint256 deadline
@@ -45,7 +45,7 @@ library Events {
     event OfferCanceled(
         address indexed owner,
         address indexed nftAddress,
-        uint256 tokenId
+        uint256 indexed tokenId
     );
 
     event OfferUpdated(
