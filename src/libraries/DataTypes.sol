@@ -4,7 +4,6 @@ pragma solidity ^0.8.10;
 library DataTypes {
     struct Order {
         address owner;
-        //        uint8 orderType;
         address nftAddress;
         uint256 tokenId;
         address payToken;

@@ -5,6 +5,7 @@ import "../libraries/DataTypes.sol";
 
 contract MarketPlaceStorage {
     address public web3Entry; // slot 10
+    address public WCSB;
 
     //  @notice nftAddress -> tokenId -> owner -> Order
     mapping(address => mapping(uint256 => mapping(address => DataTypes.Order)))

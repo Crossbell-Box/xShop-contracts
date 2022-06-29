@@ -12,7 +12,7 @@ library Events {
     event ItemListed(
         address indexed owner,
         address indexed nftAddress,
-        uint256 tokenId,
+        uint256 indexed tokenId,
         address payToken,
         uint256 price,
         uint256 deadline
@@ -21,14 +21,16 @@ library Events {
     event ItemUpdated(
         address indexed owner,
         address indexed nftAddress,
-        uint256 tokenId,
-        uint256 newPrice
+        uint256 indexed tokenId,
+        address payToken,
+        uint256 newPrice,
+        uint256 deadline
     );
 
     event ItemCanceled(
         address indexed owner,
         address indexed nftAddress,
-        uint256 tokenId
+        uint256 indexed tokenId
     );
 
     event OfferCreated(
@@ -44,6 +46,15 @@ library Events {
         address indexed owner,
         address indexed nftAddress,
         uint256 tokenId
+    );
+
+    event OfferUpdated(
+        address indexed owner,
+        address indexed nftAddress,
+        uint256 indexed tokenId,
+        address payToken,
+        uint256 newPrice,
+        uint256 deadline
     );
 
     event ItemSold(

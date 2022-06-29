@@ -6,14 +6,51 @@ import "./interfaces/IWeb3Entry.sol";
 import "./libraries/DataTypes.sol";
 import "./libraries/Events.sol";
 import "./storage/MarketPlaceStorage.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 
-contract MarketPlace is IMarketPlace, Initializable, MarketPlaceStorage {
+contract MarketPlace is
+    IMarketPlace,
+    Context,
+    Initializable,
+    MarketPlaceStorage
+{
     uint256 internal constant REVISION = 1;
+    bytes4 constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 
-    function initialize(address _web3Entry) external initializer {
+    modifier notListed(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _owner
+    ) {
+        DataTypes.Order memory order = listings[_nftAddress][_tokenId][_owner];
+        require(order.deadline < _getNow(), "AlreadyListed");
+        _;
+    }
+
+    modifier offerNotExists(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _owner
+    ) {
+        DataTypes.Order memory order = offers[_nftAddress][_tokenId][_owner];
+        require(order.deadline < _getNow(), "AlreadyOffered");
+        _;
+    }
+
+    function _validPayToken(address _payToken) internal view {
+        require(_payToken == WCSB, "InvalidPayToken");
+    }
+
+    function initialize(address _web3Entry, address _wcsb)
+        external
+        initializer
+    {
         web3Entry = _web3Entry;
+        WCSB = _wcsb;
     }
 
     function getRoyalty(address token)
@@ -54,41 +91,198 @@ contract MarketPlace is IMarketPlace, Initializable, MarketPlaceStorage {
     function listItem(
         address _nftAddress,
         uint256 _tokenId,
-        address payToken,
+        address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external {}
+    ) external notListed(_nftAddress, _tokenId, _msgSender()) {
+        require(_deadline > _getNow(), "InvalidDeadline");
+        require(
+            IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
+            "TokenNotERC721"
+        );
+        require(
+            IERC721(_nftAddress).ownerOf(_tokenId) == _msgSender(),
+            "NotTokenOwner"
+        );
+
+        _validPayToken(_payToken);
+
+        // save sell order
+        listings[_nftAddress][_tokenId][_msgSender()] = DataTypes.Order(
+            _msgSender(),
+            _nftAddress,
+            _tokenId,
+            WCSB,
+            _price,
+            _deadline
+        );
+
+        emit Events.ItemListed(
+            _msgSender(),
+            _nftAddress,
+            _tokenId,
+            WCSB,
+            _price,
+            _deadline
+        );
+    }
 
     function updateListing(
         address _nftAddress,
         uint256 _tokenId,
-        uint256 _newPrice
-    ) external {}
+        address _payToken,
+        uint256 _newPrice,
+        uint256 _deadline
+    ) external {
+        require(_deadline > _getNow(), "InvalidDeadline");
 
-    function cancelListing(address _nftAddress, uint256 _tokenId) external {}
+        DataTypes.Order storage order = listings[_nftAddress][_tokenId][
+            _msgSender()
+        ];
+        require(order.deadline >= _getNow(), "NotListed");
+
+        _validPayToken(_payToken);
+
+        // update sell order
+        order.payToken = _payToken;
+        order.price = _newPrice;
+        order.deadline = _deadline;
+
+        emit Events.ItemUpdated(
+            _msgSender(),
+            _nftAddress,
+            _tokenId,
+            _payToken,
+            _newPrice,
+            _deadline
+        );
+    }
+
+    function cancelListing(address _nftAddress, uint256 _tokenId) external {
+        require(
+            listings[_nftAddress][_tokenId][_msgSender()].deadline >=
+                block.timestamp,
+            "NotListed"
+        );
+        delete listings[_nftAddress][_tokenId][_msgSender()];
+
+        emit Events.ItemCanceled(_msgSender(), _nftAddress, _tokenId);
+    }
 
     function buyItem(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
-    ) external {}
+        address _owner,
+        address _payToken
+    ) external {
+        DataTypes.Order memory order = listings[_nftAddress][_tokenId][_owner];
+        require(order.deadline >= _getNow(), "NotListed");
+        require(order.payToken == _payToken, "InvalidPayToken");
+
+        // TODO: royalty fee
+        IERC20(_payToken).transferFrom(_msgSender(), order.owner, order.price);
+
+        IERC721(_nftAddress).safeTransferFrom(_owner, _msgSender(), _tokenId);
+
+        emit Events.ItemSold(
+            order.owner,
+            _msgSender(),
+            _nftAddress,
+            _tokenId,
+            _payToken,
+            order.price
+        );
+
+        delete listings[_nftAddress][_tokenId][_owner];
+    }
 
     // bid orders
     function createOffer(
         address _nftAddress,
         uint256 _tokenId,
-        address payToken,
+        address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external {}
+    ) external offerNotExists(_nftAddress, _tokenId, _msgSender()) {
+        require(_deadline > block.timestamp, "InvalidDeadline");
+        require(
+            IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
+            "TokenNotERC721"
+        );
 
-    function cancelOffer(address _nftAddress, uint256 _tokenId) external {}
+        _validPayToken(_payToken);
+
+        // save buy order
+        offers[_nftAddress][_tokenId][_msgSender()] = DataTypes.Order(
+            _msgSender(),
+            _nftAddress,
+            _tokenId,
+            _payToken,
+            _price,
+            _deadline
+        );
+
+        emit Events.OfferCreated(
+            _msgSender(),
+            _nftAddress,
+            _tokenId,
+            _payToken,
+            _price,
+            _deadline
+        );
+    }
+
+    function cancelOffer(address _nftAddress, uint256 _tokenId) external {
+        require(
+            offers[_nftAddress][_tokenId][_msgSender()].deadline >=
+                block.timestamp,
+            "NotOffered"
+        );
+
+        delete offers[_nftAddress][_tokenId][_msgSender()];
+
+        emit Events.OfferCanceled(_msgSender(), _nftAddress, _tokenId);
+    }
+
+    function updateOffer(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _payToken,
+        uint256 _newPrice,
+        uint256 _deadline
+    ) external {
+        require(_deadline > _getNow(), "InvalidDeadline");
+
+        _validPayToken(_payToken);
+
+        DataTypes.Order storage order = listings[_nftAddress][_tokenId][
+            _msgSender()
+        ];
+        require(order.deadline >= _getNow(), "NotListed");
+        // update buy order
+        order.payToken = _payToken;
+        order.price = _newPrice;
+        order.deadline = _deadline;
+
+        emit Events.OfferUpdated(
+            _msgSender(),
+            _nftAddress,
+            _tokenId,
+            _payToken,
+            _newPrice,
+            _deadline
+        );
+    }
 
     function acceptOffer(
         address _nftAddress,
         uint256 _tokenId,
         address _creator
     ) external {}
+
+    function _getNow() internal view virtual returns (uint256) {
+        return block.timestamp;
+    }
 
     function getRevision() external pure returns (uint256) {
         return REVISION;
