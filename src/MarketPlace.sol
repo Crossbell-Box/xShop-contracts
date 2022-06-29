@@ -1,60 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "./IMarketPlace.sol";
+import "./interfaces/IMarketPlace.sol";
+import "./interfaces/IWeb3Entry.sol";
 import "./libraries/DataTypes.sol";
-import "./MarketPlaceStorage.sol";
+import "./libraries/Events.sol";
+import "./storage/MarketPlaceStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 contract MarketPlace is IMarketPlace, Initializable, MarketPlaceStorage {
-    event ItemListed(
-        address indexed owner,
-        address indexed nftAddress,
-        uint256 tokenId,
-        address payToken,
-        uint256 price,
-        uint256 deadline
-    );
-
-    event ItemUpdated(
-        address indexed owner,
-        address indexed nftAddress,
-        uint256 tokenId,
-        uint256 newPrice
-    );
-
-    event ItemCanceled(
-        address indexed owner,
-        address indexed nftAddress,
-        uint256 tokenId
-    );
-
-    event OfferCreated(
-        address indexed owner,
-        address indexed nftAddress,
-        uint256 tokenId,
-        address payToken,
-        uint256 price,
-        uint256 deadline
-    );
-
-    event OfferCanceled(
-        address indexed owner,
-        address indexed nftAddress,
-        uint256 tokenId
-    );
-
-    event ItemSold(
-        address indexed seller,
-        address indexed buyer,
-        address indexed nftAddress,
-        uint256 tokenId,
-        address payToken,
-        uint256 price
-    );
+    uint256 internal constant REVISION = 1;
 
     function initialize(address _web3Entry) external initializer {
-        Web3Entry = _web3Entry;
+        web3Entry = _web3Entry;
     }
 
     function getRoyalty(address token)
@@ -73,8 +32,17 @@ contract MarketPlace is IMarketPlace, Initializable, MarketPlaceStorage {
         uint8 percentage
     ) external {
         require(percentage <= 100, "InvalidPercentage");
-
-        // TODO: check token address and owner
+        // check character owner
+        require(
+            msg.sender == IERC721(web3Entry).ownerOf(characterId),
+            "NotCharacterOwner"
+        );
+        // check token address and owner
+        DataTypes.Note memory note = IWeb3Entry(web3Entry).getNote(
+            characterId,
+            noteId
+        );
+        require(note.mintNFT == token, "InvalidToken");
 
         royalties[token].receiver = receiver;
         royalties[token].percentage = percentage;
@@ -119,4 +87,8 @@ contract MarketPlace is IMarketPlace, Initializable, MarketPlaceStorage {
         uint256 _tokenId,
         address _creator
     ) external {}
+
+    function getRevision() external pure returns (uint256) {
+        return REVISION;
+    }
 }
