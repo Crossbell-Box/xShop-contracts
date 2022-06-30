@@ -15,6 +15,7 @@ contract MarketPlaceTest is Test {
     MockWeb3Entry web3Entry;
     WCSB wcsb;
     NFT nft;
+    NFT1155 nft1155;
 
     address alice = address(0x1234);
 
@@ -22,11 +23,14 @@ contract MarketPlaceTest is Test {
         market = new MarketPlace();
         wcsb = new WCSB();
         nft = new NFT();
+        nft1155 = new NFT1155();
         web3Entry = new MockWeb3Entry(address(nft)); //address(nft) is mintNoteNFT address
         market.initialize(address(web3Entry), address(wcsb));
 
         nft.mint(alice);
+        nft1155.mint(alice);
         web3Entry.mintCharacter(alice);
+
     }
 
     function testExpectRevertReinitial() public {
@@ -72,12 +76,29 @@ contract MarketPlaceTest is Test {
         market.setRoyalty(1, 1, alice, 100);
     }
 
-    // function testlistItem() public {
-    //     vm.expectRevert(abi.encodePacked("InvalidDeadline"));  
-    //     market.listItem(address(0x1), 1, address(wcsb), 1, block.timestamp);      
+    function testlistItem() public {
+        vm.expectRevert(abi.encodePacked("InvalidDeadline"));  
+        market.listItem(address(nft), 1, address(wcsb), 1, block.timestamp);
 
-    //     // todo TokenNotERC721 这个不知道怎么测
-    //     // vm.expectRevert(abi.encodePacked("InvalidDeadline")); 
-    // }
+        vm.expectRevert(abi.encodePacked("TokenNotERC721")); 
+        market.listItem(address(nft1155), 1, address(wcsb), 1, 100);
+
+        vm.prank(address(0x1000));
+        vm.expectRevert(abi.encodePacked("NotERC721TokenOwner")); 
+        market.listItem(address(nft), 1, address(wcsb), 1, 100);
+        
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
+        market.listItem(address(nft), 1, address(0x567), 1, 100);
+    }
+
+    function testExpectEmitListItem() public {
+        vm.expectEmit(true, true, false, true);
+        // The event we expect
+        emit Events.ItemListed(alice, address(nft), 1, address(wcsb),1,100);
+        // The event we get
+        vm.prank(alice);
+        market.listItem(address(nft), 1, address(wcsb), 1, 100);
+    }
 
 }
