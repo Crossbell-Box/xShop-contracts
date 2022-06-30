@@ -10,7 +10,6 @@ interface IMarketPlace {
         returns (DataTypes.Royalty memory);
 
     function setRoyalty(
-        address token,
         uint256 characterId,
         uint256 noteId,
         address receiver,

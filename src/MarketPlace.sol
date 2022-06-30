@@ -82,7 +82,6 @@ contract MarketPlace is
     }
 
     function setRoyalty(
-        address token,
         uint256 characterId,
         uint256 noteId,
         address receiver,
@@ -99,12 +98,11 @@ contract MarketPlace is
             characterId,
             noteId
         );
-        require(note.mintNFT == token, "InvalidToken");
 
-        royalties[token].receiver = receiver;
-        royalties[token].percentage = percentage;
+        royalties[note.mintNFT].receiver = receiver;
+        royalties[note.mintNFT].percentage = percentage;
 
-        emit Events.RoyaltySet(msg.sender, token, receiver, percentage);
+        emit Events.RoyaltySet(msg.sender, note.mintNFT, receiver, percentage);
     }
 
     // ask orders

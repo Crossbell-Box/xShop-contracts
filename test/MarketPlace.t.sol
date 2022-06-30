@@ -22,8 +22,7 @@ contract MarketPlaceTest is Test {
         market = new MarketPlace();
         wcsb = new WCSB();
         nft = new NFT();
-        web3Entry = new MockWeb3Entry(address(nft));
-
+        web3Entry = new MockWeb3Entry(address(nft)); //address(nft) is mintNoteNFT address
         market.initialize(address(web3Entry), address(wcsb));
 
         nft.mint(alice);
@@ -43,14 +42,10 @@ contract MarketPlaceTest is Test {
 
     function testExpectRevertSetRoyalty() public {
         vm.expectRevert(abi.encodePacked("InvalidPercentage"));
-        market.setRoyalty(address(0x1), 1, 1, address(0x2), 101);
+        market.setRoyalty(1, 1, address(0x2), 101);
 
         vm.expectRevert(abi.encodePacked("NotCharacterOwner"));
-        market.setRoyalty(address(0x1), 1, 1, address(0x2), 100);
-
-        vm.prank(alice);
-        vm.expectRevert(abi.encodePacked("InvalidToken"));
-        market.setRoyalty(address(0x1), 1, 1, address(0x2), 100);
+        market.setRoyalty(1, 1, address(0x2), 100);
     }
 
     function testSetGetRoyalty() public {
@@ -60,7 +55,7 @@ contract MarketPlaceTest is Test {
 
         // set royalty
         vm.prank(alice);
-        market.setRoyalty(address(nft), 1, 1, alice, 100);
+        market.setRoyalty(1, 1, alice, 100);
 
         // get royalty
         royalty = market.getRoyalty(address(nft));
@@ -74,6 +69,15 @@ contract MarketPlaceTest is Test {
         emit Events.RoyaltySet(alice, address(nft), alice, 100);
         // The event we get
         vm.prank(alice);
-        market.setRoyalty(address(nft), 1, 1, alice, 100);
+        market.setRoyalty(1, 1, alice, 100);
     }
+
+    // function testlistItem() public {
+    //     vm.expectRevert(abi.encodePacked("InvalidDeadline"));  
+    //     market.listItem(address(0x1), 1, address(wcsb), 1, block.timestamp);      
+
+    //     // todo TokenNotERC721 这个不知道怎么测
+    //     // vm.expectRevert(abi.encodePacked("InvalidDeadline")); 
+    // }
+
 }
