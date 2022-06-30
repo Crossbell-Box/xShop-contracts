@@ -22,24 +22,20 @@ contract MarketPlaceTest is Test {
         wcsb = new WCSB();
         nft = new NFT();
 
-        market.initial(web3Entry, wcsb);
-        web3Entry.setMintNoteNFT(nft);
+        market.initialize(address(web3Entry), address(wcsb));
+        web3Entry.setMintNoteNFT(address(nft));
 
         nft.mint(user);
         web3Entry.mintCharacter(user);
     }
 
-    function testInitial() public {
-        assertEq(market.web3Entry(), address(0x0));
-
-        // init
-        market.initialize(address(0x1), address(0x2));
-        assertEq(market.web3Entry(), address(0x1));
-        assertEq(market.WCSB(), address(0x2));
+    function testReinitial() public {
+        assertEq(market.web3Entry(), address(web3Entry));
+        assertEq(market.WCSB(), address(wcsb));
 
         // reinit
         vm.expectRevert(
-            bytes("Initializable: contract is already initialized")
+            abi.encodePacked("Initializable: contract is already initialized")
         );
         market.initialize(address(0x3), address(0x4));
     }
