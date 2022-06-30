@@ -30,7 +30,6 @@ contract MarketPlaceTest is Test {
         nft.mint(alice);
         nft1155.mint(alice);
         web3Entry.mintCharacter(alice);
-
     }
 
     function testExpectRevertReinitial() public {
@@ -53,6 +52,7 @@ contract MarketPlaceTest is Test {
     }
 
     function testSetGetRoyalty() public {
+        // get royalty
         DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
         assertEq(royalty.receiver, address(0x0));
         assertEq(royalty.percentage, 0);
@@ -76,29 +76,28 @@ contract MarketPlaceTest is Test {
         market.setRoyalty(1, 1, alice, 100);
     }
 
-    function testlistItem() public {
-        vm.expectRevert(abi.encodePacked("InvalidDeadline"));  
-        market.listItem(address(nft), 1, address(wcsb), 1, block.timestamp);
+    function testAsk() public {
+        vm.expectRevert(abi.encodePacked("InvalidDeadline"));
+        market.ask(address(nft), 1, address(wcsb), 1, block.timestamp);
 
-        vm.expectRevert(abi.encodePacked("TokenNotERC721")); 
-        market.listItem(address(nft1155), 1, address(wcsb), 1, 100);
+        vm.expectRevert(abi.encodePacked("TokenNotERC721"));
+        market.ask(address(nft1155), 1, address(wcsb), 1, 100);
 
         vm.prank(address(0x1000));
-        vm.expectRevert(abi.encodePacked("NotERC721TokenOwner")); 
-        market.listItem(address(nft), 1, address(wcsb), 1, 100);
-        
+        vm.expectRevert(abi.encodePacked("NotERC721TokenOwner"));
+        market.ask(address(nft), 1, address(wcsb), 1, 100);
+
         vm.prank(alice);
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
-        market.listItem(address(nft), 1, address(0x567), 1, 100);
+        market.ask(address(nft), 1, address(0x567), 1, 100);
     }
 
-    function testExpectEmitListItem() public {
-        vm.expectEmit(true, true, false, true);
+    function testExpectEmitAsk() public {
+        vm.expectEmit(true, true, true, true, address(market));
         // The event we expect
-        emit Events.ItemListed(alice, address(nft), 1, address(wcsb),1,100);
+        emit Events.AskCreated(alice, address(nft), 1, address(wcsb), 1, 100);
         // The event we get
         vm.prank(alice);
-        market.listItem(address(nft), 1, address(wcsb), 1, 100);
+        market.ask(address(nft), 1, address(wcsb), 1, 100);
     }
-
 }

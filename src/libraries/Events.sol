@@ -9,7 +9,7 @@ library Events {
         uint256 percentage
     );
 
-    event ItemListed(
+    event AskCreated(
         address indexed owner,
         address indexed nftAddress,
         uint256 indexed tokenId,
@@ -18,7 +18,7 @@ library Events {
         uint256 deadline
     );
 
-    event ItemUpdated(
+    event AskUpdated(
         address indexed owner,
         address indexed nftAddress,
         uint256 indexed tokenId,
@@ -27,13 +27,13 @@ library Events {
         uint256 deadline
     );
 
-    event ItemCanceled(
+    event AskCanceled(
         address indexed owner,
         address indexed nftAddress,
         uint256 indexed tokenId
     );
 
-    event OfferCreated(
+    event BidCreated(
         address indexed owner,
         address indexed nftAddress,
         uint256 indexed tokenId,
@@ -42,13 +42,13 @@ library Events {
         uint256 deadline
     );
 
-    event OfferCanceled(
+    event BidCanceled(
         address indexed owner,
         address indexed nftAddress,
         uint256 indexed tokenId
     );
 
-    event OfferUpdated(
+    event BidUpdated(
         address indexed owner,
         address indexed nftAddress,
         uint256 indexed tokenId,
@@ -57,7 +57,7 @@ library Events {
         uint256 deadline
     );
 
-    event ItemSold(
+    event OrdersMatched(
         address indexed seller,
         address indexed buyer,
         address indexed nftAddress,

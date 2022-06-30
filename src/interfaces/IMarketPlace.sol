@@ -17,7 +17,7 @@ interface IMarketPlace {
     ) external;
 
     // ask orders
-    function listItem(
+    function ask(
         address _nftAddress,
         uint256 _tokenId,
         address payToken,
@@ -25,16 +25,16 @@ interface IMarketPlace {
         uint256 _deadline
     ) external;
 
-    function updateListing(
+    function updateAsk(
         address _nftAddress,
         uint256 _tokenId,
         uint256 _newPrice,
         uint256 _deadline
     ) external;
 
-    function cancelListing(address _nftAddress, uint256 _tokenId) external;
+    function cancelAsk(address _nftAddress, uint256 _tokenId) external;
 
-    function buyItem(
+    function acceptAsk(
         address _nftAddress,
         uint256 _tokenId,
         address _owner,
@@ -42,7 +42,7 @@ interface IMarketPlace {
     ) external;
 
     // bid orders
-    function createOffer(
+    function bid(
         address _nftAddress,
         uint256 _tokenId,
         address payToken,
@@ -50,9 +50,9 @@ interface IMarketPlace {
         uint256 _deadline
     ) external;
 
-    function cancelOffer(address _nftAddress, uint256 _tokenId) external;
+    function cancelBid(address _nftAddress, uint256 _tokenId) external;
 
-    function updateOffer(
+    function updateBid(
         address _nftAddress,
         uint256 _tokenId,
         address _payToken,
@@ -60,7 +60,7 @@ interface IMarketPlace {
         uint256 _deadline
     ) external;
 
-    function acceptOffer(
+    function acceptBid(
         address _nftAddress,
         uint256 _tokenId,
         address _creator

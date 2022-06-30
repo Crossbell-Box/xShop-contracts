@@ -9,11 +9,11 @@ contract MarketPlaceStorage {
 
     //  @notice nftAddress -> tokenId -> owner -> Order
     mapping(address => mapping(uint256 => mapping(address => DataTypes.Order)))
-        public listings;
+        public askOrders;
 
     //  @notice nftAddress -> tokenId -> owner -> Order
     mapping(address => mapping(uint256 => mapping(address => DataTypes.Order)))
-        public offers;
+        public bidOrders;
 
     // @notice nftAddress -> Royalty
     mapping(address => DataTypes.Royalty) public royalties;
