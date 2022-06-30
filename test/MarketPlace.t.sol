@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 import "../src/MarketPlace.sol";
 import "../src/libraries/DataTypes.sol";
+import "../src/libraries/Events.sol";
 import "../src/mocks/MockWeb3Entry.sol";
 import "../src/mocks/WCSB.sol";
 import "../src/mocks/NFT.sol";
@@ -13,20 +14,19 @@ contract MarketPlaceTest is Test {
     MarketPlace market;
     MockWeb3Entry web3Entry;
     WCSB wcsb;
-    NFT noteNFT;
+    NFT nft;
 
     address alice = address(0x1234);
 
     function setUp() public {
         market = new MarketPlace();
-        web3Entry = new MockWeb3Entry();
         wcsb = new WCSB();
-        noteNFT = new NFT();
+        nft = new NFT();
+        web3Entry = new MockWeb3Entry(address(nft));
 
         market.initialize(address(web3Entry), address(wcsb));
-        web3Entry.setMintNoteNFT(address(noteNFT));
 
-        noteNFT.mint(alice);
+        nft.mint(alice);
         web3Entry.mintCharacter(alice);
     }
 
@@ -54,17 +54,26 @@ contract MarketPlaceTest is Test {
     }
 
     function testSetGetRoyalty() public {
-        DataTypes.Royalty memory royalty = market.getRoyalty(address(noteNFT));
+        DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
         assertEq(royalty.receiver, address(0x0));
         assertEq(royalty.percentage, 0);
 
         // set royalty
         vm.prank(alice);
-        market.setRoyalty(address(noteNFT), 1, 1, alice, 100);
+        market.setRoyalty(address(nft), 1, 1, alice, 100);
 
         // get royalty
-        royalty = market.getRoyalty(address(noteNFT));
+        royalty = market.getRoyalty(address(nft));
         assertEq(royalty.receiver, alice);
         assertEq(royalty.percentage, 100);
+    }
+
+    function testExpectEmitRoyaltySet() public {
+        vm.expectEmit(true, true, false, true);
+        // The event we expect
+        emit Events.RoyaltySet(alice, address(nft), alice, 100);
+        // The event we get
+        vm.prank(alice);
+        market.setRoyalty(address(nft), 1, 1, alice, 100);
     }
 }

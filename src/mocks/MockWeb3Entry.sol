@@ -9,15 +9,13 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 contract MockWeb3Entry is IWeb3Entry, ERC721Enumerable {
     address public mintNoteNFT;
 
-    constructor() ERC721("Web3 Entry Character", "WEC") {}
+    constructor(address _nftAddress) ERC721("Web3 Entry Character", "WEC") {
+        mintNoteNFT = _nftAddress;
+    }
 
     function mintCharacter(address to) public {
         uint256 tokenId = totalSupply() + 1;
         _safeMint(to, tokenId);
-    }
-
-    function setMintNoteNFT(address _nftAddress) public {
-        mintNoteNFT = _nftAddress;
     }
 
     // if noteId is 1, returns mintNFT
