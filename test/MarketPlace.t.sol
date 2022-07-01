@@ -51,7 +51,16 @@ contract MarketPlaceTest is Test {
         market.setRoyalty(1, 1, address(0x2), 100);
     }
 
-    function testSetGetRoyalty() public {
+    function testExpectRevertSetRoyaltyWithFuzzing(uint8 percentage) public {
+        vm.assume(percentage > 100);
+
+        vm.expectRevert(abi.encodePacked("InvalidPercentage"));
+        market.setRoyalty(1, 1, address(0x2), percentage);
+    }
+
+    function testSetGetRoyalty(uint8 percentage) public {
+        vm.assume(percentage <= 100);
+
         // get royalty
         DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
         assertEq(royalty.receiver, address(0x0));
@@ -59,21 +68,23 @@ contract MarketPlaceTest is Test {
 
         // set royalty
         vm.prank(alice);
-        market.setRoyalty(1, 1, alice, 100);
+        market.setRoyalty(1, 1, alice, percentage);
 
         // get royalty
         royalty = market.getRoyalty(address(nft));
         assertEq(royalty.receiver, alice);
-        assertEq(royalty.percentage, 100);
+        assertEq(royalty.percentage, percentage);
     }
 
-    function testExpectEmitRoyaltySet() public {
+    function testExpectEmitRoyaltySet(uint8 percentage) public {
+        vm.assume(percentage <= 100);
+
         vm.expectEmit(true, true, false, true);
         // The event we expect
-        emit Events.RoyaltySet(alice, address(nft), alice, 100);
+        emit Events.RoyaltySet(alice, address(nft), alice, percentage);
         // The event we get
         vm.prank(alice);
-        market.setRoyalty(1, 1, alice, 100);
+        market.setRoyalty(1, 1, alice, percentage);
     }
 
     function testAsk() public {
