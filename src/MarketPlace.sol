@@ -21,7 +21,7 @@ contract MarketPlace is
     uint256 internal constant REVISION = 1;
     bytes4 constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 
-    modifier expiredOrNotAsked(
+    modifier askExpiredOrNotExists(
         address _nftAddress,
         uint256 _tokenId,
         address _owner
@@ -30,30 +30,6 @@ contract MarketPlace is
             _owner
         ];
         require(askOrder.deadline < _now(), "AlreadyAsked");
-        _;
-    }
-
-    modifier validAsk(
-        address _nftAddress,
-        uint256 _tokenId,
-        address _owner
-    ) {
-        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][
-            _owner
-        ];
-        require(askOrder.deadline >= _now(), "ExpiredOrNotAsked");
-        _;
-    }
-
-    modifier validBid(
-        address _nftAddress,
-        uint256 _tokenId,
-        address _owner
-    ) {
-        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][
-            _owner
-        ];
-        require(bidOrder.deadline >= _now(), "BidExpired");
         _;
     }
 
@@ -66,6 +42,30 @@ contract MarketPlace is
             _owner
         ];
         require(bidOrder.deadline < _now(), "AlreadyBid");
+        _;
+    }
+
+    modifier validAsk(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _owner
+    ) {
+        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][
+            _owner
+        ];
+        require(askOrder.deadline >= _now(), "AskExpiredOrNotExists");
+        _;
+    }
+
+    modifier validBid(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _owner
+    ) {
+        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][
+            _owner
+        ];
+        require(bidOrder.deadline >= _now(), "BidExpiredOrNotExists");
         _;
     }
 
@@ -120,7 +120,7 @@ contract MarketPlace is
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external expiredOrNotAsked(_nftAddress, _tokenId, _msgSender()) {
+    ) external askExpiredOrNotExists(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
         require(
             IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
