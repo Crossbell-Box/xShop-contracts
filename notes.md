@@ -1,3 +1,33 @@
+# how to use:
+
+**Setup**
+```bash
+make
+# OR #
+make setup
+```
+
+**Building**
+```bash
+make build
+```
+
+**Testing**
+```bash
+make test
+```
+
+**Deploy & Verify**
+```bash
+yarn
+deploy_XXX.sh
+```
+(It works fine with rinkeby but fails on deploy_local.sh...
+deploy_local.sh forks ethereum mainnet at a defined block height and start node locally.
+My local node works fine, but I can't use forge create to depoly contract to it...
+/todo/
+)
+
 # crossbell config info
 crossbell rpc url: https://rpc.crossbell.io
 
@@ -8,8 +38,6 @@ https://eth-rinkeby.alchemyapi.io/v2/7Fg57KefoWIvDxCVLMEKwYgLvuXZ43rH
 https://eth-mainnet.alchemyapi.io/v2/qY5fX9JGza4Id2YX_PuwBl74hvN-3v_8
 
 # private key 
-0xB9A46005d1313cd987631c4DA5C18F9EAc266562
-
 154d74d6e540cd321709630efa94aa264a523b3b6ad792b601602bffe0dcea42
 
 # forge create 

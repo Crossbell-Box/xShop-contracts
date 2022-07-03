@@ -12,3 +12,4 @@ node_modules/
 # Ignore flattened files
 flattened.txt
 node_modules
+lib
