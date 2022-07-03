@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.10;
 
-import "forge-std/Test.sol";
-import "forge-std/console2.sol";
-import "../src/MarketPlace.sol";
-import "../src/libraries/DataTypes.sol";
-import "../src/libraries/Events.sol";
-import "../src/mocks/MockWeb3Entry.sol";
-import "../src/mocks/WCSB.sol";
-import "../src/mocks/NFT.sol";
+import "@std/Test.sol";
+import "@std/console2.sol";
+import "../MarketPlace.sol";
+import "../libraries/DataTypes.sol";
+import "../libraries/Events.sol";
+import "../mocks/MockWeb3Entry.sol";
+import "../mocks/WCSB.sol";
+import "../mocks/NFT.sol";
 
 contract MarketPlaceTest is Test {
     MarketPlace market;
