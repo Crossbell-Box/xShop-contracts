@@ -46,3 +46,5 @@ forge create --rpc-url "https://eth-rinkeby.alchemyapi.io/v2/7Fg57KefoWIvDxCVLME
 forge create --rpc-url "http://localhost:8545" --private-key 154d74d6e540cd321709630efa94aa264a523b3b6ad792b601602bffe0dcea42 /Users/foooox/template/src/Greeter.sol:Greeter --constructor-args "aa"
 
 forge create --rpc-url "http://127.0.0.1:8545/" --private-key 154d74d6e540cd321709630efa94aa264a523b3b6ad792b601602bffe0dcea42 /Users/foooox/template/src/Greeter.sol:Greeter --constructor-args "aa"
+
+forge create --rpc-url "http://127.0.0.1:8545/" --private-key df57089febbacf7ba0bc227dafbffa9fc08a93fdc68e1e42411a14efcf23656e /Users/foooox/template/src/Greeter.sol:Greeter --constructor-args "aa"
