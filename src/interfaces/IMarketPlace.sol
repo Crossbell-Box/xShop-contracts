@@ -16,7 +16,6 @@ interface IMarketPlace {
         uint256 percentage
     ) external;
 
-    // ask orders
     function ask(
         address _nftAddress,
         uint256 _tokenId,
@@ -37,11 +36,9 @@ interface IMarketPlace {
     function acceptAsk(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner,
-        address _payToken
+        address _owner
     ) external;
 
-    // bid orders
     function bid(
         address _nftAddress,
         uint256 _tokenId,

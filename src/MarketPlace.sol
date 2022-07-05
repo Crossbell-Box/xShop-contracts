@@ -132,11 +132,12 @@ contract MarketPlace is
     }
 
     /**
-     * @notice Adds or removes a follow module from the whitelist. This function can only be called by the current
-     * governance address.
-     *
-     * @param followModule The follow module contract address to add or remove from the whitelist.
-     * @param whitelist Whether or not the follow module should be whitelisted.
+     * @notice Creates an ask order for an NFT.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT to be sold.
+     * @param _payToken The ERC20 token address for buyers to pay.
+     * @param _price The sale price for the NFT.
+     * @param _deadline The expiration timestamp of the ask order.
      */
     function ask(
         address _nftAddress,
@@ -177,6 +178,13 @@ contract MarketPlace is
         );
     }
 
+    /**
+     * @notice Updates an ask order.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT.
+     * @param _newPrice The new sale price for the NFT.
+     * @param _deadline The new expiration timestamp of the ask order.
+     */
     function updateAsk(
         address _nftAddress,
         uint256 _tokenId,
@@ -202,22 +210,31 @@ contract MarketPlace is
         );
     }
 
+    /**
+     * @notice Cancels an ask order.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT.
+     */
     function cancelAsk(address _nftAddress, uint256 _tokenId) external {
         delete askOrders[_nftAddress][_tokenId][_msgSender()];
 
         emit Events.AskCanceled(_msgSender(), _nftAddress, _tokenId);
     }
 
+    /**
+     * @notice Accepts an ask order.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT.
+     * @param _owner The owner of ask order, as well as the  owner of the NFT.
+     */
     function acceptAsk(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner,
-        address _payToken
+        address _owner
     ) external validAsk(_nftAddress, _tokenId, _owner) {
         DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][
             _owner
         ];
-        require(askOrder.payToken == _payToken, "InvalidPayToken");
 
         DataTypes.Royalty memory royalty = royalties[askOrder.nftAddress];
         if (royalty.receiver != address(0)) {
@@ -247,14 +264,21 @@ contract MarketPlace is
             _msgSender(),
             _nftAddress,
             _tokenId,
-            _payToken,
+            askOrder.payToken,
             askOrder.price
         );
 
         delete askOrders[_nftAddress][_tokenId][_owner];
     }
 
-    // bid orders
+    /**
+     * @notice Creates an bid order for an NFT.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT to bid.
+     * @param _payToken The ERC20 token address for buyers to pay.
+     * @param _price The bid price for the NFT.
+     * @param _deadline The expiration timestamp of the bid order.
+     */
     function bid(
         address _nftAddress,
         uint256 _tokenId,
@@ -290,12 +314,25 @@ contract MarketPlace is
         );
     }
 
+    /**
+     * @notice Cancels a bid order.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT.
+     */
     function cancelBid(address _nftAddress, uint256 _tokenId) external {
         delete bidOrders[_nftAddress][_tokenId][_msgSender()];
 
         emit Events.BidCanceled(_msgSender(), _nftAddress, _tokenId);
     }
 
+    /**
+     * @notice Updates a bid order.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT.
+     * @param _payToken The ERC20 token address for buyers to pay.
+     * @param _newPrice The new bid price for the NFT.
+     * @param _deadline The new expiration timestamp of the ask order.
+     */
     function updateBid(
         address _nftAddress,
         uint256 _tokenId,
@@ -326,6 +363,12 @@ contract MarketPlace is
         );
     }
 
+    /**
+     * @notice Accepts a bid order.
+     * @param _nftAddress The contract address of the NFT.
+     * @param _tokenId The token id of the NFT.
+     * @param _owner The owner of bid order.
+     */
     function acceptBid(
         address _nftAddress,
         uint256 _tokenId,
@@ -378,6 +421,9 @@ contract MarketPlace is
         require(_deadline > _now(), "InvalidDeadline");
     }
 
+    /**
+     * @notice returns the revision number of the contract.
+     **/
     function getRevision() external pure returns (uint256) {
         return REVISION;
     }
