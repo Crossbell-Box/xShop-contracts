@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 
 # TODO: Remove this prompt and parse dynamically
-echo Which compiler version did you use to build?
+echo Which compiler version did you use to build\?
 
 read version
 
 echo $version
 
-echo Which contract do you want to verify?
+echo Which contract do you want to verify\?
 
 read contract
 
 echo $contract
 
-echo What is the deployed address?
+echo What is the deployed address\?
 
 read deployed
 

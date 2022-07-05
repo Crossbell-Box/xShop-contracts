@@ -14,7 +14,7 @@ make mainnet-fork &
 sleep 5
 
 # Read the contract name
-echo Which contract do you want to deploy \(eg Greeter\)?
+echo Which contract do you want to deploy \(eg Greeter\)\?
 read contract
 
 # Read the constructor arguments

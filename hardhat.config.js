@@ -9,7 +9,7 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://eth-rinkeby.alchemyapi.io/v2/7Fg57KefoWIvDxCVLMEKwYgLvuXZ43rH",
+        url: "https://rpc.crossbell.io",
       }
     }
   },

@@ -6,7 +6,7 @@ echo Example: "https://eth-rinkeby.alchemyapi.io/v2/XXXXXXXXXX"
 read rpc
 
 # Read the contract name
-echo Which contract do you want to deploy \(eg Greeter\)?
+echo Which contract do you want to deploy \(eg Greeter\)\?
 read contract
 
 # Read the constructor arguments
