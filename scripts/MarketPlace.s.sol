@@ -3,7 +3,7 @@ pragma solidity 0.8.10;
 
 import "@std/Test.sol";
 import "@std/Script.sol";
-import "../MarketPlace.sol";
+import "../src/MarketPlace.sol";
 
 contract MarketPlaceScript is Script {
     function run() external {

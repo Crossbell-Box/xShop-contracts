@@ -1,29 +1,12 @@
 #!/usr/bin/env bash
 
-# Read the RPC URL
-# echo Enter the mainnet RPC URL to fork a local hardhat node from:
-# echo Example: "https://eth-mainnet.alchemyapi.io/v2/XXXXXXXXXX"
-# read -s rpc
+set -x
 
-## Fork Mainnet
-echo Please wait 5 seconds for hardhat to fork mainnet and run locally...
-echo If this command fails, try running "yarn" to install hardhat dependencies...
-make mainnet-fork &
+# First, start Anvil:
+# anvil
 
-# Wait for hardhat to fork mainnet
-sleep 5
+# To load the variables in the .env file
+source .env
 
-# Read the contract name
-echo Which contract do you want to deploy \(eg Greeter\)\?
-read contract
-
-# Read the constructor arguments
-echo Enter constructor arguments separated by spaces \(eg 1 2 3\):
-read -r args
-
-if [ -z "$args" ]
-then
-  forge create ./src/${contract}.sol:${contract} -i --rpc-url "http://localhost:8545"
-else
-  forge create ./src/${contract}.sol:${contract} -i --rpc-url "http://localhost:8545" --constructor-args ${args}
-fi
+# To deploy and verify our contract
+forge script scripts/MarketPlace.s.sol:MarketPlaceScript --fork-url http://localhost:8545  --private-key $PRIVATE_KEY_LOCAL --broadcast -vvvv

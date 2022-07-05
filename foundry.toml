@@ -22,4 +22,4 @@ remappings = [
 
 # Extreme Fuzzing CI Profile :P
 [ci]
-fuzz_runs = 100_000
+fuzz_runs = 256
