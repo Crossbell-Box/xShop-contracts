@@ -1,30 +1,33 @@
 {
-  "name": "crossbell-marketplace-contracts",
-  "version": "1.0.0",
-  "description": "crossbell marketplace contracts",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "test"
-  },
-  "dependencies": {},
-  "devDependencies": {
-    "prettier": "^2.3.2",
-    "prettier-plugin-solidity": "^1.0.0-beta.13",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0"
-  },
-  "scripts": {
-    "format": "prettier --write src script test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Crossbell-Box/crossbell-marketplace-contracts.git"
-  },
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Crossbell-Box/crossbell-marketplace-contracts/issues"
-  },
-  "homepage": "https://github.com/Crossbell-Box/crossbell-marketplace-contracts#readme"
+    "name": "femplate",
+    "description": "Robust Template for Foundry Projects",
+    "author": "Andreas Bigger <andreas@nascent.xyz>",
+    "license": "AGPL-3.0-only",
+    "version": "1.5.0",
+    "files": [
+        "src/**/*.sol"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/abigger87/femplate.git"
+    },
+    "devDependencies": {
+        "@nomiclabs/hardhat-ethers": "^2.0.6",
+        "@nomiclabs/hardhat-waffle": "^2.0.3",
+        "chai": "^4.3.6",
+        "ethereum-waffle": "^3.4.4",
+        "ethers": "^5.6.9",
+        "prettier": "^2.3.1",
+        "prettier-plugin-solidity": "^1.0.0-beta.13"
+    },
+    "scripts": {
+        "setup": "make clean && make build",
+        "sync": "make update",
+        "test": "make test",
+        "snapshot": "make snapshot",
+        "lint": "make lint"
+    },
+    "dependencies": {
+        "hardhat": "^2.9.9"
+    }
 }
