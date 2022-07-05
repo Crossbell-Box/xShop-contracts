@@ -1,21 +1,9 @@
 #!/usr/bin/env bash
 
-# Read the Rinkeby RPC URL
-echo Enter Your Rinkeby RPC URL:
-echo Example: "https://eth-rinkeby.alchemyapi.io/v2/XXXXXXXXXX"
-read rpc
+set -x
 
-# Read the contract name
-echo Which contract do you want to deploy \(eg Greeter\)\?
-read contract
+# To load the variables in the .env file
+source .env
 
-# Read the constructor arguments
-echo Enter constructor arguments separated by spaces \(eg 1 2 3\):
-read -ra args
-
-if [ -z "$args" ]
-then
-  forge create ./src/${contract}.sol:${contract} -i --rpc-url $rpc
-else
-  forge create ./src/${contract}.sol:${contract} -i --rpc-url $rpc --constructor-args ${args}
-fi
+# To deploy and verify our contract
+forge script script/MarketPlace.s.sol:MarketPlaceScript --rpc-url $RINKEBY_RPC_URL  --private-key $PRIVATE_KEY --broadcast --verify --etherscan-api-key $ETHERSCAN_KEY -vvvv
