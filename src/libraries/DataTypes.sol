@@ -13,7 +13,7 @@ library DataTypes {
 
     struct Royalty {
         address receiver;
-        uint8 percentage; // multiply by 100
+        uint256 percentage; // multiply by 100
     }
 
     // note struct for web3Entry

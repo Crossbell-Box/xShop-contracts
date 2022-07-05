@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 import "./interfaces/IMarketPlace.sol";
 import "./interfaces/IWeb3Entry.sol";
 import "./libraries/DataTypes.sol";
+import "./libraries/Constants.sol";
 import "./libraries/Events.sol";
 import "./storage/MarketPlaceStorage.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
@@ -73,6 +74,11 @@ contract MarketPlace is
         require(_payToken == WCSB, "InvalidPayToken");
     }
 
+    /**
+     * @notice Initializes the MarketPlace, setting the initial web3Entry address and WCSB address.
+     * @param _web3Entry The address of web3Entry.
+     * @param _wcsb The address of WCSB.
+     */
     function initialize(address _web3Entry, address _wcsb)
         external
         initializer
@@ -81,6 +87,11 @@ contract MarketPlace is
         WCSB = _wcsb;
     }
 
+    /**
+     * @notice Returns the royalty according to a given nft token address.
+     * @param token The nft token address to query with.
+     * @return Royalty The royalty struct.
+     */
     function getRoyalty(address token)
         external
         view
@@ -89,13 +100,20 @@ contract MarketPlace is
         return royalties[token];
     }
 
+    /**
+     * @notice Sets the royalty.
+     * @param characterId The character ID of note.
+     * @param noteId The note ID of note.
+     * @param receiver The address receiving the royalty.
+     * @param percentage The percentage of the royalty. (multiply by 100, which means 10000 is 100 percent)
+     */
     function setRoyalty(
         uint256 characterId,
         uint256 noteId,
         address receiver,
-        uint8 percentage
+        uint256 percentage
     ) external {
-        require(percentage <= 100, "InvalidPercentage");
+        require(percentage <= Constants.MAX_LOYALTY, "InvalidPercentage");
         // check character owner
         require(
             msg.sender == IERC721(web3Entry).ownerOf(characterId),
@@ -113,7 +131,13 @@ contract MarketPlace is
         emit Events.RoyaltySet(msg.sender, note.mintNFT, receiver, percentage);
     }
 
-    // ask orders
+    /**
+     * @notice Adds or removes a follow module from the whitelist. This function can only be called by the current
+     * governance address.
+     *
+     * @param followModule The follow module contract address to add or remove from the whitelist.
+     * @param whitelist Whether or not the follow module should be whitelisted.
+     */
     function ask(
         address _nftAddress,
         uint256 _tokenId,

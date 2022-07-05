@@ -13,7 +13,7 @@ interface IMarketPlace {
         uint256 characterId,
         uint256 noteId,
         address receiver,
-        uint8 percentage
+        uint256 percentage
     ) external;
 
     // ask orders

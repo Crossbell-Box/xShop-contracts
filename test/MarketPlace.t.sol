@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "forge-std/console2.sol";
 import "../src/MarketPlace.sol";
 import "../src/libraries/DataTypes.sol";
+import "../src/libraries/Constants.sol";
 import "../src/libraries/Events.sol";
 import "../src/mocks/MockWeb3Entry.sol";
 import "../src/mocks/WCSB.sol";
@@ -45,21 +46,21 @@ contract MarketPlaceTest is Test {
 
     function testExpectRevertSetRoyalty() public {
         vm.expectRevert(abi.encodePacked("InvalidPercentage"));
-        market.setRoyalty(1, 1, address(0x2), 101);
+        market.setRoyalty(1, 1, address(0x2), 10001);
 
         vm.expectRevert(abi.encodePacked("NotCharacterOwner"));
-        market.setRoyalty(1, 1, address(0x2), 100);
+        market.setRoyalty(1, 1, address(0x2), 10000);
     }
 
-    function testExpectRevertSetRoyaltyWithFuzzing(uint8 percentage) public {
-        vm.assume(percentage > 100);
+    function testExpectRevertSetRoyaltyWithFuzzing(uint256 percentage) public {
+        vm.assume(percentage > Constants.MAX_LOYALTY);
 
         vm.expectRevert(abi.encodePacked("InvalidPercentage"));
         market.setRoyalty(1, 1, address(0x2), percentage);
     }
 
-    function testSetGetRoyalty(uint8 percentage) public {
-        vm.assume(percentage <= 100);
+    function testSetGetRoyalty(uint256 percentage) public {
+        vm.assume(percentage <= Constants.MAX_LOYALTY);
 
         // get royalty
         DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
@@ -76,8 +77,8 @@ contract MarketPlaceTest is Test {
         assertEq(royalty.percentage, percentage);
     }
 
-    function testExpectEmitRoyaltySet(uint8 percentage) public {
-        vm.assume(percentage <= 100);
+    function testExpectEmitRoyaltySet(uint256 percentage) public {
+        vm.assume(percentage <= Constants.MAX_LOYALTY);
 
         vm.expectEmit(true, true, false, true);
         // The event we expect

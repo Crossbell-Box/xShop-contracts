@@ -2,6 +2,14 @@
 pragma solidity 0.8.10;
 
 library Events {
+    /**
+     * @dev Emitted when the royalty is set by the mintNFT owner.
+     *
+     * @param owner The owner of mintNFT.
+     * @param nftAddress The mintNFT address.
+     * @param receiver The address receiving the royalty.
+     * @param receiver The percentage of the royalty.
+     */
     event RoyaltySet(
         address indexed owner,
         address indexed nftAddress,
