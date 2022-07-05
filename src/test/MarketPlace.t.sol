@@ -59,7 +59,7 @@ contract MarketPlaceTest is Test {
         market.setRoyalty(1, 1, address(0x2), percentage);
     }
 
-    function testSetGetRoyalty(uint256 percentage) public {
+    function testSetGetRoyaltyWithFuzzing(uint256 percentage) public {
         vm.assume(percentage <= Constants.MAX_LOYALTY);
 
         // get royalty
@@ -77,7 +77,7 @@ contract MarketPlaceTest is Test {
         assertEq(royalty.percentage, percentage);
     }
 
-    function testExpectEmitRoyaltySet(uint256 percentage) public {
+    function testExpectEmitRoyaltySetWithFuzzing(uint256 percentage) public {
         vm.assume(percentage <= Constants.MAX_LOYALTY);
 
         vm.expectEmit(true, true, false, true);
