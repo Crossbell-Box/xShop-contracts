@@ -170,4 +170,29 @@ contract MarketPlaceTest is Test {
         market.cancelAsk(address(nft), 1);
     }
 
+    function testAcceptAsk() public {
+        // AskExpired
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        vm.prank(address(0x555));
+        skip(200); // blocktimestamp +200
+        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
+        market.acceptAsk(address(nft), 1, alice);
+        
+        // AskNotExists
+        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
+        market.acceptAsk(address(nft), 2, alice);
+    }
+
+    function testExpectEmitAcceptAsk() public {
+        // vm.prank(alice);
+        // market.ask(address(nft), 1, address(wcsb), 1, 100);
+        // vm.prank(address(0x555));
+        // vm.deal(address(0x555), 10000 ether);
+        // console.log(address(0x555).balance);
+        // market.acceptAsk(address(nft),1, alice);
+        // console.log(address(0x555).balance);
+
+    }
+
 }
