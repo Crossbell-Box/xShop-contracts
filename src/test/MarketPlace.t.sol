@@ -18,8 +18,13 @@ contract MarketPlaceTest is Test {
     NFT nft;
     NFT1155 nft1155;
 
-    address alice = address(0x1234);
-    address bob = address(0x5678);
+    address public alice = address(0x1);
+    address public bob = address(0x2);
+    address public charlie = address(0x3);
+
+    address public dave = address(0x4);
+    address public eve = address(0x5);
+    address public ferdie = address(0x6);
 
     function setUp() public {
         market = new MarketPlace();
@@ -100,13 +105,13 @@ contract MarketPlaceTest is Test {
         vm.expectRevert(abi.encodePacked("NotERC721TokenOwner"));
         market.ask(address(nft), 1, address(wcsb), 1, 100);
 
-        vm.prank(alice);
+        vm.startPrank(alice);
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
         market.ask(address(nft), 1, address(0x567), 1, 100);
 
-        vm.prank(alice);
         vm.expectRevert(abi.encodePacked("InvalidPrice"));
         market.ask(address(nft), 1, address(wcsb), 0, 100);
+        vm.stopPrank();
     }
 
     function testExpectEmitAsk() public {
@@ -154,21 +159,21 @@ contract MarketPlaceTest is Test {
     function testExpectEmitBidCanceled() public {
         uint256 expiration = block.timestamp + 100;
 
-        vm.prank(bob);
+        vm.startPrank(bob);
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
 
         vm.expectEmit(true, true, true, false, address(market));
         // The event we expect
         emit Events.BidCanceled(bob, address(nft), 1);
         // The event we get
-        vm.prank(bob);
         market.cancelBid(address(nft), 1);
+        vm.stopPrank();
     }
 
     function testExpectEmitBidUpdated() public {
         uint256 expiration = block.timestamp + 100;
 
-        vm.prank(bob);
+        vm.startPrank(bob);
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
 
         vm.expectEmit(true, true, true, false, address(market));
@@ -182,8 +187,8 @@ contract MarketPlaceTest is Test {
             expiration + 1
         );
         // The event we get
-        vm.prank(bob);
         market.updateBid(address(nft), 1, address(wcsb), 2, expiration + 1);
+        vm.stopPrank();
     }
 
     function testUpdateAsk() public {
@@ -196,31 +201,29 @@ contract MarketPlaceTest is Test {
         market.updateAsk(address(nft), 1, address(wcsb), 1, 3);
 
         // invalid deadline
-        vm.prank(alice);
+        vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
-        vm.prank(alice);
         vm.expectRevert(abi.encodePacked("InvalidDeadline"));
         market.updateAsk(address(nft), 1, address(wcsb), 1, block.timestamp);
 
         // invalid pay token
-        vm.prank(alice);
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
         market.updateAsk(address(nft), 1, address(0x567), 1, 100);
 
-        vm.prank(alice);
         vm.expectRevert(abi.encodePacked("InvalidPrice"));
         market.updateAsk(address(nft), 1, address(wcsb), 0, 100);
+        vm.stopPrank();
     }
 
     function testExpectEmitUpdateAsk() public {
-        vm.prank(alice);
+        vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
         vm.expectEmit(true, true, true, true, address(market));
         // The event we expect
         emit Events.AskUpdated(alice, address(nft), 1, address(wcsb), 1, 101);
         // The event we get
-        vm.prank(alice);
         market.updateAsk(address(nft), 1, address(wcsb), 1, 101);
+        vm.stopPrank();
     }
 
     function cancelAsk() public {
@@ -231,12 +234,12 @@ contract MarketPlaceTest is Test {
     }
 
     function testExpectEmitCancelAsk() public {
-        vm.prank(alice);
+        vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
         vm.expectEmit(true, true, true, false, address(market));
         emit Events.AskCanceled(alice, address(nft), 1);
-        vm.prank(alice);
         market.cancelAsk(address(nft), 1);
+        vm.stopPrank();
     }
 
     function testAcceptAsk() public {
