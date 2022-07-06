@@ -10,8 +10,9 @@ import "../libraries/Events.sol";
 import "../mocks/MockWeb3Entry.sol";
 import "../mocks/WCSB.sol";
 import "../mocks/NFT.sol";
+import "./EmitExpecter.sol";
 
-contract MarketPlaceTest is Test {
+contract MarketPlaceTest is Test, EmitExpecter {
     MarketPlace market;
     MockWeb3Entry web3Entry;
     WCSB wcsb;
@@ -68,8 +69,7 @@ contract MarketPlaceTest is Test {
         assertEq(royalty.receiver, address(0x0));
         assertEq(royalty.percentage, 0);
 
-        // set royalty
-        vm.expectEmit(true, true, false, true);
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckData);
         // The event we expect
         emit Events.RoyaltySet(alice, address(nft), alice, percentage);
         // The event we get
@@ -103,7 +103,7 @@ contract MarketPlaceTest is Test {
     }
 
     function testAsk() public {
-        vm.expectEmit(true, true, true, true, address(market));
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
         emit Events.AskCreated(alice, address(nft), 1, address(wcsb), 1, 100);
         // The event we get
@@ -129,7 +129,7 @@ contract MarketPlaceTest is Test {
     function testBid() public {
         uint256 expiration = block.timestamp + 100;
 
-        vm.expectEmit(true, true, true, true, address(market));
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
         emit Events.BidCreated(
             bob,
@@ -150,7 +150,7 @@ contract MarketPlaceTest is Test {
         vm.startPrank(bob);
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
 
-        vm.expectEmit(true, true, true, false, address(market));
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3);
         // The event we expect
         emit Events.BidCanceled(bob, address(nft), 1);
         // The event we get
@@ -164,7 +164,7 @@ contract MarketPlaceTest is Test {
         vm.startPrank(bob);
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
 
-        vm.expectEmit(true, true, true, false, address(market));
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
         emit Events.BidUpdated(
             bob,
@@ -206,7 +206,8 @@ contract MarketPlaceTest is Test {
     function testUpdateAsk() public {
         vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
-        vm.expectEmit(true, true, true, true, address(market));
+
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
         emit Events.AskUpdated(alice, address(nft), 1, address(wcsb), 1, 101);
         // The event we get
@@ -224,7 +225,8 @@ contract MarketPlaceTest is Test {
     function testCancelAsk() public {
         vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
-        vm.expectEmit(true, true, true, false, address(market));
+
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3);
         emit Events.AskCanceled(alice, address(nft), 1);
         market.cancelAsk(address(nft), 1);
         vm.stopPrank();
