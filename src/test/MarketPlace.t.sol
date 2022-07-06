@@ -192,6 +192,33 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.prank(bob);
         vm.expectRevert(abi.encodePacked("BidNotExists"));
         market.updateBid(address(nft), 1, address(wcsb), 2, 1);
+
+        vm.startPrank(alice);
+        market.bid(address(nft), 1, address(wcsb), 1, 100);
+
+        // invalid deadline
+        vm.expectRevert(abi.encodePacked("InvalidDeadline"));
+        market.updateBid(address(nft), 1, address(wcsb), 2, 1);
+
+        // invalid pay token
+        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
+        market.updateBid(
+            address(nft),
+            1,
+            address(0x1111),
+            2,
+            block.timestamp + 1
+        );
+
+        // invalid price
+        vm.expectRevert(abi.encodePacked("InvalidPrice"));
+        market.updateBid(
+            address(nft),
+            1,
+            address(wcsb),
+            0,
+            block.timestamp + 1
+        );
     }
 
     function testUpdateAskFail() public {
@@ -206,6 +233,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // invalid deadline
         vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
+
         vm.expectRevert(abi.encodePacked("InvalidDeadline"));
         market.updateAsk(address(nft), 1, address(wcsb), 1, block.timestamp);
 
@@ -213,6 +241,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
         market.updateAsk(address(nft), 1, address(0x567), 1, 100);
 
+        // invalid price
         vm.expectRevert(abi.encodePacked("InvalidPrice"));
         market.updateAsk(address(nft), 1, address(wcsb), 0, 100);
         vm.stopPrank();
