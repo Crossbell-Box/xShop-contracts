@@ -102,6 +102,10 @@ contract MarketPlaceTest is Test {
         vm.prank(alice);
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
         market.ask(address(nft), 1, address(0x567), 1, 100);
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("InvalidPrice"));
+        market.ask(address(nft), 1, address(wcsb), 0, 100);
     }
 
     function testExpectEmitAsk() public {
@@ -112,4 +116,42 @@ contract MarketPlaceTest is Test {
         vm.prank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
     }
+
+    function testUpdateAsk() public {
+        // not existed
+        vm.expectRevert(abi.encodePacked("AskNotExists"));
+        market.updateAsk(address(0x678), 1, address(wcsb), 1, 3); 
+        // not owner(actually the same as notExisted)
+        vm.prank(address(0x6789));
+        vm.expectRevert(abi.encodePacked("AskNotExists"));
+        market.updateAsk(address(nft), 1, address(wcsb), 1, 3); 
+
+        // invalid deadline
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("InvalidDeadline"));
+        market.updateAsk(address(nft), 1, address(wcsb), 1, block.timestamp);
+
+        // invalid pay token
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
+        market.updateAsk(address(nft), 1, address(0x567), 1, 100);
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodePacked("InvalidPrice"));
+        market.updateAsk(address(nft), 1, address(wcsb), 0, 100);
+    }
+
+    function testExpectEmitUpdateAsk() public {
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        vm.expectEmit(true, true, true, true, address(market));
+        // The event we expect
+        emit Events.AskUpdated(alice, address(nft), 1, address(wcsb), 1, 101);
+        // The event we get
+        vm.prank(alice);
+        market.updateAsk(address(nft), 1, address(wcsb), 1, 101);
+    }
+
 }
