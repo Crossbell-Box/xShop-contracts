@@ -42,7 +42,7 @@ contract MarketPlace is
         DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][
             _owner
         ];
-        require(askOrder.deadline != 0, "AskNotExists");
+        require(askOrder.deadline > 0, "AskNotExists");
         _;
     }
 
@@ -55,18 +55,6 @@ contract MarketPlace is
             _owner
         ];
         require(askOrder.deadline >= _now(), "AskExpiredOrNotExists");
-        _;
-    }
-
-    modifier bidExpiredOrNotExists(
-        address _nftAddress,
-        uint256 _tokenId,
-        address _owner
-    ) {
-        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][
-            _owner
-        ];
-        require(bidOrder.deadline < _now(), "AlreadyBid");
         _;
     }
 
@@ -90,7 +78,7 @@ contract MarketPlace is
         DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][
             _owner
         ];
-        require(bidOrder.deadline != 0, "BidNotExists");
+        require(bidOrder.deadline > 0, "BidNotExists");
         _;
     }
 
@@ -394,7 +382,6 @@ contract MarketPlace is
         DataTypes.Order storage bidOrder = askOrders[_nftAddress][_tokenId][
             _msgSender()
         ];
-        require(bidOrder.deadline >= _now(), "NotListed");
         // update buy order
         bidOrder.payToken = _payToken;
         bidOrder.price = _newPrice;

@@ -19,6 +19,7 @@ contract MarketPlaceTest is Test {
     NFT1155 nft1155;
 
     address alice = address(0x1234);
+    address bob = address(0x5678);
 
     function setUp() public {
         market = new MarketPlace();
@@ -111,5 +112,73 @@ contract MarketPlaceTest is Test {
         // The event we get
         vm.prank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
+    }
+
+    function testExpectRevertBid() public {
+        vm.expectRevert(abi.encodePacked("InvalidDeadline"));
+        market.bid(address(nft), 1, address(wcsb), 1, block.timestamp);
+
+        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
+        market.bid(address(nft), 1, address(0x567), 1, 100);
+
+        vm.expectRevert(abi.encodePacked("TokenNotERC721"));
+        market.bid(address(nft1155), 1, address(wcsb), 1, 100);
+
+        market.bid(address(nft), 1, address(wcsb), 1, block.timestamp + 10);
+        vm.expectRevert(abi.encodePacked("BidExists"));
+        market.bid(address(nft), 1, address(wcsb), 1, block.timestamp + 100);
+    }
+
+    function testExpectEmitBidCreated() public {
+        uint256 expiration = block.timestamp + 100;
+
+        vm.expectEmit(true, true, true, true, address(market));
+        // The event we expect
+        emit Events.BidCreated(
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            1,
+            expiration
+        );
+        // The event we get
+        vm.prank(bob);
+        market.bid(address(nft), 1, address(wcsb), 1, expiration);
+    }
+
+    function testExpectEmitBidCanceled() public {
+        uint256 expiration = block.timestamp + 100;
+
+        vm.prank(bob);
+        market.bid(address(nft), 1, address(wcsb), 1, expiration);
+
+        vm.expectEmit(true, true, true, false, address(market));
+        // The event we expect
+        emit Events.BidCanceled(bob, address(nft), 1);
+        // The event we get
+        vm.prank(bob);
+        market.cancelBid(address(nft), 1);
+    }
+
+    function testExpectEmitBidUpdated() public {
+        uint256 expiration = block.timestamp + 100;
+
+        vm.prank(bob);
+        market.bid(address(nft), 1, address(wcsb), 1, expiration);
+
+        vm.expectEmit(true, true, true, false, address(market));
+        // The event we expect
+        emit Events.BidUpdated(
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            2,
+            expiration + 1
+        );
+        // The event we get
+        vm.prank(bob);
+        market.updateBid(address(nft), 1, address(wcsb), 2, expiration + 1);
     }
 }
