@@ -154,4 +154,20 @@ contract MarketPlaceTest is Test {
         market.updateAsk(address(nft), 1, address(wcsb), 1, 101);
     }
 
+    function cancelAsk() public {
+        // AskNotExists
+        vm.expectRevert(abi.encodePacked("AskNotExists"));
+        vm.prank(alice);
+        market.cancelAsk(address(nft), 1);
+    }
+
+    function testExpectEmitCancelAsk() public {
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        vm.expectEmit(true, true, true, false, address(market));
+        emit Events.AskCanceled(alice, address(nft), 1);
+        vm.prank(alice);
+        market.cancelAsk(address(nft), 1);
+    }
+
 }
