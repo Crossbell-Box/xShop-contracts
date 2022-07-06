@@ -39,7 +39,7 @@ contract MarketPlaceTest is Test {
         web3Entry.mintCharacter(alice);
     }
 
-    function testExpectRevertReinitial() public {
+    function testInitFail() public {
         assertEq(market.web3Entry(), address(web3Entry));
         assertEq(market.WCSB(), address(wcsb));
 
@@ -50,22 +50,17 @@ contract MarketPlaceTest is Test {
         market.initialize(address(0x3), address(0x4));
     }
 
-    function testExpectRevertSetRoyalty() public {
+    function testSetRoyaltyFail(uint256 percentage) public {
+        vm.assume(percentage > Constants.MAX_LOYALTY);
+
         vm.expectRevert(abi.encodePacked("InvalidPercentage"));
-        market.setRoyalty(1, 1, address(0x2), 10001);
+        market.setRoyalty(1, 1, address(0x2), percentage);
 
         vm.expectRevert(abi.encodePacked("NotCharacterOwner"));
         market.setRoyalty(1, 1, address(0x2), 10000);
     }
 
-    function testExpectRevertSetRoyaltyWithFuzzing(uint256 percentage) public {
-        vm.assume(percentage > Constants.MAX_LOYALTY);
-
-        vm.expectRevert(abi.encodePacked("InvalidPercentage"));
-        market.setRoyalty(1, 1, address(0x2), percentage);
-    }
-
-    function testSetGetRoyaltyWithFuzzing(uint256 percentage) public {
+    function testSetGetRoyalty(uint256 percentage) public {
         vm.assume(percentage <= Constants.MAX_LOYALTY);
 
         // get royalty
@@ -74,6 +69,10 @@ contract MarketPlaceTest is Test {
         assertEq(royalty.percentage, 0);
 
         // set royalty
+        vm.expectEmit(true, true, false, true);
+        // The event we expect
+        emit Events.RoyaltySet(alice, address(nft), alice, percentage);
+        // The event we get
         vm.prank(alice);
         market.setRoyalty(1, 1, alice, percentage);
 
@@ -83,18 +82,7 @@ contract MarketPlaceTest is Test {
         assertEq(royalty.percentage, percentage);
     }
 
-    function testExpectEmitRoyaltySetWithFuzzing(uint256 percentage) public {
-        vm.assume(percentage <= Constants.MAX_LOYALTY);
-
-        vm.expectEmit(true, true, false, true);
-        // The event we expect
-        emit Events.RoyaltySet(alice, address(nft), alice, percentage);
-        // The event we get
-        vm.prank(alice);
-        market.setRoyalty(1, 1, alice, percentage);
-    }
-
-    function testAsk() public {
+    function testAskFail() public {
         vm.expectRevert(abi.encodePacked("InvalidDeadline"));
         market.ask(address(nft), 1, address(wcsb), 1, block.timestamp);
 
@@ -114,7 +102,7 @@ contract MarketPlaceTest is Test {
         vm.stopPrank();
     }
 
-    function testExpectEmitAsk() public {
+    function testAsk() public {
         vm.expectEmit(true, true, true, true, address(market));
         // The event we expect
         emit Events.AskCreated(alice, address(nft), 1, address(wcsb), 1, 100);
@@ -123,7 +111,7 @@ contract MarketPlaceTest is Test {
         market.ask(address(nft), 1, address(wcsb), 1, 100);
     }
 
-    function testExpectRevertBid() public {
+    function testBidFail() public {
         vm.expectRevert(abi.encodePacked("InvalidDeadline"));
         market.bid(address(nft), 1, address(wcsb), 1, block.timestamp);
 
@@ -138,7 +126,7 @@ contract MarketPlaceTest is Test {
         market.bid(address(nft), 1, address(wcsb), 1, block.timestamp + 100);
     }
 
-    function testExpectEmitBidCreated() public {
+    function testBid() public {
         uint256 expiration = block.timestamp + 100;
 
         vm.expectEmit(true, true, true, true, address(market));
@@ -156,7 +144,7 @@ contract MarketPlaceTest is Test {
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
     }
 
-    function testExpectEmitBidCanceled() public {
+    function testCancelBid() public {
         uint256 expiration = block.timestamp + 100;
 
         vm.startPrank(bob);
@@ -170,7 +158,7 @@ contract MarketPlaceTest is Test {
         vm.stopPrank();
     }
 
-    function testExpectEmitBidUpdated() public {
+    function testUpdateBid() public {
         uint256 expiration = block.timestamp + 100;
 
         vm.startPrank(bob);
@@ -191,7 +179,7 @@ contract MarketPlaceTest is Test {
         vm.stopPrank();
     }
 
-    function testUpdateAsk() public {
+    function testUpdateAskFail() public {
         // not existed
         vm.expectRevert(abi.encodePacked("AskNotExists"));
         market.updateAsk(address(0x678), 1, address(wcsb), 1, 3);
@@ -215,7 +203,7 @@ contract MarketPlaceTest is Test {
         vm.stopPrank();
     }
 
-    function testExpectEmitUpdateAsk() public {
+    function testUpdateAsk() public {
         vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
         vm.expectEmit(true, true, true, true, address(market));
@@ -226,14 +214,14 @@ contract MarketPlaceTest is Test {
         vm.stopPrank();
     }
 
-    function cancelAsk() public {
+    function testCancelAskFail() public {
         // AskNotExists
         vm.expectRevert(abi.encodePacked("AskNotExists"));
         vm.prank(alice);
         market.cancelAsk(address(nft), 1);
     }
 
-    function testExpectEmitCancelAsk() public {
+    function testCancelAsk() public {
         vm.startPrank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
         vm.expectEmit(true, true, true, false, address(market));
@@ -242,7 +230,7 @@ contract MarketPlaceTest is Test {
         vm.stopPrank();
     }
 
-    function testAcceptAsk() public {
+    function testAcceptAskFail() public {
         // AskExpired
         vm.prank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
