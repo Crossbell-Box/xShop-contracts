@@ -172,6 +172,7 @@ contract MarketPlace is
         uint256 _deadline
     ) external askNotExists(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
+        _validPrice(_price);
         require(
             IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
             "TokenNotERC721"
@@ -207,24 +208,25 @@ contract MarketPlace is
      * @notice Updates an ask order.
      * @param _nftAddress The contract address of the NFT.
      * @param _tokenId The token id of the NFT.
-     * @param _newPrice The new sale price for the NFT.
+     * @param _price The new sale price for the NFT.
      * @param _deadline The new expiration timestamp of the ask order.
      */
     function updateAsk(
         address _nftAddress,
         uint256 _tokenId,
         address _payToken,
-        uint256 _newPrice,
+        uint256 _price,
         uint256 _deadline
     ) external askExists(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
         _validPayToken(_payToken);
+        _validPrice(_price);
 
         DataTypes.Order storage askOrder = askOrders[_nftAddress][_tokenId][
             _msgSender()
         ];
         // update sell order
-        askOrder.price = _newPrice;
+        askOrder.price = _price;
         askOrder.deadline = _deadline;
 
         emit Events.AskUpdated(
@@ -232,7 +234,7 @@ contract MarketPlace is
             _nftAddress,
             _tokenId,
             _payToken,
-            _newPrice,
+            _price,
             _deadline
         );
     }
@@ -321,6 +323,7 @@ contract MarketPlace is
     ) external bidNotExists(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
         _validPayToken(_payToken);
+        _validPrice(_price);
 
         require(
             IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
@@ -366,25 +369,26 @@ contract MarketPlace is
      * @param _nftAddress The contract address of the NFT.
      * @param _tokenId The token id of the NFT.
      * @param _payToken The ERC20 token address for buyers to pay.
-     * @param _newPrice The new bid price for the NFT.
+     * @param _price The new bid price for the NFT.
      * @param _deadline The new expiration timestamp of the ask order.
      */
     function updateBid(
         address _nftAddress,
         uint256 _tokenId,
         address _payToken,
-        uint256 _newPrice,
+        uint256 _price,
         uint256 _deadline
     ) external validBid(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
         _validPayToken(_payToken);
+        _validPrice(_price);
 
         DataTypes.Order storage bidOrder = askOrders[_nftAddress][_tokenId][
             _msgSender()
         ];
         // update buy order
         bidOrder.payToken = _payToken;
-        bidOrder.price = _newPrice;
+        bidOrder.price = _price;
         bidOrder.deadline = _deadline;
 
         emit Events.BidUpdated(
@@ -392,7 +396,7 @@ contract MarketPlace is
             _nftAddress,
             _tokenId,
             _payToken,
-            _newPrice,
+            _price,
             _deadline
         );
     }
@@ -456,6 +460,10 @@ contract MarketPlace is
 
     function _validDeadline(uint256 _deadline) internal view {
         require(_deadline > _now(), "InvalidDeadline");
+    }
+
+    function _validPrice(uint256 _price) internal pure {
+        require(_price > 0, "InvalidPrice");
     }
 
     /**

@@ -40,7 +40,7 @@ library Events {
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
      * @param payToken The ERC20 token address for buyers to pay.
-     * @param newPrice The new sale price for the NFT.
+     * @param price The new sale price for the NFT.
      * @param deadline The expiration timestamp of the ask order.
      */
     event AskUpdated(
@@ -48,7 +48,7 @@ library Events {
         address indexed nftAddress,
         uint256 indexed tokenId,
         address payToken,
-        uint256 newPrice,
+        uint256 price,
         uint256 deadline
     );
 
@@ -100,7 +100,7 @@ library Events {
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
      * @param payToken The ERC20 token address for buyers to pay.
-     * @param newPrice The new bid price for the NFT.
+     * @param price The new bid price for the NFT.
      * @param deadline The expiration timestamp of the bid order.
      */
     event BidUpdated(
@@ -108,7 +108,7 @@ library Events {
         address indexed nftAddress,
         uint256 indexed tokenId,
         address payToken,
-        uint256 newPrice,
+        uint256 price,
         uint256 deadline
     );
 
