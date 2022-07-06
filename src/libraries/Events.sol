@@ -120,6 +120,8 @@ library Events {
      * @param tokenId The token id of the NFT.
      * @param payToken The ERC20 token address for buyers to pay.
      * @param price The price the buyer will pay to the seller.
+     * @param royaltyReceiver The receiver of the royalty fee.
+     * @param feeAmount The amount of the royalty fee.
      */
     event OrdersMatched(
         address indexed seller,
@@ -127,6 +129,8 @@ library Events {
         address indexed nftAddress,
         uint256 tokenId,
         address payToken,
-        uint256 price
+        uint256 price,
+        address royaltyReceiver,
+        uint256 feeAmount
     );
 }

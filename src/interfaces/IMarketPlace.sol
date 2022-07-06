@@ -27,6 +27,7 @@ interface IMarketPlace {
     function updateAsk(
         address _nftAddress,
         uint256 _tokenId,
+        address _payToken,
         uint256 _newPrice,
         uint256 _deadline
     ) external;
