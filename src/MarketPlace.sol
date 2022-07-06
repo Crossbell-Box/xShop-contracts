@@ -184,6 +184,7 @@ contract MarketPlace is
         uint256 _deadline
     ) external askNotExists(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
+        _validPrice(_price);
         require(
             IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
             "TokenNotERC721"
@@ -231,6 +232,7 @@ contract MarketPlace is
     ) external askExists(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
         _validPayToken(_payToken);
+        _validPrice(_price);
 
         DataTypes.Order storage askOrder = askOrders[_nftAddress][_tokenId][
             _msgSender()
@@ -333,6 +335,7 @@ contract MarketPlace is
     ) external bidNotExists(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
         _validPayToken(_payToken);
+        _validPrice(_price);
 
         require(
             IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721),
@@ -390,6 +393,7 @@ contract MarketPlace is
     ) external validBid(_nftAddress, _tokenId, _msgSender()) {
         _validDeadline(_deadline);
         _validPayToken(_payToken);
+        _validPrice(_price);
 
         DataTypes.Order storage bidOrder = askOrders[_nftAddress][_tokenId][
             _msgSender()
@@ -469,6 +473,10 @@ contract MarketPlace is
 
     function _validDeadline(uint256 _deadline) internal view {
         require(_deadline > _now(), "InvalidDeadline");
+    }
+
+    function _validPrice(uint _price) internal pure {
+        require(_price > 0, "InvalidPrice");
     }
 
     /**
