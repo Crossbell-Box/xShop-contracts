@@ -179,6 +179,21 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.stopPrank();
     }
 
+    function testUpdateBidFail() public {
+        // nft contract not exists
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.updateBid(address(0x678), 1, address(wcsb), 2, 1);
+
+        // token id not exists
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.updateBid(address(nft), 1000, address(wcsb), 2, 1);
+
+        // owner has no orders
+        vm.prank(bob);
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.updateBid(address(nft), 1, address(wcsb), 2, 1);
+    }
+
     function testUpdateAskFail() public {
         // not existed
         vm.expectRevert(abi.encodePacked("AskNotExists"));
