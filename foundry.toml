@@ -16,7 +16,6 @@ fuzz_runs = 1_000
 # Configure remappings
 remappings = [
   "@std=lib/forge-std/src/",
-  "@solmate=lib/solmate/src/",
   "@openzeppelin/=lib/openzeppelin-contracts/",
 ]
 

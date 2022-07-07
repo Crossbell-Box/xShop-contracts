@@ -339,33 +339,36 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptBidFail() public {
-        uint256 price = 100;
-
-        vm.startPrank(bob);
-        // prepare wcsb
-        vm.deal(bob, 1 ether);
-        wcsb.deposit{value: 1 ether}();
-        wcsb.approve(address(market), 1 ether);
         // bid
-        market.bid(address(nft), 1, address(wcsb), price, block.timestamp + 10);
-        vm.stopPrank();
+        vm.prank(bob);
+        market.bid(address(nft), 1, address(wcsb), 100, block.timestamp + 10);
 
-        vm.startPrank(alice);
+        vm.prank(alice);
         // prepare
         nft.setApprovalForAll(address(market), true);
         // accept bid
         // BidNotExists
         vm.expectRevert(abi.encodePacked("BidNotExists"));
         market.acceptBid(address(nft), 2, bob);
+
+        // transferFrom failed
+        // bidder has insufficient balance
+        vm.expectRevert(abi.encodePacked("SafeERC20: low-level call failed"));
+        vm.prank(alice);
+        market.acceptBid(address(nft), 1, bob);
+        // bidder has insufficient allowance
+        vm.deal(bob, 1 ether);
+        vm.prank(bob);
+        wcsb.deposit{value: 1 ether}();
+        vm.expectRevert(abi.encodePacked("SafeERC20: low-level call failed"));
+        vm.prank(alice);
+        market.acceptBid(address(nft), 1, bob);
+
         // 11 seconds later
         skip(11);
         // BidExpired
         vm.expectRevert(abi.encodePacked("BidExpired"));
+        vm.prank(alice);
         market.acceptBid(address(nft), 1, bob);
-        vm.stopPrank();
-
-        // check wcsb balance
-        assertEq(wcsb.balanceOf(alice), 0);
-        assertEq(wcsb.balanceOf(bob), 1 ether);
     }
 }

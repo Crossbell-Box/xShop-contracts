@@ -10,10 +10,13 @@ import "./storage/MarketPlaceStorage.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage {
+    using SafeERC20 for IERC20;
+
     uint256 internal constant REVISION = 1;
     bytes4 constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 
@@ -218,14 +221,18 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         uint256 feeAmount;
         if (royalty.receiver != address(0)) {
             feeAmount = (askOrder.price * royalty.percentage) / 100;
-            IERC20(askOrder.payToken).transferFrom(_msgSender(), royalty.receiver, feeAmount);
-            IERC20(askOrder.payToken).transferFrom(
+            IERC20(askOrder.payToken).safeTransferFrom(_msgSender(), royalty.receiver, feeAmount);
+            IERC20(askOrder.payToken).safeTransferFrom(
                 _msgSender(),
                 askOrder.owner,
                 askOrder.price - feeAmount
             );
         } else {
-            IERC20(askOrder.payToken).transferFrom(_msgSender(), askOrder.owner, askOrder.price);
+            IERC20(askOrder.payToken).safeTransferFrom(
+                _msgSender(),
+                askOrder.owner,
+                askOrder.price
+            );
         }
 
         IERC721(_nftAddress).safeTransferFrom(_owner, _msgSender(), _tokenId);
@@ -337,14 +344,18 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         uint256 feeAmount;
         if (royalty.receiver != address(0)) {
             feeAmount = (bidOrder.price * royalty.percentage) / 100;
-            IERC20(bidOrder.payToken).transferFrom(bidOrder.owner, royalty.receiver, feeAmount);
-            IERC20(bidOrder.payToken).transferFrom(
+            IERC20(bidOrder.payToken).safeTransferFrom(bidOrder.owner, royalty.receiver, feeAmount);
+            IERC20(bidOrder.payToken).safeTransferFrom(
                 bidOrder.owner,
                 _msgSender(),
                 bidOrder.price - feeAmount
             );
         } else {
-            IERC20(bidOrder.payToken).transferFrom(bidOrder.owner, _msgSender(), bidOrder.price);
+            IERC20(bidOrder.payToken).safeTransferFrom(
+                bidOrder.owner,
+                _msgSender(),
+                bidOrder.price
+            );
         }
 
         IERC721(_nftAddress).safeTransferFrom(_msgSender(), _owner, _tokenId);
