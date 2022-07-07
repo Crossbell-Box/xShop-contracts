@@ -343,24 +343,28 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.prank(bob);
         market.bid(address(nft), 1, address(wcsb), 100, block.timestamp + 10);
 
-        vm.prank(alice);
-        // prepare
-        nft.setApprovalForAll(address(market), true);
-        // accept bid
         // BidNotExists
         vm.expectRevert(abi.encodePacked("BidNotExists"));
+        vm.prank(alice);
         market.acceptBid(address(nft), 2, bob);
 
-        // transferFrom failed
         // bidder has insufficient balance
         vm.expectRevert(abi.encodePacked("SafeERC20: low-level call failed"));
         vm.prank(alice);
         market.acceptBid(address(nft), 1, bob);
-        // bidder has insufficient allowance
+
         vm.deal(bob, 1 ether);
         vm.prank(bob);
         wcsb.deposit{value: 1 ether}();
+        // bidder has insufficient allowance
         vm.expectRevert(abi.encodePacked("SafeERC20: low-level call failed"));
+        vm.prank(alice);
+        market.acceptBid(address(nft), 1, bob);
+
+        vm.prank(bob);
+        wcsb.approve(address(market), 1 ether);
+        // asker not aproved nft
+        vm.expectRevert(abi.encodePacked("ERC721: caller is not token owner nor approved"));
         vm.prank(alice);
         market.acceptBid(address(nft), 1, bob);
 
