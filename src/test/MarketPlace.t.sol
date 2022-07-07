@@ -303,19 +303,38 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptBid() public {
-        vm.deal(bob, 1 ether);
+        uint256 price = 100;
+
         vm.startPrank(bob);
+        // prepare wcsb
+        vm.deal(bob, 1 ether);
         wcsb.deposit{value: 0.5 ether}();
         wcsb.approve(address(market), 1 ether);
-        market.bid(address(nft), 1, address(wcsb), 1, block.timestamp + 10);
+        // bid
+        market.bid(address(nft), 1, address(wcsb), price, block.timestamp + 10);
         vm.stopPrank();
 
         vm.startPrank(alice);
+        // prepare
         nft.setApprovalForAll(address(market), true);
-
+        // expect event
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
-        emit Events.OrdersMatched(alice, bob, address(nft), 1, address(wcsb), 1, address(0x0), 0);
+        emit Events.OrdersMatched(
+            alice,
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            price,
+            address(0x0),
+            0
+        );
+        // accept bid
         market.acceptBid(address(nft), 1, bob);
         vm.stopPrank();
+
+        // check wcsb balance
+        assertEq(wcsb.balanceOf(alice), price);
+        assertEq(wcsb.balanceOf(bob), 0.5 ether - price);
     }
 }
