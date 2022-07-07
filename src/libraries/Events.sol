@@ -58,11 +58,7 @@ library Events {
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
      */
-    event AskCanceled(
-        address indexed owner,
-        address indexed nftAddress,
-        uint256 indexed tokenId
-    );
+    event AskCanceled(address indexed owner, address indexed nftAddress, uint256 indexed tokenId);
 
     /**
      * @notice Emitted when a bid order is created.
@@ -88,11 +84,7 @@ library Events {
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
      */
-    event BidCanceled(
-        address indexed owner,
-        address indexed nftAddress,
-        uint256 indexed tokenId
-    );
+    event BidCanceled(address indexed owner, address indexed nftAddress, uint256 indexed tokenId);
 
     /**
      * @notice Emitted when a bid order is updated.

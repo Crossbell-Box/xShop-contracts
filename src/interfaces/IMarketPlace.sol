@@ -4,10 +4,7 @@ pragma solidity 0.8.10;
 import "../libraries/DataTypes.sol";
 
 interface IMarketPlace {
-    function getRoyalty(address token)
-        external
-        view
-        returns (DataTypes.Royalty memory);
+    function getRoyalty(address token) external view returns (DataTypes.Royalty memory);
 
     function setRoyalty(
         uint256 characterId,

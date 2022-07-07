@@ -45,9 +45,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
         assertEq(market.WCSB(), address(wcsb));
 
         // reinit
-        vm.expectRevert(
-            abi.encodePacked("Initializable: contract is already initialized")
-        );
+        vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
         market.initialize(address(0x3), address(0x4));
     }
 
@@ -131,14 +129,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
-        emit Events.BidCreated(
-            bob,
-            address(nft),
-            1,
-            address(wcsb),
-            1,
-            expiration
-        );
+        emit Events.BidCreated(bob, address(nft), 1, address(wcsb), 1, expiration);
         // The event we get
         vm.prank(bob);
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
@@ -184,14 +175,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
-        emit Events.BidUpdated(
-            bob,
-            address(nft),
-            1,
-            address(wcsb),
-            2,
-            expiration + 1
-        );
+        emit Events.BidUpdated(bob, address(nft), 1, address(wcsb), 2, expiration + 1);
         // The event we get
         market.updateBid(address(nft), 1, address(wcsb), 2, expiration + 1);
         vm.stopPrank();
@@ -220,23 +204,11 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         // invalid pay token
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
-        market.updateBid(
-            address(nft),
-            1,
-            address(0x1111),
-            2,
-            block.timestamp + 1
-        );
+        market.updateBid(address(nft), 1, address(0x1111), 2, block.timestamp + 1);
 
         // invalid price
         vm.expectRevert(abi.encodePacked("InvalidPrice"));
-        market.updateBid(
-            address(nft),
-            1,
-            address(wcsb),
-            0,
-            block.timestamp + 1
-        );
+        market.updateBid(address(nft), 1, address(wcsb), 0, block.timestamp + 1);
     }
 
     function testUpdateAskFail() public {
