@@ -308,7 +308,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.startPrank(bob);
         // prepare wcsb
         vm.deal(bob, 1 ether);
-        wcsb.deposit{value: 0.5 ether}();
+        wcsb.deposit{value: 1 ether}();
         wcsb.approve(address(market), 1 ether);
         // bid
         market.bid(address(nft), 1, address(wcsb), price, block.timestamp + 10);
@@ -335,6 +335,37 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         // check wcsb balance
         assertEq(wcsb.balanceOf(alice), price);
-        assertEq(wcsb.balanceOf(bob), 0.5 ether - price);
+        assertEq(wcsb.balanceOf(bob), 1 ether - price);
+    }
+
+    function testAcceptBidFail() public {
+        uint256 price = 100;
+
+        vm.startPrank(bob);
+        // prepare wcsb
+        vm.deal(bob, 1 ether);
+        wcsb.deposit{value: 1 ether}();
+        wcsb.approve(address(market), 1 ether);
+        // bid
+        market.bid(address(nft), 1, address(wcsb), price, block.timestamp + 10);
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        // prepare
+        nft.setApprovalForAll(address(market), true);
+        // accept bid
+        // BidNotExists
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.acceptBid(address(nft), 2, bob);
+        // 11 seconds later
+        skip(11);
+        // BidExpired
+        vm.expectRevert(abi.encodePacked("BidExpired"));
+        market.acceptBid(address(nft), 1, bob);
+        vm.stopPrank();
+
+        // check wcsb balance
+        assertEq(wcsb.balanceOf(alice), 0);
+        assertEq(wcsb.balanceOf(bob), 1 ether);
     }
 }
