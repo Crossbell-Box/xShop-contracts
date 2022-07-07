@@ -50,7 +50,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testSetRoyaltyFail(uint256 percentage) public {
-        vm.assume(percentage > Constants.MAX_LOYALTY);
+        vm.assume(percentage > Constants.MAX_ROYALTY);
 
         vm.expectRevert(abi.encodePacked("InvalidPercentage"));
         market.setRoyalty(1, 1, address(0x2), percentage);
@@ -60,7 +60,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testSetGetRoyalty(uint256 percentage) public {
-        vm.assume(percentage <= Constants.MAX_LOYALTY);
+        vm.assume(percentage <= Constants.MAX_ROYALTY);
 
         // get royalty
         DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
@@ -278,20 +278,6 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.stopPrank();
     }
 
-    function testAcceptAskFail() public {
-        // AskExpired
-        vm.prank(alice);
-        market.ask(address(nft), 1, address(wcsb), 1, 100);
-        vm.prank(address(0x555));
-        skip(200); // blocktimestamp + 200
-        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
-        market.acceptAsk(address(nft), 1, alice);
-
-        // AskNotExists
-        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
-        market.acceptAsk(address(nft), 2, alice);
-    }
-
     function testAcceptAsk() public {
         uint256 price = 100;
 
@@ -331,6 +317,20 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // check wcsb balance
         assertEq(wcsb.balanceOf(alice), price);
         assertEq(wcsb.balanceOf(bob), 1 ether - price);
+    }
+
+    function testAcceptAskFail() public {
+        // AskExpired
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        vm.prank(address(0x555));
+        skip(200); // blocktimestamp + 200
+        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
+        market.acceptAsk(address(nft), 1, alice);
+
+        // AskNotExists
+        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
+        market.acceptAsk(address(nft), 2, alice);
     }
 
     function testAcceptBid() public {
