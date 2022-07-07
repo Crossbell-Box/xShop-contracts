@@ -220,7 +220,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         DataTypes.Royalty memory royalty = royalties[askOrder.nftAddress];
         uint256 feeAmount;
         if (royalty.receiver != address(0)) {
-            feeAmount = (askOrder.price * royalty.percentage) / 100;
+            feeAmount = (askOrder.price * royalty.percentage) / 10000;
             IERC20(askOrder.payToken).safeTransferFrom(_msgSender(), royalty.receiver, feeAmount);
             IERC20(askOrder.payToken).safeTransferFrom(
                 _msgSender(),
@@ -343,7 +343,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         DataTypes.Royalty memory royalty = royalties[bidOrder.nftAddress];
         uint256 feeAmount;
         if (royalty.receiver != address(0)) {
-            feeAmount = (bidOrder.price * royalty.percentage) / 100;
+            feeAmount = (bidOrder.price * royalty.percentage) / 10000;
             IERC20(bidOrder.payToken).safeTransferFrom(bidOrder.owner, royalty.receiver, feeAmount);
             IERC20(bidOrder.payToken).safeTransferFrom(
                 bidOrder.owner,

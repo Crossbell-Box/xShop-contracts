@@ -19,13 +19,13 @@ contract MarketPlaceTest is Test, EmitExpecter {
     NFT nft;
     NFT1155 nft1155;
 
+    // ask accounts
     address public alice = address(0x1);
-    address public bob = address(0x2);
     address public charlie = address(0x3);
 
+    // bid accounts
+    address public bob = address(0x2);
     address public dave = address(0x4);
-    address public eve = address(0x5);
-    address public ferdie = address(0x6);
 
     function setUp() public {
         market = new MarketPlace();
@@ -302,6 +302,49 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // console.log(address(0x555).balance);
     }
 
+    function testAcceptBidWithRoyalty(uint256 percentage) public {
+        vm.assume(percentage <= Constants.MAX_LOYALTY);
+
+        uint256 price = 100;
+        address royaltyReceiver = address(0x5555);
+        uint256 feeAmount = (price * percentage) / 10000;
+
+        vm.startPrank(bob);
+        // prepare wcsb
+        vm.deal(bob, 1 ether);
+        wcsb.deposit{value: 1 ether}();
+        wcsb.approve(address(market), 1 ether);
+        // bid
+        market.bid(address(nft), 1, address(wcsb), price, block.timestamp + 10);
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        // set royalty
+        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        // approve nft to marketplace
+        nft.setApprovalForAll(address(market), true);
+        // expect event
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        emit Events.OrdersMatched(
+            alice,
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            price,
+            royaltyReceiver,
+            feeAmount
+        );
+        // accept bid
+        market.acceptBid(address(nft), 1, bob);
+        vm.stopPrank();
+
+        // check wcsb balance
+        assertEq(wcsb.balanceOf(alice), price - feeAmount);
+        assertEq(wcsb.balanceOf(royaltyReceiver), feeAmount);
+        assertEq(wcsb.balanceOf(bob), 1 ether - price);
+    }
+
     function testAcceptBid() public {
         uint256 price = 100;
 
@@ -339,9 +382,11 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptBidFail() public {
-        // bid
+        uint256 lifetime = 10;
+
+        // create bid
         vm.prank(bob);
-        market.bid(address(nft), 1, address(wcsb), 100, block.timestamp + 10);
+        market.bid(address(nft), 1, address(wcsb), 100, block.timestamp + lifetime);
 
         // BidNotExists
         vm.expectRevert(abi.encodePacked("BidNotExists"));
@@ -363,13 +408,13 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         vm.prank(bob);
         wcsb.approve(address(market), 1 ether);
-        // asker not aproved nft
+        // asker not approved nft to marketplace
         vm.expectRevert(abi.encodePacked("ERC721: caller is not token owner nor approved"));
         vm.prank(alice);
         market.acceptBid(address(nft), 1, bob);
 
-        // 11 seconds later
-        skip(11);
+        // N seconds later
+        skip(lifetime + 1);
         // BidExpired
         vm.expectRevert(abi.encodePacked("BidExpired"));
         vm.prank(alice);
