@@ -114,7 +114,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address receiver,
         uint256 percentage
     ) external {
-        require(percentage <= Constants.MAX_LOYALTY, "InvalidPercentage");
+        require(percentage <= Constants.MAX_ROYALTY, "InvalidPercentage");
         // check character owner
         require(msg.sender == IERC721(web3Entry).ownerOf(characterId), "NotCharacterOwner");
         // check token address and owner
