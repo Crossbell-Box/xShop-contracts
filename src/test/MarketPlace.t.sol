@@ -158,6 +158,24 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.stopPrank();
     }
 
+    function testCancelBidFail() public {
+        vm.startPrank(bob);
+
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.cancelBid(address(nft), 1);
+
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.cancelBid(address(nft), 1000);
+
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.cancelBid(address(nft1155), 1);
+
+        vm.expectRevert(abi.encodePacked("BidNotExists"));
+        market.cancelBid(address(0x1234), 1);
+
+        vm.stopPrank();
+    }
+
     function testUpdateBid() public {
         uint256 expiration = block.timestamp + 100;
 
@@ -260,10 +278,22 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testCancelAskFail() public {
+        vm.startPrank(alice);
+
         // AskNotExists
         vm.expectRevert(abi.encodePacked("AskNotExists"));
-        vm.prank(alice);
         market.cancelAsk(address(nft), 1);
+
+        vm.expectRevert(abi.encodePacked("AskNotExists"));
+        market.cancelAsk(address(nft), 1000);
+
+        vm.expectRevert(abi.encodePacked("AskNotExists"));
+        market.cancelAsk(address(nft1155), 1);
+
+        vm.expectRevert(abi.encodePacked("AskNotExists"));
+        market.cancelAsk(address(0x1234), 1);
+
+        vm.stopPrank();
     }
 
     function testCancelAsk() public {
