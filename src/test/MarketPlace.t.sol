@@ -317,6 +317,9 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // check wcsb balance
         assertEq(wcsb.balanceOf(alice), price);
         assertEq(wcsb.balanceOf(bob), 1 ether - price);
+
+        // check ask order
+        _assertEmptyOrder(address(nft), 1, alice, true);
     }
 
     function testAcceptAskFail() public {
@@ -410,6 +413,9 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // check wcsb balance
         assertEq(wcsb.balanceOf(alice), price);
         assertEq(wcsb.balanceOf(bob), 1 ether - price);
+
+        // check bid order
+        _assertEmptyOrder(address(nft), 1, bob, false);
     }
 
     function testAcceptBidFail() public {
@@ -450,5 +456,30 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.expectRevert(abi.encodePacked("BidExpired"));
         vm.prank(alice);
         market.acceptBid(address(nft), 1, bob);
+    }
+
+    function _assertEmptyOrder(
+        address _nftAddress,
+        uint256 _tokenId,
+        address _owner,
+        bool _isAsk
+    ) internal {
+        (
+            address owner,
+            address nftAddress,
+            uint256 tokenId,
+            address payToken,
+            uint256 price,
+            uint256 deadline
+        ) = _isAsk
+                ? market.askOrders(_nftAddress, _tokenId, _owner)
+                : market.bidOrders(_nftAddress, _tokenId, _owner);
+
+        assertEq(owner, address(0));
+        assertEq(nftAddress, address(0));
+        assertEq(tokenId, 0);
+        assertEq(payToken, address(0));
+        assertEq(price, 0);
+        assertEq(deadline, 0);
     }
 }
