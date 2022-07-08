@@ -157,6 +157,9 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
         market.bid(address(nft), 1, address(0x567), 1, expiration);
 
+        vm.expectRevert(abi.encodePacked("NativeCSBNotAllowed"));
+        market.bid(address(nft), 1, Constants.NATIVE_CSB, 100, expiration);
+
         vm.expectRevert(abi.encodePacked("InvalidDeadline"));
         market.bid(address(nft), 1, address(wcsb), 1, block.timestamp);
 

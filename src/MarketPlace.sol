@@ -284,6 +284,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         validDeadline(_deadline)
         validPrice(_price)
     {
+        require(_payToken != Constants.NATIVE_CSB, "NativeCSBNotAllowed");
         require(IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
 
         // save buy order
