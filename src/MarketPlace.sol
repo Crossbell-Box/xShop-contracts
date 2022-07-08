@@ -81,23 +81,17 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         _;
     }
 
-    modifier validPayToken(
-        address _payToken
-    ) {
-        require(_payToken == WCSB, "InvalidPayToken");
+    modifier validPayToken(address _payToken) {
+        require(_payToken == WCSB || _payToken == Constants.NATIVE_CSB, "InvalidPayToken");
         _;
     }
 
-    modifier validDeadline(
-        uint256 _deadline
-    ) {
+    modifier validDeadline(uint256 _deadline) {
         require(_deadline > _now(), "InvalidDeadline");
         _;
     }
 
-    modifier validPrice(
-        uint256 _price
-    ) {
+    modifier validPrice(uint256 _price) {
         require(_price > 0, "InvalidPrice");
         _;
     }
@@ -160,7 +154,13 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external askNotExists(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
+    )
+        external
+        askNotExists(_nftAddress, _tokenId, _msgSender())
+        validPayToken(_payToken)
+        validDeadline(_deadline)
+        validPrice(_price)
+    {
         require(IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
         require(IERC721(_nftAddress).ownerOf(_tokenId) == _msgSender(), "NotERC721TokenOwner");
 
@@ -190,7 +190,13 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external askExists(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
+    )
+        external
+        askExists(_nftAddress, _tokenId, _msgSender())
+        validPayToken(_payToken)
+        validDeadline(_deadline)
+        validPrice(_price)
+    {
         DataTypes.Order storage askOrder = askOrders[_nftAddress][_tokenId][_msgSender()];
         // update sell order
         askOrder.price = _price;
@@ -223,27 +229,20 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _nftAddress,
         uint256 _tokenId,
         address _owner
-    ) external validAsk(_nftAddress, _tokenId, _owner) {
+    ) external payable validAsk(_nftAddress, _tokenId, _owner) {
         DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_owner];
 
         DataTypes.Royalty memory royalty = royalties[askOrder.nftAddress];
-        uint256 feeAmount;
-        if (royalty.receiver != address(0)) {
-            feeAmount = (askOrder.price * royalty.percentage) / 10000;
-            IERC20(askOrder.payToken).safeTransferFrom(_msgSender(), royalty.receiver, feeAmount);
-            IERC20(askOrder.payToken).safeTransferFrom(
-                _msgSender(),
-                askOrder.owner,
-                askOrder.price - feeAmount
-            );
-        } else {
-            IERC20(askOrder.payToken).safeTransferFrom(
-                _msgSender(),
-                askOrder.owner,
-                askOrder.price
-            );
-        }
-
+        // pay to owner
+        uint256 feeAmount = _payWithFee(
+            _msgSender(),
+            askOrder.owner,
+            askOrder.payToken,
+            askOrder.price,
+            royalty.receiver,
+            royalty.percentage
+        );
+        // transfer nft
         IERC721(_nftAddress).safeTransferFrom(_owner, _msgSender(), _tokenId);
 
         emit Events.OrdersMatched(
@@ -274,7 +273,13 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external bidNotExists(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
+    )
+        external
+        bidNotExists(_nftAddress, _tokenId, _msgSender())
+        validPayToken(_payToken)
+        validDeadline(_deadline)
+        validPrice(_price)
+    {
         require(IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
 
         // save buy order
@@ -318,7 +323,13 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external validBid(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
+    )
+        external
+        validBid(_nftAddress, _tokenId, _msgSender())
+        validPayToken(_payToken)
+        validDeadline(_deadline)
+        validPrice(_price)
+    {
         DataTypes.Order storage bidOrder = askOrders[_nftAddress][_tokenId][_msgSender()];
         // update buy order
         bidOrder.payToken = _payToken;
@@ -342,23 +353,16 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_owner];
 
         DataTypes.Royalty memory royalty = royalties[bidOrder.nftAddress];
-        uint256 feeAmount;
-        if (royalty.receiver != address(0)) {
-            feeAmount = (bidOrder.price * royalty.percentage) / 10000;
-            IERC20(bidOrder.payToken).safeTransferFrom(bidOrder.owner, royalty.receiver, feeAmount);
-            IERC20(bidOrder.payToken).safeTransferFrom(
-                bidOrder.owner,
-                _msgSender(),
-                bidOrder.price - feeAmount
-            );
-        } else {
-            IERC20(bidOrder.payToken).safeTransferFrom(
-                bidOrder.owner,
-                _msgSender(),
-                bidOrder.price
-            );
-        }
-
+        // pay to msg.sender
+        uint256 feeAmount = _payWithFee(
+            bidOrder.owner,
+            _msgSender(),
+            bidOrder.payToken,
+            bidOrder.price,
+            royalty.receiver,
+            royalty.percentage
+        );
+        // transfer nft
         IERC721(_nftAddress).safeTransferFrom(_msgSender(), _owner, _tokenId);
 
         emit Events.OrdersMatched(
@@ -373,6 +377,30 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         );
 
         delete bidOrders[_nftAddress][_tokenId][_owner];
+    }
+
+    function _payWithFee(
+        address from,
+        address to,
+        address token,
+        uint256 amount,
+        address feeReceiver,
+        uint256 feePercentage
+    ) internal returns (uint256 feeAmount) {
+        if (token != Constants.NATIVE_CSB) {
+            // refund CSB
+            if (msg.value > 0) {
+                payable(from).transfer(msg.value);
+            }
+        }
+
+        if (feeReceiver != address(0)) {
+            feeAmount = (amount * feePercentage) / 10000;
+            IERC20(token).safeTransferFrom(from, feeReceiver, feeAmount);
+            IERC20(token).safeTransferFrom(from, to, amount - feeAmount);
+        } else {
+            IERC20(token).safeTransferFrom(from, to, amount);
+        }
     }
 
     function _now() internal view virtual returns (uint256) {

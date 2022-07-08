@@ -35,7 +35,7 @@ interface IMarketPlace {
         address _nftAddress,
         uint256 _tokenId,
         address _owner
-    ) external;
+    ) external payable;
 
     function bid(
         address _nftAddress,
