@@ -23,9 +23,9 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
     modifier askNotExists(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
+        address _user
     ) {
-        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_owner];
+        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_user];
         require(askOrder.deadline == 0, "AskExists");
         _;
     }
@@ -33,9 +33,9 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
     modifier askExists(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
+        address _user
     ) {
-        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_owner];
+        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_user];
         require(askOrder.deadline > 0, "AskNotExists");
         _;
     }
@@ -43,9 +43,9 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
     modifier validAsk(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
+        address _user
     ) {
-        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_owner];
+        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_user];
         require(askOrder.deadline >= _now(), "AskExpiredOrNotExists");
         _;
     }
@@ -53,9 +53,9 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
     modifier bidNotExists(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
+        address _user
     ) {
-        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_owner];
+        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_user];
         require(bidOrder.deadline == 0, "BidExists");
         _;
     }
@@ -63,9 +63,9 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
     modifier bidExists(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
+        address _user
     ) {
-        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_owner];
+        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_user];
         require(bidOrder.deadline > 0, "BidNotExists");
         _;
     }
@@ -73,9 +73,9 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
     modifier validBid(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
+        address _user
     ) {
-        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_owner];
+        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_user];
         require(bidOrder.deadline != 0, "BidNotExists");
         require(bidOrder.deadline >= _now(), "BidExpired");
         _;
@@ -227,14 +227,14 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
      * @notice Accepts an ask order.
      * @param _nftAddress The contract address of the NFT.
      * @param _tokenId The token id of the NFT.
-     * @param _owner The owner of ask order, as well as the  owner of the NFT.
+     * @param _user The owner of ask order, as well as the  owner of the NFT.
      */
     function acceptAsk(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
-    ) external payable validAsk(_nftAddress, _tokenId, _owner) {
-        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_owner];
+        address _user
+    ) external payable validAsk(_nftAddress, _tokenId, _user) {
+        DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_user];
 
         DataTypes.Royalty memory royalty = royalties[askOrder.nftAddress];
         // pay to owner
@@ -247,7 +247,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
             royalty.percentage
         );
         // transfer nft
-        IERC721(_nftAddress).safeTransferFrom(_owner, _msgSender(), _tokenId);
+        IERC721(_nftAddress).safeTransferFrom(_user, _msgSender(), _tokenId);
 
         emit Events.OrdersMatched(
             askOrder.owner,
@@ -260,7 +260,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
             feeAmount
         );
 
-        delete askOrders[_nftAddress][_tokenId][_owner];
+        delete askOrders[_nftAddress][_tokenId][_user];
     }
 
     /**
@@ -347,14 +347,14 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
      * @notice Accepts a bid order.
      * @param _nftAddress The contract address of the NFT.
      * @param _tokenId The token id of the NFT.
-     * @param _owner The owner of bid order.
+     * @param _user The owner of bid order.
      */
     function acceptBid(
         address _nftAddress,
         uint256 _tokenId,
-        address _owner
-    ) external validBid(_nftAddress, _tokenId, _owner) {
-        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_owner];
+        address _user
+    ) external validBid(_nftAddress, _tokenId, _user) {
+        DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_user];
 
         DataTypes.Royalty memory royalty = royalties[bidOrder.nftAddress];
         // pay to msg.sender
@@ -367,7 +367,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
             royalty.percentage
         );
         // transfer nft
-        IERC721(_nftAddress).safeTransferFrom(_msgSender(), _owner, _tokenId);
+        IERC721(_nftAddress).safeTransferFrom(_msgSender(), _user, _tokenId);
 
         emit Events.OrdersMatched(
             _msgSender(),
@@ -380,7 +380,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
             feeAmount
         );
 
-        delete bidOrders[_nftAddress][_tokenId][_owner];
+        delete bidOrders[_nftAddress][_tokenId][_user];
     }
 
     function _payWithFee(
