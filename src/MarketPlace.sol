@@ -131,9 +131,12 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         require(percentage <= Constants.MAX_ROYALTY, "InvalidPercentage");
         // check character owner
         require(msg.sender == IERC721(web3Entry).ownerOf(characterId), "NotCharacterOwner");
-        // check token address and owner
-        DataTypes.Note memory note = IWeb3Entry(web3Entry).getNote(characterId, noteId);
 
+        // check mintNFT address
+        DataTypes.Note memory note = IWeb3Entry(web3Entry).getNote(characterId, noteId);
+        require(note.mintNFT != address(0), "NoMintNFT");
+
+        // set royalty
         royalties[note.mintNFT].receiver = receiver;
         royalties[note.mintNFT].percentage = percentage;
 
@@ -198,7 +201,8 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         validPrice(_price)
     {
         DataTypes.Order storage askOrder = askOrders[_nftAddress][_tokenId][_msgSender()];
-        // update sell order
+        // update ask order
+        askOrder.payToken = _payToken;
         askOrder.price = _price;
         askOrder.deadline = _deadline;
 
@@ -330,7 +334,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         validDeadline(_deadline)
         validPrice(_price)
     {
-        DataTypes.Order storage bidOrder = askOrders[_nftAddress][_tokenId][_msgSender()];
+        DataTypes.Order storage bidOrder = bidOrders[_nftAddress][_tokenId][_msgSender()];
         // update buy order
         bidOrder.payToken = _payToken;
         bidOrder.price = _price;

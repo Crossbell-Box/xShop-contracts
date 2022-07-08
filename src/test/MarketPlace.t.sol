@@ -40,10 +40,15 @@ contract MarketPlaceTest is Test, EmitExpecter {
         web3Entry.mintCharacter(alice);
     }
 
-    function testInitFail() public {
+    function testWeb3Entry() public {
         assertEq(market.web3Entry(), address(web3Entry));
-        assertEq(market.WCSB(), address(wcsb));
+    }
 
+    function testWCSB() public {
+        assertEq(market.WCSB(), address(wcsb));
+    }
+
+    function testInitFail() public {
         // reinit
         vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
         market.initialize(address(0x3), address(0x4));
@@ -52,15 +57,24 @@ contract MarketPlaceTest is Test, EmitExpecter {
     function testSetRoyaltyFail(uint256 percentage) public {
         vm.assume(percentage > Constants.MAX_ROYALTY);
 
+        address receiver = address(0x1234);
+
         vm.expectRevert(abi.encodePacked("InvalidPercentage"));
-        market.setRoyalty(1, 1, address(0x2), percentage);
+        market.setRoyalty(1, 1, receiver, percentage);
 
         vm.expectRevert(abi.encodePacked("NotCharacterOwner"));
-        market.setRoyalty(1, 1, address(0x2), 10000);
+        vm.prank(bob); // bob is not character owner
+        market.setRoyalty(1, 1, receiver, 10000);
+
+        vm.expectRevert(abi.encodePacked("NoMintNFT"));
+        vm.prank(alice); // alice is character owner
+        market.setRoyalty(1, 2, receiver, 10000);
     }
 
-    function testSetGetRoyalty(uint256 percentage) public {
+    function testSetRoyalty(uint256 percentage) public {
         vm.assume(percentage <= Constants.MAX_ROYALTY);
+
+        address feeReceiver = address(0x1234);
 
         // get royalty
         DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
@@ -69,63 +83,102 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         expectEmit(CheckTopic1 | CheckTopic2 | CheckData);
         // The event we expect
-        emit Events.RoyaltySet(alice, address(nft), alice, percentage);
+        emit Events.RoyaltySet(alice, address(nft), feeReceiver, percentage);
         // The event we get
         vm.prank(alice);
-        market.setRoyalty(1, 1, alice, percentage);
+        market.setRoyalty(1, 1, feeReceiver, percentage);
 
         // get royalty
         royalty = market.getRoyalty(address(nft));
-        assertEq(royalty.receiver, alice);
+        assertEq(royalty.receiver, feeReceiver);
         assertEq(royalty.percentage, percentage);
     }
 
     function testAskFail() public {
+        uint256 expiration = block.timestamp + 10;
+
+        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
+        market.ask(address(nft), 1, address(0x567), 1, expiration);
+
         vm.expectRevert(abi.encodePacked("InvalidDeadline"));
         market.ask(address(nft), 1, address(wcsb), 1, block.timestamp);
 
-        vm.expectRevert(abi.encodePacked("TokenNotERC721"));
-        market.ask(address(nft1155), 1, address(wcsb), 1, 100);
+        vm.expectRevert(abi.encodePacked("InvalidPrice"));
+        market.ask(address(nft), 1, address(wcsb), 0, expiration);
 
-        vm.prank(address(0x1000));
+        vm.expectRevert(abi.encodePacked("TokenNotERC721"));
+        market.ask(address(nft1155), 1, address(wcsb), 1, expiration);
+
+        // not erc721
+        vm.expectRevert();
+        market.ask(address(0x1234), 1, address(wcsb), 1, expiration);
+
         vm.expectRevert(abi.encodePacked("NotERC721TokenOwner"));
-        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        vm.prank(bob);
+        market.ask(address(nft), 1, address(wcsb), 1, expiration);
 
         vm.startPrank(alice);
-        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
-        market.ask(address(nft), 1, address(0x567), 1, 100);
-
-        vm.expectRevert(abi.encodePacked("InvalidPrice"));
-        market.ask(address(nft), 1, address(wcsb), 0, 100);
+        market.ask(address(nft), 1, address(wcsb), 1, expiration);
+        vm.expectRevert(abi.encodePacked("AskExists"));
+        market.ask(address(nft), 1, address(wcsb), 1, expiration);
         vm.stopPrank();
     }
 
     function testAsk() public {
+        uint256 expiration = block.timestamp + 10;
+
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
-        emit Events.AskCreated(alice, address(nft), 1, address(wcsb), 1, 100);
+        emit Events.AskCreated(alice, address(nft), 1, address(wcsb), 1, expiration);
         // The event we get
         vm.prank(alice);
-        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        market.ask(address(nft), 1, address(wcsb), 1, expiration);
+
+        (
+            address owner,
+            address nftAddress,
+            uint256 tokenId,
+            address payToken,
+            uint256 price,
+            uint256 deadline
+        ) = market.askOrders(address(nft), 1, alice);
+        // check ask order
+        assertEq(owner, alice);
+        assertEq(nftAddress, address(nft));
+        assertEq(tokenId, 1);
+        assertEq(payToken, address(wcsb));
+        assertEq(price, 1);
+        assertEq(deadline, expiration);
     }
 
     function testBidFail() public {
+        uint256 expiration = block.timestamp + 10;
+
+        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
+        market.bid(address(nft), 1, address(0x567), 1, expiration);
+
         vm.expectRevert(abi.encodePacked("InvalidDeadline"));
         market.bid(address(nft), 1, address(wcsb), 1, block.timestamp);
 
-        vm.expectRevert(abi.encodePacked("InvalidPayToken"));
-        market.bid(address(nft), 1, address(0x567), 1, 100);
+        vm.expectRevert(abi.encodePacked("InvalidPrice"));
+        market.bid(address(nft), 1, address(wcsb), 0, expiration);
 
         vm.expectRevert(abi.encodePacked("TokenNotERC721"));
         market.bid(address(nft1155), 1, address(wcsb), 1, 100);
 
-        market.bid(address(nft), 1, address(wcsb), 1, block.timestamp + 10);
+        // not erc721
+        vm.expectRevert();
+        market.bid(address(0x1234), 1, address(wcsb), 1, expiration);
+
+        vm.startPrank(bob);
+        market.bid(address(nft), 1, address(wcsb), 1, expiration);
         vm.expectRevert(abi.encodePacked("BidExists"));
-        market.bid(address(nft), 1, address(wcsb), 1, block.timestamp + 100);
+        market.bid(address(nft), 1, address(wcsb), 1, expiration);
+        vm.stopPrank();
     }
 
     function testBid() public {
-        uint256 expiration = block.timestamp + 100;
+        uint256 expiration = block.timestamp + 10;
 
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
@@ -133,6 +186,23 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // The event we get
         vm.prank(bob);
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
+
+        // check bid order
+        (
+            address owner,
+            address nftAddress,
+            uint256 tokenId,
+            address payToken,
+            uint256 price,
+            uint256 deadline
+        ) = market.bidOrders(address(nft), 1, bob);
+        // check ask order
+        assertEq(owner, bob);
+        assertEq(nftAddress, address(nft));
+        assertEq(tokenId, 1);
+        assertEq(payToken, address(wcsb));
+        assertEq(price, 1);
+        assertEq(deadline, expiration);
     }
 
     function testCancelBid() public {
@@ -147,6 +217,9 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // The event we get
         market.cancelBid(address(nft), 1);
         vm.stopPrank();
+
+        // check bid order
+        _assertEmptyOrder(address(nft), 1, bob, false);
     }
 
     function testCancelBidFail() public {
@@ -171,13 +244,29 @@ contract MarketPlaceTest is Test, EmitExpecter {
         uint256 expiration = block.timestamp + 100;
 
         vm.startPrank(bob);
-        market.bid(address(nft), 1, address(wcsb), 1, expiration);
+        market.bid(address(nft), 1, address(wcsb), 1, 10);
 
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
-        emit Events.BidUpdated(bob, address(nft), 1, address(wcsb), 2, expiration + 1);
+        emit Events.BidUpdated(bob, address(nft), 1, Constants.NATIVE_CSB, 100, expiration);
         // The event we get
-        market.updateBid(address(nft), 1, address(wcsb), 2, expiration + 1);
+        market.updateBid(address(nft), 1, Constants.NATIVE_CSB, 100, expiration);
+
+        (
+            address owner,
+            address nftAddress,
+            uint256 tokenId,
+            address payToken,
+            uint256 price,
+            uint256 deadline
+        ) = market.bidOrders(address(nft), 1, bob);
+        // check bid order
+        assertEq(owner, bob);
+        assertEq(nftAddress, address(nft));
+        assertEq(tokenId, 1);
+        assertEq(payToken, Constants.NATIVE_CSB);
+        assertEq(price, 100);
+        assertEq(deadline, expiration);
         vm.stopPrank();
     }
 
@@ -212,40 +301,63 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testUpdateAskFail() public {
+        uint256 expiration = block.timestamp + 100;
+
+        // not owner(actually the same as notExisted)
+        vm.prank(bob);
+        vm.expectRevert(abi.encodePacked("AskNotExists"));
+        market.updateAsk(address(nft), 1, address(wcsb), 1, expiration);
+
+        vm.startPrank(alice);
+        market.ask(address(nft), 1, address(wcsb), 1, expiration);
+
         // not existed
         vm.expectRevert(abi.encodePacked("AskNotExists"));
-        market.updateAsk(address(0x678), 1, address(wcsb), 1, 3);
-        // not owner(actually the same as notExisted)
-        vm.prank(address(0x6789));
+        market.updateAsk(address(nft), 2, address(wcsb), 1, expiration);
         vm.expectRevert(abi.encodePacked("AskNotExists"));
-        market.updateAsk(address(nft), 1, address(wcsb), 1, 3);
-
-        // invalid deadline
-        vm.startPrank(alice);
-        market.ask(address(nft), 1, address(wcsb), 1, 100);
-
-        vm.expectRevert(abi.encodePacked("InvalidDeadline"));
-        market.updateAsk(address(nft), 1, address(wcsb), 1, block.timestamp);
+        market.updateAsk(address(nft1155), 1, address(wcsb), 1, expiration);
 
         // invalid pay token
         vm.expectRevert(abi.encodePacked("InvalidPayToken"));
-        market.updateAsk(address(nft), 1, address(0x567), 1, 100);
+        market.updateAsk(address(nft), 1, address(0x567), 1, expiration);
+
+        // invalid deadline
+        vm.expectRevert(abi.encodePacked("InvalidDeadline"));
+        market.updateAsk(address(nft), 1, address(wcsb), 1, block.timestamp);
 
         // invalid price
         vm.expectRevert(abi.encodePacked("InvalidPrice"));
-        market.updateAsk(address(nft), 1, address(wcsb), 0, 100);
+        market.updateAsk(address(nft), 1, address(wcsb), 0, expiration);
         vm.stopPrank();
     }
 
     function testUpdateAsk() public {
+        uint256 expiration = block.timestamp + 100;
+
         vm.startPrank(alice);
-        market.ask(address(nft), 1, address(wcsb), 1, 100);
+        market.ask(address(nft), 1, address(wcsb), 1, 10);
 
         expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
         // The event we expect
-        emit Events.AskUpdated(alice, address(nft), 1, address(wcsb), 1, 101);
+        emit Events.AskUpdated(alice, address(nft), 1, Constants.NATIVE_CSB, 100, expiration);
         // The event we get
-        market.updateAsk(address(nft), 1, address(wcsb), 1, 101);
+        market.updateAsk(address(nft), 1, Constants.NATIVE_CSB, 100, expiration);
+
+        (
+            address owner,
+            address nftAddress,
+            uint256 tokenId,
+            address payToken,
+            uint256 price,
+            uint256 deadline
+        ) = market.askOrders(address(nft), 1, alice);
+        // check ask order
+        assertEq(owner, alice);
+        assertEq(nftAddress, address(nft));
+        assertEq(tokenId, 1);
+        assertEq(payToken, Constants.NATIVE_CSB);
+        assertEq(price, 100);
+        assertEq(deadline, expiration);
         vm.stopPrank();
     }
 
@@ -276,6 +388,9 @@ contract MarketPlaceTest is Test, EmitExpecter {
         emit Events.AskCanceled(alice, address(nft), 1);
         market.cancelAsk(address(nft), 1);
         vm.stopPrank();
+
+        // check ask order
+        _assertEmptyOrder(address(nft), 1, alice, true);
     }
 
     function testAcceptAsk() public {
@@ -323,17 +438,21 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptAskFail() public {
-        // AskExpired
+        uint256 lifetime = 10;
+
+        // create ask order
         vm.prank(alice);
-        market.ask(address(nft), 1, address(wcsb), 1, 100);
-        vm.prank(address(0x555));
-        skip(200); // blocktimestamp + 200
-        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
-        market.acceptAsk(address(nft), 1, alice);
+        market.ask(address(nft), 1, address(wcsb), 100, block.timestamp + lifetime);
 
         // AskNotExists
         vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
+        vm.prank(bob);
         market.acceptAsk(address(nft), 2, alice);
+
+        skip(200); // blocktimestamp + 200
+        vm.prank(bob);
+        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
+        market.acceptAsk(address(nft), 1, alice);
     }
 
     function testAcceptBidWithRoyalty(uint256 percentage) public {
@@ -421,7 +540,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     function testAcceptBidFail() public {
         uint256 lifetime = 10;
 
-        // create bid
+        // create bid order
         vm.prank(bob);
         market.bid(address(nft), 1, address(wcsb), 100, block.timestamp + lifetime);
 
