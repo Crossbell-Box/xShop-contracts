@@ -172,7 +172,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
             _msgSender(),
             _nftAddress,
             _tokenId,
-            WCSB,
+            _payToken,
             _price,
             _deadline
         );
@@ -391,19 +391,30 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address feeReceiver,
         uint256 feePercentage
     ) internal returns (uint256 feeAmount) {
-        if (token != Constants.NATIVE_CSB) {
+        if (token == Constants.NATIVE_CSB) {
+            require(msg.value >= amount, "NotEnoughFunds");
+
+            // pay CSB
+            if (feeReceiver != address(0)) {
+                feeAmount = (amount * feePercentage) / 10000;
+                payable(feeReceiver).transfer(feeAmount);
+                payable(to).transfer(amount - feeAmount);
+            } else {
+                payable(to).transfer(amount);
+            }
+        } else {
             // refund CSB
             if (msg.value > 0) {
                 payable(from).transfer(msg.value);
             }
-        }
-
-        if (feeReceiver != address(0)) {
-            feeAmount = (amount * feePercentage) / 10000;
-            IERC20(token).safeTransferFrom(from, feeReceiver, feeAmount);
-            IERC20(token).safeTransferFrom(from, to, amount - feeAmount);
-        } else {
-            IERC20(token).safeTransferFrom(from, to, amount);
+            // pay ERC20
+            if (feeReceiver != address(0)) {
+                feeAmount = (amount * feePercentage) / 10000;
+                IERC20(token).safeTransferFrom(from, feeReceiver, feeAmount);
+                IERC20(token).safeTransferFrom(from, to, amount - feeAmount);
+            } else {
+                IERC20(token).safeTransferFrom(from, to, amount);
+            }
         }
     }
 
