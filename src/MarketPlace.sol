@@ -81,8 +81,25 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         _;
     }
 
-    function _validPayToken(address _payToken) internal view {
+    modifier validPayToken(
+        address _payToken
+    ) {
         require(_payToken == WCSB, "InvalidPayToken");
+        _;
+    }
+
+    modifier validDeadline(
+        uint256 _deadline
+    ) {
+        require(_deadline > _now(), "InvalidDeadline");
+        _;
+    }
+
+    modifier validPrice(
+        uint256 _price
+    ) {
+        require(_price > 0, "InvalidPrice");
+        _;
     }
 
     /**
@@ -117,7 +134,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address receiver,
         uint256 percentage
     ) external {
-        require(percentage <= Constants.MAX_LOYALTY, "InvalidPercentage");
+        require(percentage <= Constants.MAX_ROYALTY, "InvalidPercentage");
         // check character owner
         require(msg.sender == IERC721(web3Entry).ownerOf(characterId), "NotCharacterOwner");
         // check token address and owner
@@ -143,13 +160,9 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external askNotExists(_nftAddress, _tokenId, _msgSender()) {
-        _validDeadline(_deadline);
-        _validPrice(_price);
+    ) external askNotExists(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
         require(IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
         require(IERC721(_nftAddress).ownerOf(_tokenId) == _msgSender(), "NotERC721TokenOwner");
-
-        _validPayToken(_payToken);
 
         // save sell order
         askOrders[_nftAddress][_tokenId][_msgSender()] = DataTypes.Order(
@@ -177,11 +190,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external askExists(_nftAddress, _tokenId, _msgSender()) {
-        _validDeadline(_deadline);
-        _validPayToken(_payToken);
-        _validPrice(_price);
-
+    ) external askExists(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
         DataTypes.Order storage askOrder = askOrders[_nftAddress][_tokenId][_msgSender()];
         // update sell order
         askOrder.price = _price;
@@ -265,11 +274,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external bidNotExists(_nftAddress, _tokenId, _msgSender()) {
-        _validDeadline(_deadline);
-        _validPayToken(_payToken);
-        _validPrice(_price);
-
+    ) external bidNotExists(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
         require(IERC165(_nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
 
         // save buy order
@@ -313,11 +318,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _payToken,
         uint256 _price,
         uint256 _deadline
-    ) external validBid(_nftAddress, _tokenId, _msgSender()) {
-        _validDeadline(_deadline);
-        _validPayToken(_payToken);
-        _validPrice(_price);
-
+    ) external validBid(_nftAddress, _tokenId, _msgSender()) validPayToken(_payToken) validDeadline(_deadline) validPrice(_price) {
         DataTypes.Order storage bidOrder = askOrders[_nftAddress][_tokenId][_msgSender()];
         // update buy order
         bidOrder.payToken = _payToken;
@@ -376,14 +377,6 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
 
     function _now() internal view virtual returns (uint256) {
         return block.timestamp;
-    }
-
-    function _validDeadline(uint256 _deadline) internal view {
-        require(_deadline > _now(), "InvalidDeadline");
-    }
-
-    function _validPrice(uint256 _price) internal pure {
-        require(_price > 0, "InvalidPrice");
     }
 
     /**

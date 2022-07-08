@@ -50,7 +50,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testSetRoyaltyFail(uint256 percentage) public {
-        vm.assume(percentage > Constants.MAX_LOYALTY);
+        vm.assume(percentage > Constants.MAX_ROYALTY);
 
         vm.expectRevert(abi.encodePacked("InvalidPercentage"));
         market.setRoyalty(1, 1, address(0x2), percentage);
@@ -60,7 +60,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testSetGetRoyalty(uint256 percentage) public {
-        vm.assume(percentage <= Constants.MAX_LOYALTY);
+        vm.assume(percentage <= Constants.MAX_ROYALTY);
 
         // get royalty
         DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
@@ -278,12 +278,53 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.stopPrank();
     }
 
+    function testAcceptAsk() public {
+        uint256 price = 100;
+
+        // ask
+        vm.startPrank(alice);
+        market.ask(address(nft), 1, address(wcsb), price, block.timestamp + 10);
+        vm.stopPrank();
+
+        // prepare wcsb
+        vm.startPrank(bob);
+        vm.deal(bob, 1 ether);
+        wcsb.deposit{value: 1 ether}();
+        wcsb.approve(address(market), 1 ether);
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        // prepare
+        nft.setApprovalForAll(address(market), true);
+        vm.stopPrank();
+        // expect event
+        vm.startPrank(bob);
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        emit Events.OrdersMatched(
+            alice,
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            price,
+            address(0x0),
+            0
+        );
+        // accept ask
+        market.acceptAsk(address(nft), 1, alice);
+        vm.stopPrank();
+
+        // check wcsb balance
+        assertEq(wcsb.balanceOf(alice), price);
+        assertEq(wcsb.balanceOf(bob), 1 ether - price);
+    }
+
     function testAcceptAskFail() public {
         // AskExpired
         vm.prank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, 100);
         vm.prank(address(0x555));
-        skip(200); // blocktimestamp +200
+        skip(200); // blocktimestamp + 200
         vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
         market.acceptAsk(address(nft), 1, alice);
 
@@ -292,18 +333,8 @@ contract MarketPlaceTest is Test, EmitExpecter {
         market.acceptAsk(address(nft), 2, alice);
     }
 
-    function testExpectEmitAcceptAsk() public {
-        // vm.prank(alice);
-        // market.ask(address(nft), 1, address(wcsb), 1, 100);
-        // vm.prank(address(0x555));
-        // vm.deal(address(0x555), 10000 ether);
-        // console.log(address(0x555).balance);
-        // market.acceptAsk(address(nft),1, alice);
-        // console.log(address(0x555).balance);
-    }
-
     function testAcceptBidWithRoyalty(uint256 percentage) public {
-        vm.assume(percentage <= Constants.MAX_LOYALTY);
+        vm.assume(percentage <= Constants.MAX_ROYALTY);
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
