@@ -334,7 +334,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptBidWithRoyalty(uint256 percentage) public {
-        vm.assume(percentage <= Constants.MAX_LOYALTY);
+        vm.assume(percentage <= Constants.MAX_ROYALTY);
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
