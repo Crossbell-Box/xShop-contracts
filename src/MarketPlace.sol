@@ -397,7 +397,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
 
             // pay CSB
             if (feeReceiver != address(0)) {
-                feeAmount = (amount * feePercentage) / 10000;
+                feeAmount = (amount / 10000) * feePercentage;
                 payable(feeReceiver).transfer(feeAmount);
                 payable(to).transfer(amount - feeAmount);
             } else {
@@ -410,7 +410,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
             }
             // pay ERC20
             if (feeReceiver != address(0)) {
-                feeAmount = (amount * feePercentage) / 10000;
+                feeAmount = (amount / 10000) * feePercentage;
                 IERC20(token).safeTransferFrom(from, feeReceiver, feeAmount);
                 IERC20(token).safeTransferFrom(from, to, amount - feeAmount);
             } else {

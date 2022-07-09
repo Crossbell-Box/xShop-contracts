@@ -478,7 +478,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
-        uint256 feeAmount = (price * percentage) / 10000;
+        uint256 feeAmount = (price / 10000) * percentage;
 
         //  create ask order
         vm.startPrank(alice);
@@ -514,22 +514,134 @@ contract MarketPlaceTest is Test, EmitExpecter {
         _assertEmptyOrder(address(nft), 1, alice, true);
     }
 
+    function testAcceptAskWithWCSBWithRoyalty(uint256 percentage) public {
+        vm.assume(percentage <= Constants.MAX_ROYALTY);
+
+        uint256 price = 1000;
+        address royaltyReceiver = address(0x5555);
+        uint256 feeAmount = (price / 10000) * percentage;
+
+        //  create ask order
+        vm.startPrank(alice);
+        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        market.ask(address(nft), 1, address(wcsb), price, block.timestamp + 10);
+        // prepare
+        nft.setApprovalForAll(address(market), true);
+        vm.stopPrank();
+
+        // expect event
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        emit Events.OrdersMatched(
+            alice,
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            price,
+            royaltyReceiver,
+            feeAmount
+        );
+        // accept ask
+        vm.deal(bob, 2 ether);
+        vm.startPrank(bob);
+        wcsb.deposit{value: 1 ether}();
+        wcsb.approve(address(market), price);
+        market.acceptAsk(address(nft), 1, alice);
+        vm.stopPrank();
+
+        // check wcsb balance
+        assertEq(wcsb.balanceOf(alice), price - feeAmount);
+        assertEq(wcsb.balanceOf(royaltyReceiver), feeAmount);
+        assertEq(wcsb.balanceOf(bob), 1 ether - price);
+
+        // check ask order
+        _assertEmptyOrder(address(nft), 1, alice, true);
+    }
+
+    function testAcceptAskWithFuzzingPrice(uint256 price) public {
+        vm.assume(price > 1);
+
+        uint256 percentage = 100;
+        address royaltyReceiver = address(0x5555);
+        uint256 feeAmount = (price / 10000) * percentage;
+
+        //  create ask order
+        vm.startPrank(alice);
+        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        market.ask(address(nft), 1, address(wcsb), price, block.timestamp + 10);
+        // prepare
+        nft.setApprovalForAll(address(market), true);
+        vm.stopPrank();
+
+        // expect event
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        emit Events.OrdersMatched(
+            alice,
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            price,
+            royaltyReceiver,
+            feeAmount
+        );
+        // accept ask
+        vm.deal(bob, price);
+        vm.startPrank(bob);
+        wcsb.deposit{value: price}();
+        wcsb.approve(address(market), price);
+        market.acceptAsk(address(nft), 1, alice);
+        vm.stopPrank();
+
+        // check wcsb balance
+        assertEq(wcsb.balanceOf(alice), price - feeAmount);
+        assertEq(wcsb.balanceOf(royaltyReceiver), feeAmount);
+        assertEq(wcsb.balanceOf(bob), 0);
+
+        // check ask order
+        _assertEmptyOrder(address(nft), 1, alice, true);
+    }
+
     function testAcceptAskFail() public {
         uint256 lifetime = 10;
+        uint256 price = 100;
 
         // create ask order
-        vm.prank(alice);
-        market.ask(address(nft), 1, address(wcsb), 100, block.timestamp + lifetime);
+        vm.startPrank(alice);
+        market.ask(address(nft), 1, address(wcsb), price, block.timestamp + lifetime);
+        vm.stopPrank();
+
+        vm.startPrank(bob);
+        // AskNotExists
+        vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
+        market.acceptAsk(address(nft), 2, alice);
 
         // AskNotExists
         vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
-        vm.prank(bob);
-        market.acceptAsk(address(nft), 2, alice);
+        market.acceptAsk(address(nft1155), 1, alice);
 
-        skip(200); // blocktimestamp + 200
-        vm.prank(bob);
+        // bidder has insufficient balance
+        vm.expectRevert(abi.encodePacked("SafeERC20: low-level call failed"));
+        market.acceptAsk(address(nft), 1, alice);
+
+        // bidder has insufficient balance
+        vm.deal(bob, 1 ether);
+        wcsb.deposit{value: price - 1}();
+        wcsb.approve(address(market), 1 ether);
+        vm.expectRevert(abi.encodePacked("SafeERC20: low-level call failed"));
+        market.acceptAsk(address(nft), 1, alice);
+
+        // bidder has insufficient allowance
+        wcsb.deposit{value: 1}();
+        wcsb.approve(address(market), price - 1);
+        vm.expectRevert(abi.encodePacked("SafeERC20: low-level call failed"));
+        market.acceptAsk(address(nft), 1, alice);
+
+        // AskExpiredOrNotExists
+        skip(lifetime + 1);
         vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
         market.acceptAsk(address(nft), 1, alice);
+        vm.stopPrank();
     }
 
     function testAcceptBidWithRoyalty(uint256 percentage) public {
@@ -537,7 +649,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
-        uint256 feeAmount = (price * percentage) / 10000;
+        uint256 feeAmount = (price / 10000) * percentage;
 
         vm.startPrank(bob);
         // prepare wcsb
@@ -573,6 +685,49 @@ contract MarketPlaceTest is Test, EmitExpecter {
         assertEq(wcsb.balanceOf(alice), price - feeAmount);
         assertEq(wcsb.balanceOf(royaltyReceiver), feeAmount);
         assertEq(wcsb.balanceOf(bob), 1 ether - price);
+    }
+
+    function testAcceptBidWithFuzzingPrice(uint256 price) public {
+        vm.assume(price > 100);
+
+        uint256 percentage = 100;
+        address royaltyReceiver = address(0x5555);
+        uint256 feeAmount = (price / 10000) * percentage;
+
+        vm.startPrank(bob);
+        // prepare wcsb
+        vm.deal(bob, price);
+        wcsb.deposit{value: price}();
+        wcsb.approve(address(market), price);
+        // bid
+        market.bid(address(nft), 1, address(wcsb), price, block.timestamp + 10);
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        // set royalty
+        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        // approve nft to marketplace
+        nft.setApprovalForAll(address(market), true);
+        // expect event
+        expectEmit(CheckTopic1 | CheckTopic2 | CheckTopic3 | CheckData);
+        emit Events.OrdersMatched(
+            alice,
+            bob,
+            address(nft),
+            1,
+            address(wcsb),
+            price,
+            royaltyReceiver,
+            feeAmount
+        );
+        // accept bid
+        market.acceptBid(address(nft), 1, bob);
+        vm.stopPrank();
+
+        // check wcsb balance
+        assertEq(wcsb.balanceOf(alice), price - feeAmount);
+        assertEq(wcsb.balanceOf(royaltyReceiver), feeAmount);
+        assertEq(wcsb.balanceOf(bob), 0);
     }
 
     function testAcceptBid() public {
