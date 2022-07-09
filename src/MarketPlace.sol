@@ -13,8 +13,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage {
+contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, MarketPlaceStorage {
     using SafeERC20 for IERC20;
 
     uint256 internal constant REVISION = 1;
@@ -233,7 +234,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _nftAddress,
         uint256 _tokenId,
         address _user
-    ) external payable validAsk(_nftAddress, _tokenId, _user) {
+    ) external payable nonReentrant validAsk(_nftAddress, _tokenId, _user) {
         DataTypes.Order memory askOrder = askOrders[_nftAddress][_tokenId][_user];
 
         DataTypes.Royalty memory royalty = royalties[askOrder.nftAddress];
@@ -354,7 +355,7 @@ contract MarketPlace is IMarketPlace, Context, Initializable, MarketPlaceStorage
         address _nftAddress,
         uint256 _tokenId,
         address _user
-    ) external validBid(_nftAddress, _tokenId, _user) {
+    ) external nonReentrant validBid(_nftAddress, _tokenId, _user) {
         DataTypes.Order memory bidOrder = bidOrders[_nftAddress][_tokenId][_user];
 
         DataTypes.Royalty memory royalty = royalties[bidOrder.nftAddress];
