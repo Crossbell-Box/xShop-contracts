@@ -33,6 +33,6 @@ if [ -z "$args" ]
 then
   forge verify-contract --compiler-version "$version" $deployed ./src/${contract}.sol:${contract} $etherscan --chain-id 4
 else
-  forge verify-contract --compiler-version "$version" $deployed ./src/${contract}.sol:${contract} $etherscan --constructor-args ${args} --chain-id 4
+  forge verify-contract --compiler-version "$version" $deployed ./src/upgradeability/${contract}.sol:${contract} $etherscan --constructor-args ${args} --chain-id 4
 fi
 

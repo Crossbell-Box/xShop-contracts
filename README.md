@@ -30,3 +30,9 @@ NOTE: For local deployment, make sure to run `yarn` or `npm install` before runn
 
 NOTE: these scripts will prompt you for the contract name and deployed addresses (when verifying). Also, they use the `-i` flag on `forge` to ask for your private key for deployment. This uses silent mode which keeps your private key from being printed to the console (and visible in logs).
 
+
+
+```angular2html
+docker run -it --rm -v$(pwd):/home/mythril mythril/myth -v4 analyze flatten.sol --solc-json mythril.config.json --solv 0.8.10
+
+```
