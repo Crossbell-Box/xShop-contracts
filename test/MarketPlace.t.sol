@@ -132,21 +132,14 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.prank(alice);
         market.ask(address(nft), 1, address(wcsb), 1, expiration);
 
-        (
-            address owner,
-            address nftAddress,
-            uint256 tokenId,
-            address payToken,
-            uint256 price,
-            uint256 deadline
-        ) = market.askOrders(address(nft), 1, alice);
+        DataTypes.Order memory order = market.getAskOrder(address(nft), 1, alice);
         // check ask order
-        assertEq(owner, alice);
-        assertEq(nftAddress, address(nft));
-        assertEq(tokenId, 1);
-        assertEq(payToken, address(wcsb));
-        assertEq(price, 1);
-        assertEq(deadline, expiration);
+        assertEq(order.owner, alice);
+        assertEq(order.nftAddress, address(nft));
+        assertEq(order.tokenId, 1);
+        assertEq(order.payToken, address(wcsb));
+        assertEq(order.price, 1);
+        assertEq(order.deadline, expiration);
     }
 
     function testBidFail() public {
@@ -189,21 +182,14 @@ contract MarketPlaceTest is Test, EmitExpecter {
         market.bid(address(nft), 1, address(wcsb), 1, expiration);
 
         // check bid order
-        (
-            address owner,
-            address nftAddress,
-            uint256 tokenId,
-            address payToken,
-            uint256 price,
-            uint256 deadline
-        ) = market.bidOrders(address(nft), 1, bob);
+        DataTypes.Order memory order = market.getBidOrder(address(nft), 1, bob);
         // check ask order
-        assertEq(owner, bob);
-        assertEq(nftAddress, address(nft));
-        assertEq(tokenId, 1);
-        assertEq(payToken, address(wcsb));
-        assertEq(price, 1);
-        assertEq(deadline, expiration);
+        assertEq(order.owner, bob);
+        assertEq(order.nftAddress, address(nft));
+        assertEq(order.tokenId, 1);
+        assertEq(order.payToken, address(wcsb));
+        assertEq(order.price, 1);
+        assertEq(order.deadline, expiration);
     }
 
     function testCancelBid() public {
@@ -253,21 +239,14 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // The event we get
         market.updateBid(address(nft), 1, Constants.NATIVE_CSB, 100, expiration);
 
-        (
-            address owner,
-            address nftAddress,
-            uint256 tokenId,
-            address payToken,
-            uint256 price,
-            uint256 deadline
-        ) = market.bidOrders(address(nft), 1, bob);
+        DataTypes.Order memory order = market.getBidOrder(address(nft), 1, bob);
         // check bid order
-        assertEq(owner, bob);
-        assertEq(nftAddress, address(nft));
-        assertEq(tokenId, 1);
-        assertEq(payToken, Constants.NATIVE_CSB);
-        assertEq(price, 100);
-        assertEq(deadline, expiration);
+        assertEq(order.owner, bob);
+        assertEq(order.nftAddress, address(nft));
+        assertEq(order.tokenId, 1);
+        assertEq(order.payToken, Constants.NATIVE_CSB);
+        assertEq(order.price, 100);
+        assertEq(order.deadline, expiration);
         vm.stopPrank();
     }
 
@@ -344,21 +323,14 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // The event we get
         market.updateAsk(address(nft), 1, Constants.NATIVE_CSB, 100, expiration);
 
-        (
-            address owner,
-            address nftAddress,
-            uint256 tokenId,
-            address payToken,
-            uint256 price,
-            uint256 deadline
-        ) = market.askOrders(address(nft), 1, alice);
+        DataTypes.Order memory order = market.getAskOrder(address(nft), 1, alice);
         // check ask order
-        assertEq(owner, alice);
-        assertEq(nftAddress, address(nft));
-        assertEq(tokenId, 1);
-        assertEq(payToken, Constants.NATIVE_CSB);
-        assertEq(price, 100);
-        assertEq(deadline, expiration);
+        assertEq(order.owner, alice);
+        assertEq(order.nftAddress, address(nft));
+        assertEq(order.tokenId, 1);
+        assertEq(order.payToken, Constants.NATIVE_CSB);
+        assertEq(order.price, 100);
+        assertEq(order.deadline, expiration);
         vm.stopPrank();
     }
 
@@ -815,22 +787,15 @@ contract MarketPlaceTest is Test, EmitExpecter {
         address _owner,
         bool _isAsk
     ) internal {
-        (
-            address owner,
-            address nftAddress,
-            uint256 tokenId,
-            address payToken,
-            uint256 price,
-            uint256 deadline
-        ) = _isAsk
-                ? market.askOrders(_nftAddress, _tokenId, _owner)
-                : market.bidOrders(_nftAddress, _tokenId, _owner);
+        DataTypes.Order memory order = _isAsk
+            ? market.getAskOrder(_nftAddress, _tokenId, _owner)
+            : market.getBidOrder(_nftAddress, _tokenId, _owner);
 
-        assertEq(owner, address(0));
-        assertEq(nftAddress, address(0));
-        assertEq(tokenId, 0);
-        assertEq(payToken, address(0));
-        assertEq(price, 0);
-        assertEq(deadline, 0);
+        assertEq(order.owner, address(0));
+        assertEq(order.nftAddress, address(0));
+        assertEq(order.tokenId, 0);
+        assertEq(order.payToken, address(0));
+        assertEq(order.price, 0);
+        assertEq(order.deadline, 0);
     }
 }

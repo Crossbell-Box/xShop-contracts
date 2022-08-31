@@ -8,11 +8,11 @@ contract MarketPlaceStorage {
     address public WCSB;
 
     //  @notice nftAddress -> tokenId -> owner -> Order
-    mapping(address => mapping(uint256 => mapping(address => DataTypes.Order))) public askOrders;
+    mapping(address => mapping(uint256 => mapping(address => DataTypes.Order))) internal askOrders;
 
     //  @notice nftAddress -> tokenId -> owner -> Order
-    mapping(address => mapping(uint256 => mapping(address => DataTypes.Order))) public bidOrders;
+    mapping(address => mapping(uint256 => mapping(address => DataTypes.Order))) internal bidOrders;
 
     // @notice nftAddress -> Royalty
-    mapping(address => DataTypes.Royalty) public royalties;
+    mapping(address => DataTypes.Royalty) internal royalties;
 }
