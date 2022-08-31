@@ -22,6 +22,9 @@ build  :; forge build
 # chmod scripts
 scripts :; chmod +x ./scripts/*
 
+# generate documentation
+doc:; npx hardhat dodoc
+
 # Tests
 test :; forge clean && forge test --optimize --optimizer-runs 200 -v # --ffi # enable if you need the `ffi` cheat code on HEVM
 

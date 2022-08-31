@@ -7,6 +7,8 @@ import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
 import "solidity-docgen";
+import "@primitivefi/hardhat-dodoc";
+
 
 dotenv.config();
 
