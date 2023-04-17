@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+/* solhint-disable */
+pragma solidity 0.8.16;
 
-import "@std/Test.sol";
-import "@std/console2.sol";
+import {Test} from "forge-std/Test.sol";
 import "../contracts/MarketPlace.sol";
 import "../contracts/libraries/DataTypes.sol";
 import "../contracts/libraries/Constants.sol";
@@ -769,7 +769,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.prank(bob);
         wcsb.approve(address(market), 1 ether);
         // asker not approved nft to marketplace
-        vm.expectRevert(abi.encodePacked("ERC721: caller is not token owner nor approved"));
+        vm.expectRevert(abi.encodePacked("ERC721: caller is not token owner or approved"));
         vm.prank(alice);
         market.acceptBid(address(nft), 1, bob);
 

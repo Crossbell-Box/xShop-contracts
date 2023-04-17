@@ -1,7 +1,8 @@
 {
   "remappings": [
-    "@std=lib/forge-std/src/",
-    "@openzeppelin/=lib/openzeppelin-contracts/"
+    "ds-test/=lib/forge-std/lib/ds-test/src/",
+    "forge-std/=lib/forge-std/src/",
+    "@openzeppelin/=node_modules/@openzeppelin/"
   ],
   "optimizer": {
     "enabled": true,

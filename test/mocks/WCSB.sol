@@ -12,8 +12,8 @@
 
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-pragma solidity 0.8.10;
+/* solhint-disable */
+pragma solidity 0.8.16;
 
 contract WCSB {
     string public name = "Wrapped CSB";
@@ -58,11 +58,7 @@ contract WCSB {
         return transferFrom(msg.sender, dst, wad);
     }
 
-    function transferFrom(
-        address src,
-        address dst,
-        uint256 wad
-    ) public returns (bool) {
+    function transferFrom(address src, address dst, uint256 wad) public returns (bool) {
         require(balanceOf[src] >= wad);
 
         if (src != msg.sender && allowance[src][msg.sender] != type(uint256).max) {

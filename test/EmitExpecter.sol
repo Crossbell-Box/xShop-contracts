@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.10;
+/* solhint-disable */
+pragma solidity 0.8.16;
 
-import "@std/Vm.sol";
-import "@std/Test.sol";
+import {Vm} from "forge-std/Vm.sol";
+import {Test} from "forge-std/Test.sol";
 
 contract EmitExpecter is Test {
     uint8 public constant CheckTopic1 = 0x1;

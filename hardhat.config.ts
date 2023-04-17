@@ -6,15 +6,13 @@ import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "hardhat-contract-sizer";
-import "solidity-docgen";
-import "@primitivefi/hardhat-dodoc";
 
 
 dotenv.config();
 
 module.exports = {
     solidity: {
-        version: "0.8.10",
+        version: "0.8.16",
         settings: {
             optimizer: {
                 enabled: true,

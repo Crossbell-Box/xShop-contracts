@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-
-pragma solidity 0.8.10;
+/* solhint-disable */
+pragma solidity 0.8.16;
 
 import "../../contracts/interfaces/IWeb3Entry.sol";
 import "../../contracts/libraries/DataTypes.sol";
@@ -19,11 +19,10 @@ contract MockWeb3Entry is IWeb3Entry, ERC721Enumerable {
     }
 
     // if noteId is 1, returns mintNFT
-    function getNote(uint256 characterId, uint256 noteId)
-        external
-        view
-        returns (DataTypes.Note memory)
-    {
+    function getNote(
+        uint256 characterId,
+        uint256 noteId
+    ) external view returns (DataTypes.Note memory) {
         (characterId);
 
         address nftAddress;
