@@ -3,14 +3,14 @@
 pragma solidity 0.8.16;
 
 import {Test} from "forge-std/Test.sol";
-import "../contracts/MarketPlace.sol";
-import "../contracts/libraries/DataTypes.sol";
-import "../contracts/libraries/Constants.sol";
-import "../contracts/libraries/Events.sol";
-import "./mocks/MockWeb3Entry.sol";
-import "./mocks/WCSB.sol";
-import "./mocks/NFT.sol";
-import "./EmitExpecter.sol";
+import {MarketPlace} from "../contracts/MarketPlace.sol";
+import {DataTypes} from "../contracts/libraries/DataTypes.sol";
+import {Constants} from "../contracts/libraries/Constants.sol";
+import {Events} from "../contracts/libraries/Events.sol";
+import {MockWeb3Entry} from "./mocks/MockWeb3Entry.sol";
+import {WCSB} from "./mocks/WCSB.sol";
+import {NFT, NFT1155} from "./mocks/NFT.sol";
+import {EmitExpecter} from "./EmitExpecter.sol";
 
 contract MarketPlaceTest is Test, EmitExpecter {
     MarketPlace market;

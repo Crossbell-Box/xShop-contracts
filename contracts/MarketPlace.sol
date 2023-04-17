@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "./interfaces/IMarketPlace.sol";
-import "./interfaces/IWeb3Entry.sol";
-import "./libraries/DataTypes.sol";
-import "./libraries/Constants.sol";
-import "./libraries/Events.sol";
-import "./storage/MarketPlaceStorage.sol";
-import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {IMarketPlace} from "./interfaces/IMarketPlace.sol";
+import {IWeb3Entry} from "./interfaces/IWeb3Entry.sol";
+import {DataTypes} from "./libraries/DataTypes.sol";
+import {Constants} from "./libraries/Constants.sol";
+import {Events} from "./libraries/Events.sol";
+import {MarketPlaceStorage} from "./storage/MarketPlaceStorage.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {Context} from "@openzeppelin/contracts/utils/Context.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, MarketPlaceStorage {
     using SafeERC20 for IERC20;
@@ -46,7 +46,6 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         address user
     ) {
         DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
-        // slither-disable-next-line timestamp
         require(askOrder.deadline >= _now(), "AskExpiredOrNotExists");
         _;
     }
