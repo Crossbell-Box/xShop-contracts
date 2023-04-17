@@ -23,6 +23,8 @@ contract MarketPlaceTest is Test, EmitExpecter {
     // bid accounts
     address public bob = address(0x2222);
 
+    uint256 public constant MAX_ROYALTY = 10000;
+
     function setUp() public {
         market = new MarketPlace();
         wcsb = new WCSB();
@@ -398,7 +400,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptAskWithCSBWithRoyalty(uint96 percentage) public {
-        vm.assume(percentage <= Constants.MAX_ROYALTY);
+        vm.assume(percentage <= MAX_ROYALTY);
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
@@ -439,7 +441,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptAskWithWCSBWithRoyalty(uint96 percentage) public {
-        vm.assume(percentage <= Constants.MAX_ROYALTY);
+        vm.assume(percentage <= MAX_ROYALTY);
 
         uint256 price = 1000;
         address royaltyReceiver = address(0x5555);
@@ -570,7 +572,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testAcceptBidWithRoyalty(uint96 percentage) public {
-        vm.assume(percentage <= Constants.MAX_ROYALTY);
+        vm.assume(percentage <= MAX_ROYALTY);
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
