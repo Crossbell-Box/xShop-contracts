@@ -18,3 +18,4 @@ contract MarketPlaceStorage {
     // @notice nftAddress -> Royalty
     mapping(address => DataTypes.Royalty) internal _royalties;
 }
+// slither-disable-end naming-convention
