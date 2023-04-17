@@ -169,7 +169,7 @@
 <li><a href="contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d0fbcc344a1484a9dcb0f82a95f1abc625975d11/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/1cf502e092b555ff70e1f9f081b3dc66045a02ce/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB address.</p>
@@ -316,7 +316,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 <li><a href="contracts/libraries/Events.sol/library.Events.html">Events</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="constants"><a class="header" href="#constants">Constants</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d0fbcc344a1484a9dcb0f82a95f1abc625975d11/contracts/libraries/Constants.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/1cf502e092b555ff70e1f9f081b3dc66045a02ce/contracts/libraries/Constants.sol">Git Source</a></p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
 <h3 id="max_royalty"><a class="header" href="#max_royalty">MAX_ROYALTY</a></h3>
 <pre><code class="language-solidity">uint256 public constant MAX_ROYALTY = 10000;
@@ -325,7 +325,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 <pre><code class="language-solidity">address public constant NATIVE_CSB = 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d0fbcc344a1484a9dcb0f82a95f1abc625975d11/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/1cf502e092b555ff70e1f9f081b3dc66045a02ce/contracts/libraries/DataTypes.sol">Git Source</a></p>
 <h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
 <pre><code class="language-solidity">struct Order {
@@ -338,7 +338,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d0fbcc344a1484a9dcb0f82a95f1abc625975d11/contracts/libraries/Events.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/1cf502e092b555ff70e1f9f081b3dc66045a02ce/contracts/libraries/Events.sol">Git Source</a></p>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
 <h3 id="askcreated"><a class="header" href="#askcreated">AskCreated</a></h3>
 <p>Emitted when an ask order is created.</p>
@@ -402,7 +402,7 @@ Emits the <code>OrdersMatched</code> event.</p>
     address payToken,
     uint256 price,
     address royaltyReceiver,
-    uint256 feeAmount
+    uint256 royaltyAmount
 );
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contents-2"><a class="header" href="#contents-2">Contents</a></h1>
@@ -410,7 +410,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 <li><a href="contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplacestorage"><a class="header" href="#marketplacestorage">MarketPlaceStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d0fbcc344a1484a9dcb0f82a95f1abc625975d11/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/1cf502e092b555ff70e1f9f081b3dc66045a02ce/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
 <h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
 <h3 id="wcsb"><a class="header" href="#wcsb">WCSB</a></h3>
 <pre><code class="language-solidity">address public WCSB;
@@ -426,7 +426,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 <li><a href="contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transparentupgradeableproxy"><a class="header" href="#transparentupgradeableproxy">TransparentUpgradeableProxy</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d0fbcc344a1484a9dcb0f82a95f1abc625975d11/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/1cf502e092b555ff70e1f9f081b3dc66045a02ce/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC1967Proxy</p>
 <p>*This contract implements a proxy that is upgradeable by an admin.
@@ -499,7 +499,7 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.</e
 <pre><code class="language-solidity">function _beforeFallback() internal virtual override;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplace"><a class="header" href="#marketplace">MarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d0fbcc344a1484a9dcb0f82a95f1abc625975d11/contracts/MarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/1cf502e092b555ff70e1f9f081b3dc66045a02ce/contracts/MarketPlace.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="contracts/MarketPlace.sol//contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, <a href="contracts/MarketPlace.sol//contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
 <h2 id="state-variables-2"><a class="header" href="#state-variables-2">State Variables</a></h2>
