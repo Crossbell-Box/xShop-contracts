@@ -2,7 +2,6 @@
 pragma solidity 0.8.16;
 
 import {IMarketPlace} from "./interfaces/IMarketPlace.sol";
-import {IWeb3Entry} from "./interfaces/IWeb3Entry.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {Constants} from "./libraries/Constants.sol";
 import {Events} from "./libraries/Events.sol";
@@ -98,8 +97,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
     }
 
     /// @inheritdoc IMarketPlace
-    function initialize(address web3Entry_, address wcsb_) external override initializer {
-        web3Entry = web3Entry_;
+    function initialize(address wcsb_) external override initializer {
         WCSB = wcsb_;
     }
 

@@ -7,14 +7,12 @@ import {MarketPlace} from "../contracts/MarketPlace.sol";
 import {DataTypes} from "../contracts/libraries/DataTypes.sol";
 import {Constants} from "../contracts/libraries/Constants.sol";
 import {Events} from "../contracts/libraries/Events.sol";
-import {MockWeb3Entry} from "./mocks/MockWeb3Entry.sol";
 import {WCSB} from "./mocks/WCSB.sol";
 import {NFT, NFT1155} from "./mocks/NFT.sol";
 import {EmitExpecter} from "./EmitExpecter.sol";
 
 contract MarketPlaceTest is Test, EmitExpecter {
     MarketPlace market;
-    MockWeb3Entry web3Entry;
     WCSB wcsb;
     NFT nft;
     NFT1155 nft1155;
@@ -30,16 +28,10 @@ contract MarketPlaceTest is Test, EmitExpecter {
         wcsb = new WCSB();
         nft = new NFT("NFt", "NFT");
         nft1155 = new NFT1155();
-        web3Entry = new MockWeb3Entry(address(nft)); //address(nft) is mintNoteNFT address
-        market.initialize(address(web3Entry), address(wcsb));
+        market.initialize(address(wcsb));
 
         nft.mint(alice);
         nft1155.mint(alice);
-        web3Entry.mintCharacter(alice);
-    }
-
-    function testWeb3Entry() public {
-        assertEq(market.web3Entry(), address(web3Entry));
     }
 
     function testWCSB() public {
@@ -49,7 +41,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     function testInitFail() public {
         // reinit
         vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
-        market.initialize(address(0x3), address(0x4));
+        market.initialize(address(0x4));
     }
 
     function testAskFail() public {

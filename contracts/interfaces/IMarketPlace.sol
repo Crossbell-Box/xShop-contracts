@@ -5,11 +5,10 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 
 interface IMarketPlace {
     /**
-     * @notice Initializes the MarketPlace, setting the initial web3Entry address and WCSB address.
-     * @param web3Entry_ The address of web3Entry.
+     * @notice Initializes the MarketPlace, setting the WCSB address.
      * @param wcsb_ The address of WCSB.
      */
-    function initialize(address web3Entry_, address wcsb_) external;
+    function initialize(address wcsb_) external;
 
     /**
      * @notice Creates an ask order for an NFT.
