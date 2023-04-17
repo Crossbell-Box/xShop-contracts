@@ -28,7 +28,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     function setUp() public {
         market = new MarketPlace();
         wcsb = new WCSB();
-        nft = new NFT();
+        nft = new NFT("NFt", "NFT");
         nft1155 = new NFT1155();
         web3Entry = new MockWeb3Entry(address(nft)); //address(nft) is mintNoteNFT address
         market.initialize(address(web3Entry), address(wcsb));
@@ -50,46 +50,6 @@ contract MarketPlaceTest is Test, EmitExpecter {
         // reinit
         vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
         market.initialize(address(0x3), address(0x4));
-    }
-
-    function testSetRoyaltyFail(uint256 percentage) public {
-        vm.assume(percentage > Constants.MAX_ROYALTY);
-
-        address receiver = address(0x1234);
-
-        vm.expectRevert(abi.encodePacked("InvalidPercentage"));
-        market.setRoyalty(1, 1, receiver, percentage);
-
-        vm.expectRevert(abi.encodePacked("NotCharacterOwner"));
-        vm.prank(bob); // bob is not character owner
-        market.setRoyalty(1, 1, receiver, 10000);
-
-        vm.expectRevert(abi.encodePacked("NoMintNFT"));
-        vm.prank(alice); // alice is character owner
-        market.setRoyalty(1, 2, receiver, 10000);
-    }
-
-    function testSetRoyalty(uint256 percentage) public {
-        vm.assume(percentage <= Constants.MAX_ROYALTY);
-
-        address feeReceiver = address(0x1234);
-
-        // get royalty
-        DataTypes.Royalty memory royalty = market.getRoyalty(address(nft));
-        assertEq(royalty.receiver, address(0x0));
-        assertEq(royalty.percentage, 0);
-
-        expectEmit(CheckTopic1 | CheckTopic2 | CheckData);
-        // The event we expect
-        emit Events.RoyaltySet(alice, address(nft), feeReceiver, percentage);
-        // The event we get
-        vm.prank(alice);
-        market.setRoyalty(1, 1, feeReceiver, percentage);
-
-        // get royalty
-        royalty = market.getRoyalty(address(nft));
-        assertEq(royalty.receiver, feeReceiver);
-        assertEq(royalty.percentage, percentage);
     }
 
     function testAskFail() public {
@@ -445,16 +405,16 @@ contract MarketPlaceTest is Test, EmitExpecter {
         _assertEmptyOrder(address(nft), 1, alice, true);
     }
 
-    function testAcceptAskWithCSBWithRoyalty(uint256 percentage) public {
+    function testAcceptAskWithCSBWithRoyalty(uint96 percentage) public {
         vm.assume(percentage <= Constants.MAX_ROYALTY);
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
-        uint256 feeAmount = (price / 10000) * percentage;
+        uint256 feeAmount = (price * percentage) / 10000;
 
         //  create ask order
         vm.startPrank(alice);
-        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        nft.setDefaultRoyalty(royaltyReceiver, percentage);
         market.ask(address(nft), 1, Constants.NATIVE_CSB, price, block.timestamp + 10);
         // prepare
         nft.setApprovalForAll(address(market), true);
@@ -486,16 +446,16 @@ contract MarketPlaceTest is Test, EmitExpecter {
         _assertEmptyOrder(address(nft), 1, alice, true);
     }
 
-    function testAcceptAskWithWCSBWithRoyalty(uint256 percentage) public {
+    function testAcceptAskWithWCSBWithRoyalty(uint96 percentage) public {
         vm.assume(percentage <= Constants.MAX_ROYALTY);
 
         uint256 price = 1000;
         address royaltyReceiver = address(0x5555);
-        uint256 feeAmount = (price / 10000) * percentage;
+        uint256 feeAmount = (price * percentage) / 10000;
 
         //  create ask order
         vm.startPrank(alice);
-        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        nft.setDefaultRoyalty(royaltyReceiver, percentage);
         market.ask(address(nft), 1, address(wcsb), price, block.timestamp + 10);
         // prepare
         nft.setApprovalForAll(address(market), true);
@@ -532,14 +492,15 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
     function testAcceptAskWithFuzzingPrice(uint256 price) public {
         vm.assume(price > 1);
+        vm.assume(price < type(uint128).max);
 
-        uint256 percentage = 100;
+        uint96 percentage = 100;
         address royaltyReceiver = address(0x5555);
-        uint256 feeAmount = (price / 10000) * percentage;
+        uint256 feeAmount = (price * percentage) / 10000;
 
         //  create ask order
         vm.startPrank(alice);
-        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        nft.setDefaultRoyalty(royaltyReceiver, percentage);
         market.ask(address(nft), 1, address(wcsb), price, block.timestamp + 10);
         // prepare
         nft.setApprovalForAll(address(market), true);
@@ -616,12 +577,12 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.stopPrank();
     }
 
-    function testAcceptBidWithRoyalty(uint256 percentage) public {
+    function testAcceptBidWithRoyalty(uint96 percentage) public {
         vm.assume(percentage <= Constants.MAX_ROYALTY);
 
         uint256 price = 100;
         address royaltyReceiver = address(0x5555);
-        uint256 feeAmount = (price / 10000) * percentage;
+        uint256 feeAmount = (price * percentage) / 10000;
 
         vm.startPrank(bob);
         // prepare wcsb
@@ -634,7 +595,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         vm.startPrank(alice);
         // set royalty
-        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        nft.setDefaultRoyalty(royaltyReceiver, percentage);
         // approve nft to marketplace
         nft.setApprovalForAll(address(market), true);
         // expect event
@@ -661,10 +622,11 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
     function testAcceptBidWithFuzzingPrice(uint256 price) public {
         vm.assume(price > 100);
+        vm.assume(price < type(uint128).max);
 
-        uint256 percentage = 100;
+        uint96 percentage = 100;
         address royaltyReceiver = address(0x5555);
-        uint256 feeAmount = (price / 10000) * percentage;
+        uint256 feeAmount = (price * percentage) / 10000;
 
         vm.startPrank(bob);
         // prepare wcsb
@@ -677,7 +639,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         vm.startPrank(alice);
         // set royalty
-        market.setRoyalty(1, 1, royaltyReceiver, percentage);
+        nft.setDefaultRoyalty(royaltyReceiver, percentage);
         // approve nft to marketplace
         nft.setApprovalForAll(address(market), true);
         // expect event

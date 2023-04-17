@@ -14,8 +14,5 @@ contract MarketPlaceStorage {
 
     //  @notice nftAddress -> tokenId -> owner -> Order
     mapping(address => mapping(uint256 => mapping(address => DataTypes.Order))) internal _bidOrders;
-
-    // @notice nftAddress -> Royalty
-    mapping(address => DataTypes.Royalty) internal _royalties;
 }
 // slither-disable-end naming-convention

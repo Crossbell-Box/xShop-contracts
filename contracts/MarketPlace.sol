@@ -8,6 +8,7 @@ import {Constants} from "./libraries/Constants.sol";
 import {Events} from "./libraries/Events.sol";
 import {MarketPlaceStorage} from "./storage/MarketPlaceStorage.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -96,37 +97,15 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         _;
     }
 
-    /**
-     * @notice Initializes the MarketPlace, setting the initial web3Entry address and WCSB address.
-     * @param web3Entry_ The address of web3Entry.
-     * @param wcsb_ The address of WCSB.
-     */
+    /// @inheritdoc IMarketPlace
     function initialize(address web3Entry_, address wcsb_) external override initializer {
         web3Entry = web3Entry_;
         WCSB = wcsb_;
     }
 
-    function setRoyalty(
-        uint256 characterId,
-        uint256 noteId,
-        address receiver,
-        uint256 percentage
-    ) external override {
-        require(percentage <= Constants.MAX_ROYALTY, "InvalidPercentage");
-        // check character owner
-        require(msg.sender == IERC721(web3Entry).ownerOf(characterId), "NotCharacterOwner");
+    /// @inheritdoc IMarketPlace
 
-        // check mintNFT address
-        DataTypes.Note memory note = IWeb3Entry(web3Entry).getNote(characterId, noteId);
-        require(note.mintNFT != address(0), "NoMintNFT");
-
-        // set royalty
-        _royalties[note.mintNFT].receiver = receiver;
-        _royalties[note.mintNFT].percentage = percentage;
-
-        emit Events.RoyaltySet(msg.sender, note.mintNFT, receiver, percentage);
-    }
-
+    /// @inheritdoc IMarketPlace
     function ask(
         address nftAddress,
         uint256 tokenId,
@@ -157,6 +136,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         emit Events.AskCreated(_msgSender(), nftAddress, tokenId, WCSB, price, deadline);
     }
 
+    /// @inheritdoc IMarketPlace
     function updateAsk(
         address nftAddress,
         uint256 tokenId,
@@ -180,6 +160,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         emit Events.AskUpdated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
     }
 
+    /// @inheritdoc IMarketPlace
     function cancelAsk(
         address nftAddress,
         uint256 tokenId
@@ -189,6 +170,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         emit Events.AskCanceled(_msgSender(), nftAddress, tokenId);
     }
 
+    /// @inheritdoc IMarketPlace
     function acceptAsk(
         address nftAddress,
         uint256 tokenId,
@@ -196,15 +178,19 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
     ) external payable override nonReentrant validAsk(nftAddress, tokenId, user) {
         DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
 
-        DataTypes.Royalty memory royalty = _royalties[askOrder.nftAddress];
+        (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
+            nftAddress,
+            tokenId,
+            askOrder.price
+        );
         // pay to owner
-        uint256 feeAmount = _payWithFee(
+        _payWithRoyalty(
             _msgSender(),
             askOrder.owner,
             askOrder.payToken,
             askOrder.price,
-            royalty.receiver,
-            royalty.percentage
+            royaltyReceiver,
+            royaltyAmount
         );
         // transfer nft
         IERC721(nftAddress).safeTransferFrom(user, _msgSender(), tokenId);
@@ -216,13 +202,14 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
             tokenId,
             askOrder.payToken,
             askOrder.price,
-            royalty.receiver,
-            feeAmount
+            royaltyReceiver,
+            royaltyAmount
         );
 
         delete _askOrders[nftAddress][tokenId][user];
     }
 
+    /// @inheritdoc IMarketPlace
     function bid(
         address nftAddress,
         uint256 tokenId,
@@ -253,6 +240,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         emit Events.BidCreated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
     }
 
+    /// @inheritdoc IMarketPlace
     function cancelBid(
         address nftAddress,
         uint256 tokenId
@@ -262,6 +250,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         emit Events.BidCanceled(_msgSender(), nftAddress, tokenId);
     }
 
+    /// @inheritdoc IMarketPlace
     function updateBid(
         address nftAddress,
         uint256 tokenId,
@@ -285,6 +274,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         emit Events.BidUpdated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
     }
 
+    /// @inheritdoc IMarketPlace
     function acceptBid(
         address nftAddress,
         uint256 tokenId,
@@ -292,15 +282,19 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
     ) external override nonReentrant validBid(nftAddress, tokenId, user) {
         DataTypes.Order memory bidOrder = _bidOrders[nftAddress][tokenId][user];
 
-        DataTypes.Royalty memory royalty = _royalties[bidOrder.nftAddress];
+        (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
+            nftAddress,
+            tokenId,
+            bidOrder.price
+        );
         // pay to msg.sender
-        uint256 feeAmount = _payWithFee(
+        _payWithRoyalty(
             bidOrder.owner,
             _msgSender(),
             bidOrder.payToken,
             bidOrder.price,
-            royalty.receiver,
-            royalty.percentage
+            royaltyReceiver,
+            royaltyAmount
         );
         // transfer nft
         IERC721(nftAddress).safeTransferFrom(_msgSender(), user, tokenId);
@@ -312,13 +306,14 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
             tokenId,
             bidOrder.payToken,
             bidOrder.price,
-            royalty.receiver,
-            feeAmount
+            royaltyReceiver,
+            royaltyAmount
         );
 
         delete _bidOrders[nftAddress][tokenId][user];
     }
 
+    /// @inheritdoc IMarketPlace
     function getAskOrder(
         address nftAddress,
         uint256 tokenId,
@@ -327,6 +322,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         return _askOrders[nftAddress][tokenId][owner];
     }
 
+    /// @inheritdoc IMarketPlace
     function getBidOrder(
         address nftAddress,
         uint256 tokenId,
@@ -335,27 +331,22 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         return _bidOrders[nftAddress][tokenId][owner];
     }
 
-    function getRoyalty(address token) external view override returns (DataTypes.Royalty memory) {
-        return _royalties[token];
-    }
-
-    function _payWithFee(
+    function _payWithRoyalty(
         address from,
         address to,
         address token,
         uint256 amount,
-        address feeReceiver,
-        uint256 feePercentage
-    ) internal returns (uint256 feeAmount) {
+        address royaltyReceiver,
+        uint256 royaltyAmount
+    ) internal {
         if (token == Constants.NATIVE_CSB) {
             require(msg.value >= amount, "NotEnoughFunds");
 
             // pay CSB
-            if (feeReceiver != address(0)) {
-                feeAmount = (amount / 10000) * feePercentage;
-                payable(feeReceiver).transfer(feeAmount);
+            if (royaltyReceiver != address(0)) {
+                payable(royaltyReceiver).transfer(royaltyAmount);
                 // slither-disable-next-line arbitrary-send-eth
-                payable(to).transfer(amount - feeAmount);
+                payable(to).transfer(amount - royaltyAmount);
             } else {
                 // slither-disable-next-line arbitrary-send-eth
                 payable(to).transfer(amount);
@@ -366,13 +357,22 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
                 payable(from).transfer(msg.value);
             }
             // pay ERC20
-            if (feeReceiver != address(0)) {
-                feeAmount = (amount / 10000) * feePercentage;
-                IERC20(token).safeTransferFrom(from, feeReceiver, feeAmount);
-                IERC20(token).safeTransferFrom(from, to, amount - feeAmount);
+            if (royaltyReceiver != address(0)) {
+                IERC20(token).safeTransferFrom(from, royaltyReceiver, royaltyAmount);
+                IERC20(token).safeTransferFrom(from, to, amount - royaltyAmount);
             } else {
                 IERC20(token).safeTransferFrom(from, to, amount);
             }
+        }
+    }
+
+    function _royaltyInfo(
+        address nftAddress,
+        uint256 tokenId,
+        uint256 salePrice
+    ) internal view returns (address royaltyReceiver, uint256 royaltyAmount) {
+        if (IERC165(nftAddress).supportsInterface(type(IERC2981).interfaceId)) {
+            (royaltyReceiver, royaltyAmount) = IERC2981(nftAddress).royaltyInfo(tokenId, salePrice);
         }
     }
 
