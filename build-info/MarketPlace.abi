@@ -312,11 +312,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "web3Entry_",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "wcsb_",
         "type": "address"
       }
@@ -390,19 +385,6 @@
     "name": "updateBid",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "web3Entry",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]

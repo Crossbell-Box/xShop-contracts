@@ -10,21 +10,4 @@ library DataTypes {
         uint256 price;
         uint256 deadline;
     }
-
-    struct Royalty {
-        address receiver;
-        uint256 percentage; // multiply by 100
-    }
-
-    // note struct for web3Entry
-    struct Note {
-        bytes32 linkItemType;
-        bytes32 linkKey;
-        string contentUri;
-        address linkModule;
-        address mintModule;
-        address mintNFT;
-        bool deleted;
-        bool locked;
-    }
 }

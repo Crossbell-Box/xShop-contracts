@@ -5,7 +5,6 @@ pragma solidity 0.8.16;
 import {DataTypes} from "../libraries/DataTypes.sol";
 
 contract MarketPlaceStorage {
-    address public web3Entry;
     // solhint-disable-next-line var-name-mixedcase
     address public WCSB;
 
