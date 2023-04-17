@@ -151,24 +151,13 @@
                     <main>
                         <h2 id="crossbell-nft-marketplace"><a class="header" href="#crossbell-nft-marketplace">Crossbell NFT MarketPlace</a></h2>
 <p><strong>Setup</strong></p>
-<pre><code class="language-bash">make
-# OR #
-make setup
-</code></pre>
-<p><strong>Building</strong></p>
-<pre><code class="language-bash">make build
+<pre><code class="language-bash">yarn
 </code></pre>
 <p><strong>Testing</strong></p>
-<pre><code class="language-bash">make test
+<pre><code class="language-bash">yarn test
 </code></pre>
-<p><strong>Deployment &amp; Verification</strong></p>
-<p>Inside the <a href="./scripts/"><code>scripts/</code></a> directory are a few preconfigured scripts that can be used to deploy and verify contracts.</p>
-<p>Scripts take inputs from the cli, using silent mode to hide any sensitive information.</p>
-<p>NOTE: These scripts are required to be <em>executable</em> meaning they must be made executable by running <code>chmod +x ./scripts/*</code>.</p>
-<p>NOTE: For local deployment, make sure to run <code>yarn</code> or <code>npm install</code> before running the <code>deploy_local.sh</code> script. Otherwise, hardhat will error due to missing dependencies.</p>
-<p>NOTE: these scripts will prompt you for the contract name and deployed addresses (when verifying). Also, they use the <code>-i</code> flag on <code>forge</code> to ask for your private key for deployment. This uses silent mode which keeps your private key from being printed to the console (and visible in logs).</p>
-<pre><code class="language-angular2html">docker run -it --rm -v$(pwd):/home/mythril mythril/myth -v4 analyze flatten.sol --solc-json mythril.config.json --solv 0.8.10
-
+<p><strong>Deploy</strong></p>
+<pre><code class="language-shell">npx hardhat run ./scripts/deployXXX.ts
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contents"><a class="header" href="#contents">Contents</a></h1>
 <ul>
@@ -176,7 +165,7 @@ make setup
 <li><a href="contracts/interfaces/IWeb3Entry.sol/interface.IWeb3Entry.html">IWeb3Entry</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
 <pre><code class="language-solidity">function initialize(address web3Entry_, address wcsb_) external;
@@ -329,7 +318,7 @@ make setup
 <tr><td><code>&lt;none&gt;</code></td><td><code>Royalty.DataTypes</code></td><td>Royalty The royalty struct.</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="iweb3entry"><a class="header" href="#iweb3entry">IWeb3Entry</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/interfaces/IWeb3Entry.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/interfaces/IWeb3Entry.sol">Git Source</a></p>
 <h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
 <h3 id="getnote"><a class="header" href="#getnote">getNote</a></h3>
 <pre><code class="language-solidity">function getNote(uint256 characterId, uint256 noteId) external view returns (DataTypes.Note memory);
@@ -341,7 +330,7 @@ make setup
 <li><a href="contracts/libraries/Events.sol/library.Events.html">Events</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="constants"><a class="header" href="#constants">Constants</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/libraries/Constants.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/libraries/Constants.sol">Git Source</a></p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
 <h3 id="max_royalty"><a class="header" href="#max_royalty">MAX_ROYALTY</a></h3>
 <pre><code class="language-solidity">uint256 public constant MAX_ROYALTY = 10000;
@@ -350,7 +339,7 @@ make setup
 <pre><code class="language-solidity">address public constant NATIVE_CSB = 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/libraries/DataTypes.sol">Git Source</a></p>
 <h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
 <pre><code class="language-solidity">struct Order {
@@ -381,7 +370,7 @@ make setup
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/libraries/Events.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/libraries/Events.sol">Git Source</a></p>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
 <h3 id="royaltyset"><a class="header" href="#royaltyset">RoyaltySet</a></h3>
 <p>Emitted when the royalty is set by the mintNFT owner.</p>
@@ -457,7 +446,7 @@ make setup
 <li><a href="contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplacestorage"><a class="header" href="#marketplacestorage">MarketPlaceStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
 <h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
 <h3 id="web3entry"><a class="header" href="#web3entry">web3Entry</a></h3>
 <pre><code class="language-solidity">address public web3Entry;
@@ -479,7 +468,7 @@ make setup
 <li><a href="contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transparentupgradeableproxy"><a class="header" href="#transparentupgradeableproxy">TransparentUpgradeableProxy</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC1967Proxy</p>
 <p>*This contract implements a proxy that is upgradeable by an admin.
@@ -552,7 +541,7 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.</e
 <pre><code class="language-solidity">function _beforeFallback() internal virtual override;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplace"><a class="header" href="#marketplace">MarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/MarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/0f9986b46c4ae8cfcf12656ee78b91353bdfffd8/contracts/MarketPlace.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="contracts/MarketPlace.sol//contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, <a href="contracts/MarketPlace.sol//contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
 <h2 id="state-variables-2"><a class="header" href="#state-variables-2">State Variables</a></h2>

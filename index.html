@@ -150,24 +150,13 @@
                     <main>
                         <h2 id="crossbell-nft-marketplace"><a class="header" href="#crossbell-nft-marketplace">Crossbell NFT MarketPlace</a></h2>
 <p><strong>Setup</strong></p>
-<pre><code class="language-bash">make
-# OR #
-make setup
-</code></pre>
-<p><strong>Building</strong></p>
-<pre><code class="language-bash">make build
+<pre><code class="language-bash">yarn
 </code></pre>
 <p><strong>Testing</strong></p>
-<pre><code class="language-bash">make test
+<pre><code class="language-bash">yarn test
 </code></pre>
-<p><strong>Deployment &amp; Verification</strong></p>
-<p>Inside the <a href="./scripts/"><code>scripts/</code></a> directory are a few preconfigured scripts that can be used to deploy and verify contracts.</p>
-<p>Scripts take inputs from the cli, using silent mode to hide any sensitive information.</p>
-<p>NOTE: These scripts are required to be <em>executable</em> meaning they must be made executable by running <code>chmod +x ./scripts/*</code>.</p>
-<p>NOTE: For local deployment, make sure to run <code>yarn</code> or <code>npm install</code> before running the <code>deploy_local.sh</code> script. Otherwise, hardhat will error due to missing dependencies.</p>
-<p>NOTE: these scripts will prompt you for the contract name and deployed addresses (when verifying). Also, they use the <code>-i</code> flag on <code>forge</code> to ask for your private key for deployment. This uses silent mode which keeps your private key from being printed to the console (and visible in logs).</p>
-<pre><code class="language-angular2html">docker run -it --rm -v$(pwd):/home/mythril mythril/myth -v4 analyze flatten.sol --solc-json mythril.config.json --solv 0.8.10
-
+<p><strong>Deploy</strong></p>
+<pre><code class="language-shell">npx hardhat run ./scripts/deployXXX.ts
 </code></pre>
 
                     </main>
