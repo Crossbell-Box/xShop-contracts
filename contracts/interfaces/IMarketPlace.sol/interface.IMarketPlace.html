@@ -149,25 +149,21 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/c7fcb436dcb0e5c5dfa24986c088b695af055989/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/59e9133d44135fd0228cc74c4d0153ac602fa889/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
+<p>Initializes the MarketPlace, setting the initial web3Entry address and WCSB address.</p>
 <pre><code class="language-solidity">function initialize(address web3Entry_, address wcsb_) external;
-</code></pre>
-<h3 id="setroyalty"><a class="header" href="#setroyalty">setRoyalty</a></h3>
-<p>Sets the royalty.</p>
-<pre><code class="language-solidity">function setRoyalty(uint256 characterId, uint256 noteId, address receiver, uint256 percentage) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>characterId</code></td><td><code>uint256</code></td><td>The character ID of note.</td></tr>
-<tr><td><code>noteId</code></td><td><code>uint256</code></td><td>The note ID of note.</td></tr>
-<tr><td><code>receiver</code></td><td><code>address</code></td><td>The address receiving the royalty.</td></tr>
-<tr><td><code>percentage</code></td><td><code>uint256</code></td><td>The percentage of the royalty. (multiply by 100, which means 10000 is 100 percent)</td></tr>
+<tr><td><code>web3Entry_</code></td><td><code>address</code></td><td>The address of web3Entry.</td></tr>
+<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB.</td></tr>
 </tbody></table>
 </div>
 <h3 id="ask"><a class="header" href="#ask">ask</a></h3>
-<p>Creates an ask order for an NFT.</p>
+<p>Creates an ask order for an NFT.
+Emits the <code>AskCreated</code> event.</p>
 <pre><code class="language-solidity">function ask(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -180,7 +176,8 @@
 </tbody></table>
 </div>
 <h3 id="updateask"><a class="header" href="#updateask">updateAsk</a></h3>
-<p>Updates an ask order.</p>
+<p>Updates an ask order.
+Emits the <code>AskUpdated</code> event.</p>
 <pre><code class="language-solidity">function updateAsk(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -193,7 +190,8 @@
 </tbody></table>
 </div>
 <h3 id="cancelask"><a class="header" href="#cancelask">cancelAsk</a></h3>
-<p>Cancels an ask order.</p>
+<p>Cancels an ask order.
+Emits the <code>AskCanceled</code> event.</p>
 <pre><code class="language-solidity">function cancelAsk(address nftAddress, uint256 tokenId) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -203,7 +201,8 @@
 </tbody></table>
 </div>
 <h3 id="acceptask"><a class="header" href="#acceptask">acceptAsk</a></h3>
-<p>Accepts an ask order.</p>
+<p>Accepts an ask order.
+Emits the <code>OrdersMatched</code> event.</p>
 <pre><code class="language-solidity">function acceptAsk(address nftAddress, uint256 tokenId, address user) external payable;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -214,7 +213,8 @@
 </tbody></table>
 </div>
 <h3 id="bid"><a class="header" href="#bid">bid</a></h3>
-<p>Creates a bid order for an NFT.</p>
+<p>Creates a bid order for an NFT.
+Emits the <code>BidCreated</code> event.</p>
 <pre><code class="language-solidity">function bid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -227,7 +227,8 @@
 </tbody></table>
 </div>
 <h3 id="cancelbid"><a class="header" href="#cancelbid">cancelBid</a></h3>
-<p>Cancels a bid order.</p>
+<p>Cancels a bid order.
+Emits the <code>BidCanceled</code> event.</p>
 <pre><code class="language-solidity">function cancelBid(address nftAddress, uint256 tokenId) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -237,7 +238,8 @@
 </tbody></table>
 </div>
 <h3 id="updatebid"><a class="header" href="#updatebid">updateBid</a></h3>
-<p>Updates a bid order.</p>
+<p>Updates a bid order.
+Emits the <code>BidUpdated</code> event.</p>
 <pre><code class="language-solidity">function updateBid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -250,7 +252,8 @@
 </tbody></table>
 </div>
 <h3 id="acceptbid"><a class="header" href="#acceptbid">acceptBid</a></h3>
-<p>Accepts a bid order.</p>
+<p>Accepts a bid order.
+Emits the <code>OrdersMatched</code> event.</p>
 <pre><code class="language-solidity">function acceptBid(address nftAddress, uint256 tokenId, address user) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -286,20 +289,6 @@
 <tr><td><code>nftAddress</code></td><td><code>address</code></td><td>The contract address of the NFT.</td></tr>
 <tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT to bid.</td></tr>
 <tr><td><code>owner</code></td><td><code>address</code></td><td>The owner who creates the order.</td></tr>
-</tbody></table>
-</div>
-<h3 id="getroyalty"><a class="header" href="#getroyalty">getRoyalty</a></h3>
-<p>Returns the royalty according to a given nft token address.</p>
-<pre><code class="language-solidity">function getRoyalty(address token) external view returns (DataTypes.Royalty memory);
-</code></pre>
-<p><strong>Parameters</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>token</code></td><td><code>address</code></td><td>The nft token address to query with.</td></tr>
-</tbody></table>
-</div>
-<p><strong>Returns</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>Royalty.DataTypes</code></td><td>Royalty The royalty struct.</td></tr>
 </tbody></table>
 </div>
                     </main>
