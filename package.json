@@ -33,7 +33,7 @@
         "setup": "make clean && make build",
         "compile": "npx hardhat clean && npx hardhat compile",
         "sync": "make install",
-        "test": "make foundry-test && npx hardhat test",
+        "test": "make foundry-test",
         "snapshot": "make snapshot",
         "lint": "make lint",
         "solhint": "make solhint",
