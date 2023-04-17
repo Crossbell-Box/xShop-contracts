@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "../libraries/DataTypes.sol";
+import {DataTypes} from "../libraries/DataTypes.sol";
 
 interface IMarketPlace {
     function initialize(address web3Entry_, address wcsb_) external;

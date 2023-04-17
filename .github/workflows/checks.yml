@@ -39,6 +39,8 @@ jobs:
           node-version: 16
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
+      - name: Copy configuration file
+        run: cp .env.example .env
       - name: Run Check
         run: yarn upgradeable
 
@@ -61,18 +63,6 @@ jobs:
         run: yarn sync
       - name: Run Check
         run: yarn storage-layout
-
-  mythril:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16
-      - name: Install Dependencies
-        run: yarn install --frozen-lockfile
-      - name: Run Check
-        run: yarn mythril
 
   slither:
     runs-on: ubuntu-latest

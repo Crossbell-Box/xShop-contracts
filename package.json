@@ -37,12 +37,12 @@
         "snapshot": "make snapshot",
         "lint": "make lint",
         "solhint": "make solhint",
+        "slither": "make slither",
         "mythril": "make mythril",
         "mythx": "make mythx",
         "storage-layout": "make storage-layout",
         "upgradeable": "make upgradeable",
         "remap": "forge remappings > remappings.txt",
-        "docgen": "make docgen",
         "prepare": "husky install"
     }
 }

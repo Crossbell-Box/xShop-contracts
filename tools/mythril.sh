@@ -11,4 +11,4 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "MarketPlace: "
 myth analyze contracts/MarketPlace.sol --solc-json mythril.config.json --solv 0.8.16 --max-depth 10 --execution-timeout 900  --solver-timeout 900 &&
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" ' |
-docker run --rm -v "$PWD":/project -i --workdir=/project --entrypoint=sh mythril/myth
+docker run --rm -v "$PWD":/project -it --workdir=/project --entrypoint=sh mythril/myth
