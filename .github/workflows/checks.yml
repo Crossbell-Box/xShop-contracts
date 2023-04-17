@@ -39,6 +39,8 @@ jobs:
           node-version: 16
       - name: Install Dependencies
         run: yarn install --frozen-lockfile
+      - name: Copy configuration file
+        run: cp .env.example .env
       - name: Run Check
         run: yarn upgradeable
 

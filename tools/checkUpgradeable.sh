@@ -23,7 +23,7 @@ fi
 file1=$(mktemp /tmp/crossbell-bridge-slither-check.XXXXX) || exit 2
 
 # slither-check
-echo "Web3Entry: " >"$file1"
+echo "MarketPlace: " >"$file1"
 slither-check-upgradeability . MarketPlace \
 --proxy-filename . \
 --proxy-name TransparentUpgradeableProxy \
