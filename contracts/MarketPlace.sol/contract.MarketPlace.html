@@ -1,0 +1,339 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>MarketPlace</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../book.css">
+
+    </head>
+    <body>
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var html = document.querySelector('html');
+            var sidebar = null;
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item "><a href="../../index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item "><a href="../../contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a></li><li class="chapter-item "><a href="../../contracts/interfaces/IWeb3Entry.sol/interface.IWeb3Entry.html">IWeb3Entry</a></li></ol></li><li class="chapter-item "><a href="../../contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../contracts/libraries/Constants.sol/library.Constants.html">Constants</a></li><li class="chapter-item "><a href="../../contracts/libraries/DataTypes.sol/library.DataTypes.html">DataTypes</a></li><li class="chapter-item "><a href="../../contracts/libraries/Events.sol/library.Events.html">Events</a></li></ol></li><li class="chapter-item "><a href="../../contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li></ol></li><li class="chapter-item "><a href="../../contracts/upgradeability/index.html">❱ upgradeability</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="../../contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li></ol></li><li class="chapter-item expanded "><a href="../../contracts/MarketPlace.sol/contract.MarketPlace.html" class="active">MarketPlace</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title"></h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="marketplace"><a class="header" href="#marketplace">MarketPlace</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72bcf1ac3f71c956fef66918b6425e89f5ad894f/contracts/MarketPlace.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+<a href="/contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, <a href="/contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
+<h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
+<h3 id="interface_id_erc721"><a class="header" href="#interface_id_erc721">INTERFACE_ID_ERC721</a></h3>
+<pre><code class="language-solidity">bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
+</code></pre>
+<h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="asknotexists"><a class="header" href="#asknotexists">askNotExists</a></h3>
+<pre><code class="language-solidity">modifier askNotExists(address nftAddress, uint256 tokenId, address user);
+</code></pre>
+<h3 id="askexists"><a class="header" href="#askexists">askExists</a></h3>
+<pre><code class="language-solidity">modifier askExists(address nftAddress, uint256 tokenId, address user);
+</code></pre>
+<h3 id="validask"><a class="header" href="#validask">validAsk</a></h3>
+<pre><code class="language-solidity">modifier validAsk(address nftAddress, uint256 tokenId, address user);
+</code></pre>
+<h3 id="bidnotexists"><a class="header" href="#bidnotexists">bidNotExists</a></h3>
+<pre><code class="language-solidity">modifier bidNotExists(address nftAddress, uint256 tokenId, address user);
+</code></pre>
+<h3 id="bidexists"><a class="header" href="#bidexists">bidExists</a></h3>
+<pre><code class="language-solidity">modifier bidExists(address nftAddress, uint256 tokenId, address user);
+</code></pre>
+<h3 id="validbid"><a class="header" href="#validbid">validBid</a></h3>
+<pre><code class="language-solidity">modifier validBid(address nftAddress, uint256 tokenId, address user);
+</code></pre>
+<h3 id="validpaytoken"><a class="header" href="#validpaytoken">validPayToken</a></h3>
+<pre><code class="language-solidity">modifier validPayToken(address payToken);
+</code></pre>
+<h3 id="validdeadline"><a class="header" href="#validdeadline">validDeadline</a></h3>
+<pre><code class="language-solidity">modifier validDeadline(uint256 deadline);
+</code></pre>
+<h3 id="validprice"><a class="header" href="#validprice">validPrice</a></h3>
+<pre><code class="language-solidity">modifier validPrice(uint256 price);
+</code></pre>
+<h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
+<p>Initializes the MarketPlace, setting the initial web3Entry address and WCSB address.</p>
+<pre><code class="language-solidity">function initialize(address web3Entry_, address wcsb_) external override initializer;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>web3Entry_</code></td><td><code>address</code></td><td>The address of web3Entry.</td></tr>
+<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB.</td></tr>
+</tbody></table>
+</div>
+<h3 id="setroyalty"><a class="header" href="#setroyalty">setRoyalty</a></h3>
+<pre><code class="language-solidity">function setRoyalty(uint256 characterId, uint256 noteId, address receiver, uint256 percentage) external override;
+</code></pre>
+<h3 id="ask"><a class="header" href="#ask">ask</a></h3>
+<pre><code class="language-solidity">function ask(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
+    external
+    override
+    askNotExists(nftAddress, tokenId, _msgSender())
+    validPayToken(payToken)
+    validDeadline(deadline)
+    validPrice(price);
+</code></pre>
+<h3 id="updateask"><a class="header" href="#updateask">updateAsk</a></h3>
+<pre><code class="language-solidity">function updateAsk(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
+    external
+    override
+    askExists(nftAddress, tokenId, _msgSender())
+    validPayToken(payToken)
+    validDeadline(deadline)
+    validPrice(price);
+</code></pre>
+<h3 id="cancelask"><a class="header" href="#cancelask">cancelAsk</a></h3>
+<pre><code class="language-solidity">function cancelAsk(address nftAddress, uint256 tokenId)
+    external
+    override
+    askExists(nftAddress, tokenId, _msgSender());
+</code></pre>
+<h3 id="acceptask"><a class="header" href="#acceptask">acceptAsk</a></h3>
+<pre><code class="language-solidity">function acceptAsk(address nftAddress, uint256 tokenId, address user)
+    external
+    payable
+    override
+    nonReentrant
+    validAsk(nftAddress, tokenId, user);
+</code></pre>
+<h3 id="bid"><a class="header" href="#bid">bid</a></h3>
+<pre><code class="language-solidity">function bid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
+    external
+    override
+    bidNotExists(nftAddress, tokenId, _msgSender())
+    validPayToken(payToken)
+    validDeadline(deadline)
+    validPrice(price);
+</code></pre>
+<h3 id="cancelbid"><a class="header" href="#cancelbid">cancelBid</a></h3>
+<pre><code class="language-solidity">function cancelBid(address nftAddress, uint256 tokenId)
+    external
+    override
+    bidExists(nftAddress, tokenId, _msgSender());
+</code></pre>
+<h3 id="updatebid"><a class="header" href="#updatebid">updateBid</a></h3>
+<pre><code class="language-solidity">function updateBid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
+    external
+    override
+    validBid(nftAddress, tokenId, _msgSender())
+    validPayToken(payToken)
+    validDeadline(deadline)
+    validPrice(price);
+</code></pre>
+<h3 id="acceptbid"><a class="header" href="#acceptbid">acceptBid</a></h3>
+<pre><code class="language-solidity">function acceptBid(address nftAddress, uint256 tokenId, address user)
+    external
+    override
+    nonReentrant
+    validBid(nftAddress, tokenId, user);
+</code></pre>
+<h3 id="getaskorder"><a class="header" href="#getaskorder">getAskOrder</a></h3>
+<pre><code class="language-solidity">function getAskOrder(address nftAddress, uint256 tokenId, address owner)
+    external
+    view
+    override
+    returns (DataTypes.Order memory);
+</code></pre>
+<h3 id="getbidorder"><a class="header" href="#getbidorder">getBidOrder</a></h3>
+<pre><code class="language-solidity">function getBidOrder(address nftAddress, uint256 tokenId, address owner)
+    external
+    view
+    override
+    returns (DataTypes.Order memory);
+</code></pre>
+<h3 id="getroyalty"><a class="header" href="#getroyalty">getRoyalty</a></h3>
+<pre><code class="language-solidity">function getRoyalty(address token) external view override returns (DataTypes.Royalty memory);
+</code></pre>
+<h3 id="_paywithfee"><a class="header" href="#_paywithfee">_payWithFee</a></h3>
+<pre><code class="language-solidity">function _payWithFee(
+    address from,
+    address to,
+    address token,
+    uint256 amount,
+    address feeReceiver,
+    uint256 feePercentage
+) internal returns (uint256 feeAmount);
+</code></pre>
+<h3 id="_now"><a class="header" href="#_now">_now</a></h3>
+<pre><code class="language-solidity">function _now() internal view virtual returns (uint256);
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="../../solidity.min.js"></script>
+
+
+    </div>
+    </body>
+</html>
