@@ -11,15 +11,34 @@ interface ISwap {
      */
     function initialize(address wcsb_, address mira_, uint256 minMira_, uint256 minCsb_) external;
 
+    /**
+     * @notice Sells MIRA for CSB.
+     * @param miraAmount The amount of MIRA to sell.
+     * @param expectedCsbAmount The expected amount of CSB to receive.
+     * @return orderId The new created order id.
+     */
     function sellMIRA(
         uint256 miraAmount,
         uint256 expectedCsbAmount
     ) external returns (uint256 orderId);
 
+    /**
+     * @notice Sells CSB for MIRA.
+     * @param expectedMiraAmount The expected amount of MIRA to receive.
+     * @return orderId The new created order id.
+     */
     function sellCSB(uint256 expectedMiraAmount) external payable returns (uint256 orderId);
 
+    /**
+     * @notice Cancels a sell order.
+     * @param orderId The order id to cancel.
+     */
     function cancelOrder(uint256 orderId) external;
 
+    /**
+     * @notice Accepts a sell order.
+     * @param orderId The order id to accept.
+     */
     function acceptOrder(uint256 orderId) external payable;
 
     /**
