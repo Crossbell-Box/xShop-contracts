@@ -85,7 +85,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item "><a href="index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item "><a href="contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a></li></ol></li><li class="chapter-item "><a href="contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/libraries/Constants.sol/library.Constants.html">Constants</a></li><li class="chapter-item "><a href="contracts/libraries/DataTypes.sol/library.DataTypes.html">DataTypes</a></li><li class="chapter-item "><a href="contracts/libraries/Events.sol/library.Events.html">Events</a></li></ol></li><li class="chapter-item "><a href="contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li></ol></li><li class="chapter-item "><a href="contracts/upgradeability/index.html">❱ upgradeability</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li></ol></li><li class="chapter-item "><a href="contracts/MarketPlace.sol/contract.MarketPlace.html">MarketPlace</a></li></ol>
+                <ol class="chapter"><li class="chapter-item "><a href="index.html">Home</a></li><li class="chapter-item affix "><li class="part-title">contracts</li><li class="chapter-item "><a href="contracts/interfaces/index.html">❱ interfaces</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a></li><li class="chapter-item "><a href="contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a></li><li class="chapter-item "><a href="contracts/interfaces/IWCSB.sol/interface.IWCSB.html">IWCSB</a></li></ol></li><li class="chapter-item "><a href="contracts/libraries/index.html">❱ libraries</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/libraries/DataTypes.sol/library.DataTypes.html">DataTypes</a></li><li class="chapter-item "><a href="contracts/libraries/Events.sol/library.Events.html">Events</a></li></ol></li><li class="chapter-item "><a href="contracts/mocks/index.html">❱ mocks</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/mocks/MiraToken.sol/contract.MiraToken.html">MiraToken</a></li><li class="chapter-item "><a href="contracts/mocks/NFT.sol/contract.NFT.html">NFT</a></li><li class="chapter-item "><a href="contracts/mocks/NFT.sol/contract.NFT1155.html">NFT1155</a></li><li class="chapter-item "><a href="contracts/mocks/WCSB.sol/contract.WCSB.html">WCSB</a></li></ol></li><li class="chapter-item "><a href="contracts/storage/index.html">❱ storage</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li></ol></li><li class="chapter-item "><a href="contracts/upgradeability/index.html">❱ upgradeability</a><a class="toggle"><div>❱</div></a></li><li><ol class="section"><li class="chapter-item "><a href="contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li></ol></li><li class="chapter-item "><a href="contracts/MarketPlace.sol/contract.MarketPlace.html">MarketPlace</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -166,18 +166,27 @@
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contents"><a class="header" href="#contents">Contents</a></h1>
 <ul>
+<li><a href="contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a></li>
 <li><a href="contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a></li>
+<li><a href="contracts/interfaces/IWCSB.sol/interface.IWCSB.html">IWCSB</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/98452a35c4527cc19c27c66567099edcbc391f38/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ierc20mintable"><a class="header" href="#ierc20mintable">IERC20Mintable</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
+<h3 id="mint"><a class="header" href="#mint">mint</a></h3>
+<pre><code class="language-solidity">function mint(address to, uint256 amount) external;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
-<p>Initializes the MarketPlace, setting the WCSB address.</p>
-<pre><code class="language-solidity">function initialize(address wcsb_) external;
+<p>Initializes the MarketPlace, setting the WCSB contract address.</p>
+<pre><code class="language-solidity">function initialize(address wcsb_, address mira_) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB.</td></tr>
+<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
+<tr><td><code>mira_</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 </tbody></table>
 </div>
 <h3 id="ask"><a class="header" href="#ask">ask</a></h3>
@@ -309,20 +318,43 @@ Emits the <code>OrdersMatched</code> event.</p>
 <tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT to bid.</td></tr>
 <tr><td><code>owner</code></td><td><code>address</code></td><td>The owner who creates the order.</td></tr>
 </tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="contents-1"><a class="header" href="#contents-1">Contents</a></h1>
+</div>
+<h3 id="wcsb"><a class="header" href="#wcsb">wcsb</a></h3>
+<p>Returns the address of WCSB contract.</p>
+<pre><code class="language-solidity">function wcsb() external view returns (address);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
+</tbody></table>
+</div>
+<h3 id="mira"><a class="header" href="#mira">mira</a></h3>
+<p>Returns the address of MIRA contract.</p>
+<pre><code class="language-solidity">function mira() external view returns (address);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="iwcsb"><a class="header" href="#iwcsb">IWCSB</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/interfaces/IWCSB.sol">Git Source</a></p>
+<h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
+<h3 id="deposit"><a class="header" href="#deposit">deposit</a></h3>
+<pre><code class="language-solidity">function deposit() external payable;
+</code></pre>
+<h3 id="transfer"><a class="header" href="#transfer">transfer</a></h3>
+<pre><code class="language-solidity">function transfer(address to, uint256 value) external returns (bool);
+</code></pre>
+<h3 id="withdraw"><a class="header" href="#withdraw">withdraw</a></h3>
+<pre><code class="language-solidity">function withdraw(uint256) external;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contents-1"><a class="header" href="#contents-1">Contents</a></h1>
 <ul>
-<li><a href="contracts/libraries/Constants.sol/library.Constants.html">Constants</a></li>
 <li><a href="contracts/libraries/DataTypes.sol/library.DataTypes.html">DataTypes</a></li>
 <li><a href="contracts/libraries/Events.sol/library.Events.html">Events</a></li>
 </ul>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="constants"><a class="header" href="#constants">Constants</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/98452a35c4527cc19c27c66567099edcbc391f38/contracts/libraries/Constants.sol">Git Source</a></p>
-<h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
-<h3 id="native_csb"><a class="header" href="#native_csb">NATIVE_CSB</a></h3>
-<pre><code class="language-solidity">address public constant NATIVE_CSB = 0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC;
-</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/98452a35c4527cc19c27c66567099edcbc391f38/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/libraries/DataTypes.sol">Git Source</a></p>
 <h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
 <pre><code class="language-solidity">struct Order {
@@ -335,7 +367,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/98452a35c4527cc19c27c66567099edcbc391f38/contracts/libraries/Events.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/libraries/Events.sol">Git Source</a></p>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
 <h3 id="askcreated"><a class="header" href="#askcreated">AskCreated</a></h3>
 <p>Emitted when an ask order is created.</p>
@@ -389,13 +421,26 @@ Emits the <code>OrdersMatched</code> event.</p>
     uint256 deadline
 );
 </code></pre>
-<h3 id="ordersmatched"><a class="header" href="#ordersmatched">OrdersMatched</a></h3>
-<p>Emitted when a bid/ask order is accepted(matched).</p>
-<pre><code class="language-solidity">event OrdersMatched(
-    address indexed seller,
-    address indexed buyer,
+<h3 id="askmatched"><a class="header" href="#askmatched">AskMatched</a></h3>
+<p>Emitted when a ask order is accepted(matched).</p>
+<pre><code class="language-solidity">event AskMatched(
+    address indexed owner,
     address indexed nftAddress,
-    uint256 tokenId,
+    uint256 indexed tokenId,
+    address buyer,
+    address payToken,
+    uint256 price,
+    address royaltyReceiver,
+    uint256 royaltyAmount
+);
+</code></pre>
+<h3 id="bidmatched"><a class="header" href="#bidmatched">BidMatched</a></h3>
+<p>Emitted when a bid order is accepted(matched).</p>
+<pre><code class="language-solidity">event BidMatched(
+    address indexed owner,
+    address indexed nftAddress,
+    uint256 indexed tokenId,
+    address seller,
     address payToken,
     uint256 price,
     address royaltyReceiver,
@@ -404,13 +449,163 @@ Emits the <code>OrdersMatched</code> event.</p>
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="contents-2"><a class="header" href="#contents-2">Contents</a></h1>
 <ul>
+<li><a href="contracts/mocks/MiraToken.sol/contract.MiraToken.html">MiraToken</a></li>
+<li><a href="contracts/mocks/NFT.sol/contract.NFT.html">NFT</a></li>
+<li><a href="contracts/mocks/NFT.sol/contract.NFT1155.html">NFT1155</a></li>
+<li><a href="contracts/mocks/WCSB.sol/contract.WCSB.html">WCSB</a></li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="miratoken"><a class="header" href="#miratoken">MiraToken</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/mocks/MiraToken.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+AccessControlEnumerable, <a href="contracts/mocks/MiraToken.sol//contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a>, ERC777</p>
+<h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
+<h3 id="block_role"><a class="header" href="#block_role">BLOCK_ROLE</a></h3>
+<pre><code class="language-solidity">bytes32 public constant BLOCK_ROLE = keccak256(&quot;BLOCK_ROLE&quot;);
+</code></pre>
+<h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
+<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
+<pre><code class="language-solidity">constructor(string memory name_, string memory symbol_, address admin) ERC777(name_, symbol_, new address[](0));
+</code></pre>
+<h3 id="mint-1"><a class="header" href="#mint-1">mint</a></h3>
+<p>*Creates <code>amount</code> new tokens for <code>to</code>.
+Requirements:</p>
+<ul>
+<li>the caller must have the <code>DEFAULT_ADMIN_ROLE</code>.*</li>
+</ul>
+<pre><code class="language-solidity">function mint(address to, uint256 amount) external override onlyRole(DEFAULT_ADMIN_ROLE);
+</code></pre>
+<h3 id="renouncerole"><a class="header" href="#renouncerole">renounceRole</a></h3>
+<p>*Revokes <code>role</code> from the calling account.
+Requirements:</p>
+<ul>
+<li>the caller must have the <code>DEFAULT_ADMIN_ROLE</code>.*</li>
+</ul>
+<pre><code class="language-solidity">function renounceRole(bytes32 role, address account)
+    public
+    override(AccessControl, IAccessControl)
+    onlyRole(DEFAULT_ADMIN_ROLE);
+</code></pre>
+<h3 id="_send"><a class="header" href="#_send">_send</a></h3>
+<p><em>Blocks send tokens from account <code>from</code> who has the <code>BLOCK_ROLE</code>.</em></p>
+<pre><code class="language-solidity">function _send(
+    address from,
+    address to,
+    uint256 amount,
+    bytes memory userData,
+    bytes memory operatorData,
+    bool requireReceptionAck
+) internal override;
+</code></pre>
+<h3 id="_burn"><a class="header" href="#_burn">_burn</a></h3>
+<p><em>Disables burn</em></p>
+<pre><code class="language-solidity">function _burn(address, uint256, bytes memory, bytes memory) internal pure override;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="nft"><a class="header" href="#nft">NFT</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/mocks/NFT.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+ERC721Enumerable, ERC2981</p>
+<h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
+<h3 id="_tokencounter"><a class="header" href="#_tokencounter">_tokenCounter</a></h3>
+<pre><code class="language-solidity">uint256 internal _tokenCounter;
+</code></pre>
+<h2 id="functions-4"><a class="header" href="#functions-4">Functions</a></h2>
+<h3 id="constructor-1"><a class="header" href="#constructor-1">constructor</a></h3>
+<pre><code class="language-solidity">constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_);
+</code></pre>
+<h3 id="mint-2"><a class="header" href="#mint-2">mint</a></h3>
+<pre><code class="language-solidity">function mint(address to) external returns (uint256 tokenId);
+</code></pre>
+<h3 id="settokenroyalty"><a class="header" href="#settokenroyalty">setTokenRoyalty</a></h3>
+<pre><code class="language-solidity">function setTokenRoyalty(uint256 tokenId, address recipient, uint96 fraction) external;
+</code></pre>
+<h3 id="setdefaultroyalty"><a class="header" href="#setdefaultroyalty">setDefaultRoyalty</a></h3>
+<pre><code class="language-solidity">function setDefaultRoyalty(address recipient, uint96 fraction) external;
+</code></pre>
+<h3 id="deletedefaultroyalty"><a class="header" href="#deletedefaultroyalty">deleteDefaultRoyalty</a></h3>
+<pre><code class="language-solidity">function deleteDefaultRoyalty() external;
+</code></pre>
+<h3 id="supportsinterface"><a class="header" href="#supportsinterface">supportsInterface</a></h3>
+<pre><code class="language-solidity">function supportsInterface(bytes4 interfaceId) public view virtual override(ERC2981, ERC721Enumerable) returns (bool);
+</code></pre>
+<h3 id="totalsupply"><a class="header" href="#totalsupply">totalSupply</a></h3>
+<pre><code class="language-solidity">function totalSupply() public view override returns (uint256);
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="nft1155"><a class="header" href="#nft1155">NFT1155</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/mocks/NFT.sol">Git Source</a></p>
+<p><strong>Inherits:</strong>
+ERC1155</p>
+<h2 id="functions-5"><a class="header" href="#functions-5">Functions</a></h2>
+<h3 id="constructor-2"><a class="header" href="#constructor-2">constructor</a></h3>
+<pre><code class="language-solidity">constructor() ERC1155(&quot;https://ipfsxxxx&quot;);
+</code></pre>
+<h3 id="mint-3"><a class="header" href="#mint-3">mint</a></h3>
+<pre><code class="language-solidity">function mint(address to) public;
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="wcsb-1"><a class="header" href="#wcsb-1">WCSB</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/mocks/WCSB.sol">Git Source</a></p>
+<h2 id="state-variables-2"><a class="header" href="#state-variables-2">State Variables</a></h2>
+<h3 id="name"><a class="header" href="#name">name</a></h3>
+<pre><code class="language-solidity">string public name = &quot;Wrapped CSB&quot;;
+</code></pre>
+<h3 id="symbol"><a class="header" href="#symbol">symbol</a></h3>
+<pre><code class="language-solidity">string public symbol = &quot;WCSB&quot;;
+</code></pre>
+<h3 id="decimals"><a class="header" href="#decimals">decimals</a></h3>
+<pre><code class="language-solidity">uint8 public decimals = 18;
+</code></pre>
+<h3 id="balanceof"><a class="header" href="#balanceof">balanceOf</a></h3>
+<pre><code class="language-solidity">mapping(address =&gt; uint256) public balanceOf;
+</code></pre>
+<h3 id="allowance"><a class="header" href="#allowance">allowance</a></h3>
+<pre><code class="language-solidity">mapping(address =&gt; mapping(address =&gt; uint256)) public allowance;
+</code></pre>
+<h2 id="functions-6"><a class="header" href="#functions-6">Functions</a></h2>
+<h3 id="receive"><a class="header" href="#receive">receive</a></h3>
+<pre><code class="language-solidity">receive() external payable;
+</code></pre>
+<h3 id="deposit-1"><a class="header" href="#deposit-1">deposit</a></h3>
+<pre><code class="language-solidity">function deposit() public payable;
+</code></pre>
+<h3 id="withdraw-1"><a class="header" href="#withdraw-1">withdraw</a></h3>
+<pre><code class="language-solidity">function withdraw(uint256 wad) public;
+</code></pre>
+<h3 id="totalsupply-1"><a class="header" href="#totalsupply-1">totalSupply</a></h3>
+<pre><code class="language-solidity">function totalSupply() public view returns (uint256);
+</code></pre>
+<h3 id="approve"><a class="header" href="#approve">approve</a></h3>
+<pre><code class="language-solidity">function approve(address guy, uint256 wad) public returns (bool);
+</code></pre>
+<h3 id="transfer-1"><a class="header" href="#transfer-1">transfer</a></h3>
+<pre><code class="language-solidity">function transfer(address dst, uint256 wad) public returns (bool);
+</code></pre>
+<h3 id="transferfrom"><a class="header" href="#transferfrom">transferFrom</a></h3>
+<pre><code class="language-solidity">function transferFrom(address src, address dst, uint256 wad) public returns (bool);
+</code></pre>
+<h2 id="events-2"><a class="header" href="#events-2">Events</a></h2>
+<h3 id="approval"><a class="header" href="#approval">Approval</a></h3>
+<pre><code class="language-solidity">event Approval(address indexed src, address indexed guy, uint256 wad);
+</code></pre>
+<h3 id="transfer-2"><a class="header" href="#transfer-2">Transfer</a></h3>
+<pre><code class="language-solidity">event Transfer(address indexed src, address indexed dst, uint256 wad);
+</code></pre>
+<h3 id="deposit-2"><a class="header" href="#deposit-2">Deposit</a></h3>
+<pre><code class="language-solidity">event Deposit(address indexed dst, uint256 wad);
+</code></pre>
+<h3 id="withdrawal"><a class="header" href="#withdrawal">Withdrawal</a></h3>
+<pre><code class="language-solidity">event Withdrawal(address indexed src, uint256 wad);
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contents-3"><a class="header" href="#contents-3">Contents</a></h1>
+<ul>
 <li><a href="contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplacestorage"><a class="header" href="#marketplacestorage">MarketPlaceStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/98452a35c4527cc19c27c66567099edcbc391f38/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
-<h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
-<h3 id="wcsb"><a class="header" href="#wcsb">WCSB</a></h3>
-<pre><code class="language-solidity">address public WCSB;
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
+<h2 id="state-variables-3"><a class="header" href="#state-variables-3">State Variables</a></h2>
+<h3 id="_wcsb"><a class="header" href="#_wcsb">_wcsb</a></h3>
+<pre><code class="language-solidity">address internal _wcsb;
+</code></pre>
+<h3 id="_mira"><a class="header" href="#_mira">_mira</a></h3>
+<pre><code class="language-solidity">address internal _mira;
 </code></pre>
 <h3 id="_askorders"><a class="header" href="#_askorders">_askOrders</a></h3>
 <pre><code class="language-solidity">mapping(address =&gt; mapping(uint256 =&gt; mapping(address =&gt; DataTypes.Order))) internal _askOrders;
@@ -418,12 +613,12 @@ Emits the <code>OrdersMatched</code> event.</p>
 <h3 id="_bidorders"><a class="header" href="#_bidorders">_bidOrders</a></h3>
 <pre><code class="language-solidity">mapping(address =&gt; mapping(uint256 =&gt; mapping(address =&gt; DataTypes.Order))) internal _bidOrders;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="contents-3"><a class="header" href="#contents-3">Contents</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="contents-4"><a class="header" href="#contents-4">Contents</a></h1>
 <ul>
 <li><a href="contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transparentupgradeableproxy"><a class="header" href="#transparentupgradeableproxy">TransparentUpgradeableProxy</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/98452a35c4527cc19c27c66567099edcbc391f38/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC1967Proxy</p>
 <p>*This contract implements a proxy that is upgradeable by an admin.
@@ -443,8 +638,8 @@ to sudden errors when trying to call a function from the proxy implementation.
 Our recommendation is for the dedicated account to be an instance of the {ProxyAdmin} contract. If set up this way,
 you should think of the <code>ProxyAdmin</code> instance as the real administrative interface of your proxy.*</li>
 </ol>
-<h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
-<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
+<h2 id="functions-7"><a class="header" href="#functions-7">Functions</a></h2>
+<h3 id="constructor-3"><a class="header" href="#constructor-3">constructor</a></h3>
 <p><em>Initializes an upgradeable proxy managed by <code>_admin</code>, backed by the implementation at <code>_logic</code>, and
 optionally initialized with <code>_data</code> as explained in {ERC1967Proxy-constructor}.</em></p>
 <pre><code class="language-solidity">constructor(address _logic, address admin_, bytes memory _data) payable ERC1967Proxy(_logic, _data);
@@ -496,14 +691,17 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.</e
 <pre><code class="language-solidity">function _beforeFallback() internal virtual override;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplace"><a class="header" href="#marketplace">MarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/98452a35c4527cc19c27c66567099edcbc391f38/contracts/MarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/d9b03e18ec11950070039076ee52f023702607ff/contracts/MarketPlace.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="contracts/MarketPlace.sol//contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, <a href="contracts/MarketPlace.sol//contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
-<h2 id="state-variables-2"><a class="header" href="#state-variables-2">State Variables</a></h2>
+<h2 id="state-variables-4"><a class="header" href="#state-variables-4">State Variables</a></h2>
 <h3 id="interface_id_erc721"><a class="header" href="#interface_id_erc721">INTERFACE_ID_ERC721</a></h3>
 <pre><code class="language-solidity">bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 </code></pre>
-<h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
+<h3 id="interface_id_erc2981"><a class="header" href="#interface_id_erc2981">INTERFACE_ID_ERC2981</a></h3>
+<pre><code class="language-solidity">bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
+</code></pre>
+<h2 id="functions-8"><a class="header" href="#functions-8">Functions</a></h2>
 <h3 id="asknotexists"><a class="header" href="#asknotexists">askNotExists</a></h3>
 <pre><code class="language-solidity">modifier askNotExists(address nftAddress, uint256 tokenId, address user);
 </code></pre>
@@ -532,12 +730,13 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.</e
 <pre><code class="language-solidity">modifier validPrice(uint256 price);
 </code></pre>
 <h3 id="initialize-1"><a class="header" href="#initialize-1">initialize</a></h3>
-<p>Initializes the MarketPlace, setting the WCSB address.</p>
-<pre><code class="language-solidity">function initialize(address wcsb_) external override initializer;
+<p>Initializes the MarketPlace, setting the WCSB contract address.</p>
+<pre><code class="language-solidity">function initialize(address wcsb_, address mira_) external override initializer;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB.</td></tr>
+<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
+<tr><td><code>mira_</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 </tbody></table>
 </div>
 <h3 id="ask-1"><a class="header" href="#ask-1">ask</a></h3>
@@ -711,8 +910,29 @@ Emits the <code>OrdersMatched</code> event.</p>
 <tr><td><code>owner</code></td><td><code>address</code></td><td>The owner who creates the order.</td></tr>
 </tbody></table>
 </div>
-<h3 id="_paywithroyalty"><a class="header" href="#_paywithroyalty">_payWithRoyalty</a></h3>
-<pre><code class="language-solidity">function _payWithRoyalty(
+<h3 id="wcsb-2"><a class="header" href="#wcsb-2">wcsb</a></h3>
+<p>Returns the address of WCSB contract.</p>
+<pre><code class="language-solidity">function wcsb() external view override returns (address);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
+</tbody></table>
+</div>
+<h3 id="mira-1"><a class="header" href="#mira-1">mira</a></h3>
+<p>Returns the address of MIRA contract.</p>
+<pre><code class="language-solidity">function mira() external view override returns (address);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
+</tbody></table>
+</div>
+<h3 id="_paycsbwithroyalty"><a class="header" href="#_paycsbwithroyalty">_payCSBWithRoyalty</a></h3>
+<pre><code class="language-solidity">function _payCSBWithRoyalty(address to, uint256 amount, address royaltyReceiver, uint256 royaltyAmount) internal;
+</code></pre>
+<h3 id="_payerc20withroyalty"><a class="header" href="#_payerc20withroyalty">_payERC20WithRoyalty</a></h3>
+<pre><code class="language-solidity">function _payERC20WithRoyalty(
     address from,
     address to,
     address token,
