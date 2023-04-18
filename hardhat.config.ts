@@ -23,11 +23,11 @@ module.exports = {
     networks: {
         ropsten: {
             url: process.env.ROPSTEN_URL || "",
-            accounts: [process.env.PRIVATE_KEY as string, process.env.PRIVATE_KEY2 as string],
+            accounts: [process.env.PRIVATE_KEY]
         },
         crossbell: {
             url: "https://rpc.crossbell.io",
-            accounts: [process.env.PRIVATE_KEY as string, process.env.PRIVATE_KEY2 as string],
+            accounts: [process.env.PRIVATE_KEY]
         },
     },
 

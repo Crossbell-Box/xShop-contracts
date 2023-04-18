@@ -9,6 +9,7 @@ async function main() {
     // update these addresses when deploying
     const admin = "0xda2423ceA4f1047556e7a142F81a7ED50e93e160";
     const wcsb = "0xda2423ceA4f1047556e7a142F81a7ED50e93e160";
+    const mira = "0xAfB95CC0BD320648B3E8Df6223d9CDD05EbeDC64";
 
     const MarketPlace = await ethers.getContractFactory("MarketPlace");
     const marketPlace = await MarketPlace.deploy();
@@ -18,7 +19,7 @@ async function main() {
     const proxyMarketPlace = await Proxy.deploy(marketPlace.address, admin, "0x");
     await proxyMarketPlace.deployed();
 
-    await MarketPlace.attach(proxyMarketPlace.address).initialize(wcsb);
+    await MarketPlace.attach(proxyMarketPlace.address).initialize(wcsb, mira);
 
     console.log("marketPlace deployed to:", marketPlace.address);
     console.log("proxyMarketPlace deployed to:", proxyMarketPlace.address);
