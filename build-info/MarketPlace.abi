@@ -14,7 +14,7 @@
   },
   {
     "inputs": [],
-    "name": "INTERFACE_ID_ERC721",
+    "name": "INTERFACE_ID_ERC2981",
     "outputs": [
       {
         "internalType": "bytes4",
@@ -27,12 +27,12 @@
   },
   {
     "inputs": [],
-    "name": "WCSB",
+    "name": "INTERFACE_ID_ERC721",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "bytes4",
         "name": "",
-        "type": "address"
+        "type": "bytes4"
       }
     ],
     "stateMutability": "view",
@@ -314,11 +314,29 @@
         "internalType": "address",
         "name": "wcsb_",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "mira_",
+        "type": "address"
       }
     ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "mira",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -385,6 +403,19 @@
     "name": "updateBid",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "wcsb",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]
