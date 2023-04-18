@@ -2,7 +2,6 @@
 pragma solidity 0.8.18;
 
 import {IMarketPlace} from "./interfaces/IMarketPlace.sol";
-import {IWCSB} from "./interfaces/IWCSB.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
 import {Events} from "./libraries/Events.sol";
 import {MarketPlaceStorage} from "./storage/MarketPlaceStorage.sol";
@@ -10,16 +9,30 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC777} from "@openzeppelin/contracts/token/ERC777/IERC777.sol";
+import {IERC777Recipient} from "@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol";
+import {IERC1820Registry} from "@openzeppelin/contracts/utils/introspection/IERC1820Registry.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, MarketPlaceStorage {
+contract MarketPlace is
+    IMarketPlace,
+    Context,
+    ReentrancyGuard,
+    Initializable,
+    IERC777Recipient,
+    MarketPlaceStorage
+{
     using SafeERC20 for IERC20;
 
     bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
+
+    IERC1820Registry public constant ERC1820_REGISTRY =
+        IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
+    bytes32 public constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
     modifier askNotExists(
         address nftAddress,
@@ -101,6 +114,42 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
     function initialize(address wcsb_, address mira_) external override initializer {
         _wcsb = wcsb_;
         _mira = mira_;
+
+        // register interfaces
+        ERC1820_REGISTRY.setInterfaceImplementer(
+            address(this),
+            TOKENS_RECIPIENT_INTERFACE_HASH,
+            address(this)
+        );
+    }
+
+    /**
+     * @dev Called by an {IERC777} token contract whenever tokens are being
+     * moved or created into a registered account `to` (this contract). <br>
+     *
+     * The userData/operatorData should be an abi encoded bytes of `address`, `uint256`
+     * and `address`,  which represents `nftAddress`, `tokenId` and `user` with total length 72.
+     */
+    /// @inheritdoc IERC777Recipient
+    function tokensReceived(
+        address,
+        address from,
+        address to,
+        uint256 amount,
+        bytes calldata userData,
+        bytes calldata operatorData
+    ) external override(IERC777Recipient) {
+        require(_msgSender() == _mira, "InvalidToken");
+        require(address(this) == to, "InvalidReceiver");
+
+        bytes memory data = userData.length > 0 ? userData : operatorData;
+        // abi encoded bytes of (nftAddress, tokenId, user)
+        // slither-disable-next-line variable-scope
+        (address nftAddress, uint256 tokenId, address user) = abi.decode(
+            data,
+            (address, uint256, address)
+        );
+        _acceptAsk(nftAddress, tokenId, user, from, amount);
     }
 
     /// @inheritdoc IMarketPlace
@@ -174,44 +223,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         uint256 tokenId,
         address user
     ) external payable override nonReentrant validAsk(nftAddress, tokenId, user) {
-        DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
-
-        (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
-            nftAddress,
-            tokenId,
-            askOrder.price
-        );
-
-        if (askOrder.payToken == _wcsb) {
-            // pay CSB
-            _payCSBWithRoyalty(askOrder.owner, askOrder.price, royaltyReceiver, royaltyAmount);
-        } else {
-            // pay ERC20
-            _payERC20WithRoyalty(
-                _msgSender(),
-                askOrder.owner,
-                askOrder.payToken,
-                askOrder.price,
-                royaltyReceiver,
-                royaltyAmount
-            );
-        }
-
-        // transfer nft
-        IERC721(nftAddress).safeTransferFrom(user, _msgSender(), tokenId);
-
-        emit Events.AskMatched(
-            askOrder.owner,
-            nftAddress,
-            tokenId,
-            _msgSender(),
-            askOrder.payToken,
-            askOrder.price,
-            royaltyReceiver,
-            royaltyAmount
-        );
-
-        delete _askOrders[nftAddress][tokenId][user];
+        _acceptAsk(nftAddress, tokenId, user, _msgSender(), 0);
     }
 
     /// @inheritdoc IMarketPlace
@@ -345,13 +357,84 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         return _mira;
     }
 
+    function _pay(
+        address from,
+        address to,
+        address payToken,
+        uint256 amount,
+        address royaltyReceiver,
+        uint256 royaltyAmount,
+        uint256 erc777Amount
+    ) internal {
+        if (payToken == _wcsb) {
+            // pay CSB
+            _payCSBWithRoyalty(to, amount, royaltyReceiver, royaltyAmount);
+        } else if (erc777Amount > 0) {
+            // pay ERC777
+            _payERC777WithRoyalty(
+                to,
+                payToken,
+                amount,
+                royaltyReceiver,
+                royaltyAmount,
+                erc777Amount
+            );
+        } else {
+            // pay ERC20
+            _payERC20WithRoyalty(from, to, payToken, amount, royaltyReceiver, royaltyAmount);
+        }
+    }
+
+    function _acceptAsk(
+        address nftAddress,
+        uint256 tokenId,
+        address user,
+        address buyer,
+        uint256 erc777Amount
+    ) internal {
+        DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
+
+        (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
+            nftAddress,
+            tokenId,
+            askOrder.price
+        );
+
+        // pay tokens
+        _pay(
+            buyer,
+            askOrder.owner,
+            askOrder.payToken,
+            askOrder.price,
+            royaltyReceiver,
+            royaltyAmount,
+            erc777Amount
+        );
+
+        // transfer nft
+        IERC721(nftAddress).safeTransferFrom(user, buyer, tokenId);
+
+        emit Events.AskMatched(
+            askOrder.owner,
+            nftAddress,
+            tokenId,
+            buyer,
+            askOrder.payToken,
+            askOrder.price,
+            royaltyReceiver,
+            royaltyAmount
+        );
+
+        delete _askOrders[nftAddress][tokenId][user];
+    }
+
     function _payCSBWithRoyalty(
         address to,
         uint256 amount,
         address royaltyReceiver,
         uint256 royaltyAmount
     ) internal {
-        require(msg.value >= amount, "NotEnoughFunds");
+        require(msg.value >= amount, "NotEnoughCSBFunds");
         // pay CSB
         if (royaltyReceiver != address(0)) {
             // slither-disable-next-line arbitrary-send-eth
@@ -361,6 +444,24 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         } else {
             // slither-disable-next-line arbitrary-send-eth
             payable(to).transfer(amount);
+        }
+    }
+
+    function _payERC777WithRoyalty(
+        address to,
+        address token,
+        uint256 amount,
+        address royaltyReceiver,
+        uint256 royaltyAmount,
+        uint256 erc777Amount
+    ) internal {
+        require(erc777Amount >= amount, "NotEnougERC777Funds");
+        // pay ERC777
+        if (royaltyReceiver != address(0)) {
+            IERC20(token).safeTransfer(royaltyReceiver, royaltyAmount);
+            IERC20(token).safeTransfer(to, amount - royaltyAmount);
+        } else {
+            IERC20(token).safeTransfer(to, amount);
         }
     }
 

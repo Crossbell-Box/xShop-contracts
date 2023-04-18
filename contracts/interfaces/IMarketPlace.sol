@@ -33,6 +33,7 @@ interface IMarketPlace {
      * Emits the `AskUpdated` event.
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
+     * @param payToken The ERC20 token address for buyers to pay.
      * @param price The new sale price for the NFT.
      * @param deadline The new expiration timestamp of the ask order.
      */

@@ -455,14 +455,14 @@ contract MarketPlaceTest is Test, EmitExpecter {
         _assertEmptyOrder(address(nft), 1, alice, true);
     }
 
-    function testAcceptAskWithFuzzingPrice(uint256 price, uint96 percentage) public {
+    function testAcceptAskWithERC777SendHook(uint256 price, uint96 percentage) public {
         vm.assume(price > 1);
         vm.assume(price < 10 ether);
         vm.assume(percentage <= MAX_ROYALTY);
 
         address nftAddress = address(nft);
         uint256 tokenId = 1;
-        address payToken = address(wcsb);
+        address payToken = address(mira);
         uint256 deadline = block.timestamp + 10;
         address royaltyReceiver = address(0x5555);
         uint256 feeAmount = (price * percentage) / 10000;
@@ -489,12 +489,12 @@ contract MarketPlaceTest is Test, EmitExpecter {
         );
         // accept ask
         vm.prank(bob);
-        market.acceptAsk{value: price}(nftAddress, tokenId, alice);
+        mira.send(address(market), price, abi.encode(nftAddress, tokenId, alice));
 
         // check csb balance
-        assertEq(alice.balance, price - feeAmount);
-        assertEq(royaltyReceiver.balance, feeAmount);
-        assertEq(bob.balance, INITIAL_CSB_BALANCE - price);
+        assertEq(mira.balanceOf(alice), price - feeAmount);
+        assertEq(mira.balanceOf(royaltyReceiver), feeAmount);
+        assertEq(mira.balanceOf(bob), INITIAL_MIRA_BALANCE - price);
 
         // check ask order
         _assertEmptyOrder(nftAddress, tokenId, alice, true);
@@ -518,8 +518,8 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
         market.acceptAsk(address(nft1155), 1, alice);
 
-        // NotEnoughFunds
-        vm.expectRevert(abi.encodePacked("NotEnoughFunds"));
+        // NotEnoughCSBFunds
+        vm.expectRevert(abi.encodePacked("NotEnoughCSBFunds"));
         market.acceptAsk{value: price - 1}(address(nft), 1, alice);
 
         // AskExpiredOrNotExists
@@ -527,6 +527,46 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.expectRevert(abi.encodePacked("AskExpiredOrNotExists"));
         market.acceptAsk{value: price}(address(nft), 1, alice);
         vm.stopPrank();
+    }
+
+    function testAcceptAskFailNotEnoughERC20() public {
+        uint256 price = INITIAL_MIRA_BALANCE + 1;
+
+        // create ask order
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(mira), price, block.timestamp + 10);
+
+        // prepare mira
+        vm.startPrank(bob);
+        mira.approve(address(market), price);
+
+        vm.expectRevert(abi.encodePacked("ERC777: transfer amount exceeds balance"));
+        market.acceptAsk(address(nft), 1, alice);
+        vm.stopPrank();
+    }
+
+    function testAcceptAskFailNotEnoughERC777() public {
+        uint256 price = INITIAL_MIRA_BALANCE + 1;
+
+        // create ask order
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(mira), price, block.timestamp + 10);
+
+        vm.expectRevert(abi.encodePacked("NotEnougERC777Funds"));
+        vm.prank(bob);
+        mira.send(address(market), price - 1, abi.encode(address(nft), 1, alice));
+    }
+
+    function testAcceptAskFailNotEnoughCSB() public {
+        uint256 price = INITIAL_CSB_BALANCE + 1;
+
+        // create ask order
+        vm.prank(alice);
+        market.ask(address(nft), 1, address(wcsb), price, block.timestamp + 10);
+
+        vm.expectRevert(abi.encodePacked("NotEnoughCSBFunds"));
+        vm.prank(bob);
+        market.acceptAsk{value: price - 1}(address(nft), 1, alice);
     }
 
     function testAcceptBidWithRoyalty(uint96 percentage) public {
