@@ -13,6 +13,7 @@ interface ISwap {
 
     /**
      * @notice Sells MIRA for CSB.
+     * Emits the `SellMIRA` event.
      * @param miraAmount The amount of MIRA to sell.
      * @param expectedCsbAmount The expected amount of CSB to receive.
      * @return orderId The new created order id.
@@ -24,6 +25,7 @@ interface ISwap {
 
     /**
      * @notice Sells CSB for MIRA.
+     * Emits the `SellCSB` event.
      * @param expectedMiraAmount The expected amount of MIRA to receive.
      * @return orderId The new created order id.
      */
@@ -31,12 +33,14 @@ interface ISwap {
 
     /**
      * @notice Cancels a sell order.
+     * Emits the `SellOrderCanceled` event.
      * @param orderId The order id to cancel.
      */
     function cancelOrder(uint256 orderId) external;
 
     /**
      * @notice Accepts a sell order.
+     * Emits the `SellOrderMatched` event.
      * @param orderId The order id to accept.
      */
     function acceptOrder(uint256 orderId) external payable;

@@ -10,4 +10,11 @@ library DataTypes {
         uint256 price;
         uint256 deadline;
     }
+
+    struct SellOrder {
+        address owner;
+        uint8 orderType;
+        uint256 miraAmount;
+        uint256 csbAmount;
+    }
 }

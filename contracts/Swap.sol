@@ -3,6 +3,7 @@ pragma solidity 0.8.18;
 
 import {ISwap} from "./interfaces/ISwap.sol";
 import {Events} from "./libraries/Events.sol";
+import {DataTypes} from "./libraries/DataTypes.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -14,10 +15,10 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract Swap is ISwap, Context, IERC777Recipient, Initializable {
     using SafeERC20 for IERC20;
 
-    address internal _wcsb;
-    address internal _mira;
-    uint256 internal _minMira;
-    uint256 internal _minCsb;
+    address internal _wcsb; //wrapped CSB.
+    address internal _mira; // mira token address
+    uint256 internal _minMira; // minimum MIRA amount to sell
+    uint256 internal _minCsb; // minimum CSB amount to sell
 
     uint8 public constant SELL_MIRA = 1;
     uint8 public constant SELL_CSB = 2;
@@ -26,13 +27,7 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
     bytes32 public constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
-    struct SellOrder {
-        address owner;
-        uint8 orderType;
-        uint256 miraAmount;
-        uint256 csbAmount;
-    }
-    mapping(uint256 => SellOrder) internal _orders;
+    mapping(uint256 => DataTypes.SellOrder) internal _orders;
     uint256 internal _orderCount;
 
     /// @inheritdoc ISwap
@@ -60,8 +55,10 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
      * @dev Called by an {IERC777} token contract whenever tokens are being
      * moved or created into a registered account `to` (this contract). <br>
      *
-     * The userData/operatorData should be an abi encoded bytes of `uint256`,
-     * which represents `orderId` of the sell order.
+     * The userData/operatorData should be an abi encoded bytes of two `uint256`,
+     * the first uint256 represents operation type. <br>
+     * opType = 1: accept an order.<br>
+     * opType = 2: sell MIRA for CSB.
      */
     /// @inheritdoc IERC777Recipient
     function tokensReceived(
@@ -77,10 +74,16 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
         require(amount > 0, "InvalidAmount");
 
         bytes memory data = userData.length > 0 ? userData : operatorData;
-        // abi encoded bytes of (orderId)
-        // slither-disable-next-line variable-scope
-        uint256 orderId = abi.decode(data, (uint256));
-        _acceptOrder(orderId, from, amount);
+        (uint256 opType, uint256 value) = abi.decode(data, (uint256, uint256));
+        if (opType == 1) {
+            // accept an order
+            _acceptOrder(value, from, amount);
+        } else if (opType == 2) {
+            // sell MIRA for CSB
+            _sellMIRA(from, amount, value);
+        } else {
+            revert("InvalidData");
+        }
     }
 
     /// @inheritdoc ISwap
@@ -88,21 +91,29 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
         uint256 miraAmount,
         uint256 expectedCsbAmount
     ) external override returns (uint256 orderId) {
+        orderId = _sellMIRA(_msgSender(), miraAmount, expectedCsbAmount);
+    }
+
+    function _sellMIRA(
+        address owner,
+        uint256 miraAmount,
+        uint256 expectedCsbAmount
+    ) internal returns (uint256 orderId) {
         require(miraAmount >= _minMira, "InvalidMiraAmount");
 
-        IERC20(_mira).safeTransferFrom(_msgSender(), address(this), miraAmount);
+        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
 
         unchecked {
             orderId = ++_orderCount;
         }
-        _orders[orderId] = SellOrder({
-            owner: _msgSender(),
+        _orders[orderId] = DataTypes.SellOrder({
+            owner: owner,
             orderType: SELL_MIRA,
             miraAmount: miraAmount,
             csbAmount: expectedCsbAmount
         });
 
-        emit Events.SellMIRA(_msgSender(), miraAmount, expectedCsbAmount, orderId);
+        emit Events.SellMIRA(owner, miraAmount, expectedCsbAmount, orderId);
     }
 
     /// @inheritdoc ISwap
@@ -114,7 +125,7 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
         unchecked {
             orderId = ++_orderCount;
         }
-        _orders[orderId] = SellOrder({
+        _orders[orderId] = DataTypes.SellOrder({
             owner: _msgSender(),
             orderType: SELL_CSB,
             miraAmount: expectedMiraAmount,
@@ -149,7 +160,7 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
     }
 
     function _acceptOrder(uint256 orderId, address buyer, uint256 erc777Amount) internal {
-        SellOrder memory order = _orders[orderId];
+        DataTypes.SellOrder memory order = _orders[orderId];
         if (order.orderType == SELL_MIRA) {
             require(msg.value >= order.csbAmount, "InvalidCSBAmount");
 
