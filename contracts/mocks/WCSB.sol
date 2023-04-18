@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* solhint-disable */
-pragma solidity 0.8.16;
+pragma solidity 0.8.18;
 
 contract WCSB {
     string public name = "Wrapped CSB";

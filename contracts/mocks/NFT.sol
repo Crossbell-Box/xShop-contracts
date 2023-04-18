@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 /* solhint-disable */
 // slither-disable-start naming-convention
-pragma solidity 0.8.16;
+pragma solidity 0.8.18;
 
 import {IERC2981} from "@openzeppelin/contracts/interfaces/IERC2981.sol";
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
@@ -64,3 +64,4 @@ contract NFT1155 is ERC1155 {
         _mint(to, 1, 1, data);
     }
 }
+// slither-disable-end naming-convention

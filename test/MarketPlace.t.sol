@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 /* solhint-disable */
-pragma solidity 0.8.16;
+pragma solidity 0.8.18;
 
 import {Test} from "forge-std/Test.sol";
 import {MarketPlace} from "../contracts/MarketPlace.sol";
