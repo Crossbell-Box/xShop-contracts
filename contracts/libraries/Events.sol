@@ -134,4 +134,22 @@ library Events {
         address royaltyReceiver,
         uint256 royaltyAmount
     );
+
+    event SellMIRA(
+        address indexed owner,
+        uint256 indexed miraAmount,
+        uint256 indexed csbAmount,
+        uint256 orderId
+    );
+
+    event SellCSB(
+        address indexed owner,
+        uint256 indexed csbAmount,
+        uint256 indexed miraAmount,
+        uint256 orderId
+    );
+
+    event SellOrderCanceled(uint256 indexed orderId);
+
+    event SellOrderMatched(uint256 indexed orderId, address indexed buyer);
 }
