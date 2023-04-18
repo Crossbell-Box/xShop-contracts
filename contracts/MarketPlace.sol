@@ -19,6 +19,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
     using SafeERC20 for IERC20;
 
     bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
+    bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
 
     modifier askNotExists(
         address nftAddress,
@@ -385,7 +386,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         uint256 tokenId,
         uint256 salePrice
     ) internal view returns (address royaltyReceiver, uint256 royaltyAmount) {
-        if (IERC165(nftAddress).supportsInterface(type(IERC2981).interfaceId)) {
+        if (IERC165(nftAddress).supportsInterface(INTERFACE_ID_ERC2981)) {
             (royaltyReceiver, royaltyAmount) = IERC2981(nftAddress).royaltyInfo(tokenId, salePrice);
         }
     }
