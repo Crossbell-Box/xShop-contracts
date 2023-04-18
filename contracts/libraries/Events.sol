@@ -91,21 +91,44 @@ library Events {
     );
 
     /**
-     * @notice Emitted when a bid/ask order is accepted(matched).
-     * @param seller The seller, as well as the owner of nft.
-     * @param buyer The buyer who wanted to paying ERC20 tokens for the nft.
+     * @notice Emitted when a ask order is accepted(matched).
+     * @param owner The the owner of the ask order, as well as the owner who wants to sell the nft.
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
+     * @param buyer The buyer who wanted to paying ERC20 tokens for the nft.
      * @param payToken The ERC20 token address for buyers to pay.
      * @param price The price the buyer will pay to the seller.
      * @param royaltyReceiver The receiver of the royalty fee.
      * @param royaltyAmount The amount of the royalty fee.
      */
-    event OrdersMatched(
-        address indexed seller,
-        address indexed buyer,
+    event AskMatched(
+        address indexed owner,
         address indexed nftAddress,
-        uint256 tokenId,
+        uint256 indexed tokenId,
+        address buyer,
+        address payToken,
+        uint256 price,
+        address royaltyReceiver,
+        uint256 royaltyAmount
+    );
+
+    /**
+     * @notice Emitted when a bid order is accepted(matched).
+     * @param owner The owner of the bid order,
+     * as well as the buyer who wanted to paying ERC20 tokens for the nft.
+     * @param nftAddress The contract address of the NFT.
+     * @param tokenId The token id of the NFT.
+     * @param seller The seller, as well as the owner who wants to sell the nft.
+     * @param payToken The ERC20 token address for buyers to pay.
+     * @param price The price the buyer will pay to the seller.
+     * @param royaltyReceiver The receiver of the royalty fee.
+     * @param royaltyAmount The amount of the royalty fee.
+     */
+    event BidMatched(
+        address indexed owner,
+        address indexed nftAddress,
+        uint256 indexed tokenId,
+        address seller,
         address payToken,
         uint256 price,
         address royaltyReceiver,

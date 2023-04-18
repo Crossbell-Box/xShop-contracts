@@ -2,8 +2,8 @@
 pragma solidity 0.8.16;
 
 import {IMarketPlace} from "./interfaces/IMarketPlace.sol";
+import {IWCSB} from "./interfaces/IWCSB.sol";
 import {DataTypes} from "./libraries/DataTypes.sol";
-import {Constants} from "./libraries/Constants.sol";
 import {Events} from "./libraries/Events.sol";
 import {MarketPlaceStorage} from "./storage/MarketPlaceStorage.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
@@ -82,7 +82,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
     }
 
     modifier validPayToken(address payToken) {
-        require(payToken == WCSB || payToken == Constants.NATIVE_CSB, "InvalidPayToken");
+        require(payToken == _wcsb || payToken == _mira, "InvalidPayToken");
         _;
     }
 
@@ -97,11 +97,10 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
     }
 
     /// @inheritdoc IMarketPlace
-    function initialize(address wcsb_) external override initializer {
-        WCSB = wcsb_;
+    function initialize(address wcsb_, address mira_) external override initializer {
+        _wcsb = wcsb_;
+        _mira = mira_;
     }
-
-    /// @inheritdoc IMarketPlace
 
     /// @inheritdoc IMarketPlace
     function ask(
@@ -131,7 +130,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
             deadline
         );
 
-        emit Events.AskCreated(_msgSender(), nftAddress, tokenId, WCSB, price, deadline);
+        emit Events.AskCreated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
     }
 
     /// @inheritdoc IMarketPlace
@@ -181,23 +180,30 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
             tokenId,
             askOrder.price
         );
-        // pay to owner
-        _payWithRoyalty(
-            _msgSender(),
-            askOrder.owner,
-            askOrder.payToken,
-            askOrder.price,
-            royaltyReceiver,
-            royaltyAmount
-        );
+
+        if (askOrder.payToken == _wcsb) {
+            // pay CSB
+            _payCSBWithRoyalty(askOrder.owner, askOrder.price, royaltyReceiver, royaltyAmount);
+        } else {
+            // pay ERC20
+            _payERC20WithRoyalty(
+                _msgSender(),
+                askOrder.owner,
+                askOrder.payToken,
+                askOrder.price,
+                royaltyReceiver,
+                royaltyAmount
+            );
+        }
+
         // transfer nft
         IERC721(nftAddress).safeTransferFrom(user, _msgSender(), tokenId);
 
-        emit Events.OrdersMatched(
+        emit Events.AskMatched(
             askOrder.owner,
-            _msgSender(),
             nftAddress,
             tokenId,
+            _msgSender(),
             askOrder.payToken,
             askOrder.price,
             royaltyReceiver,
@@ -222,7 +228,6 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         validDeadline(deadline)
         validPrice(price)
     {
-        require(payToken != Constants.NATIVE_CSB, "NativeCSBNotAllowed");
         require(IERC165(nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
 
         // save buy order
@@ -286,7 +291,7 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
             bidOrder.price
         );
         // pay to msg.sender
-        _payWithRoyalty(
+        _payERC20WithRoyalty(
             bidOrder.owner,
             _msgSender(),
             bidOrder.payToken,
@@ -297,11 +302,11 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         // transfer nft
         IERC721(nftAddress).safeTransferFrom(_msgSender(), user, tokenId);
 
-        emit Events.OrdersMatched(
-            _msgSender(),
+        emit Events.BidMatched(
             bidOrder.owner,
             nftAddress,
             tokenId,
+            _msgSender(),
             bidOrder.payToken,
             bidOrder.price,
             royaltyReceiver,
@@ -329,7 +334,36 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         return _bidOrders[nftAddress][tokenId][owner];
     }
 
-    function _payWithRoyalty(
+    /// @inheritdoc IMarketPlace
+    function wcsb() external view override returns (address) {
+        return _wcsb;
+    }
+
+    /// @inheritdoc IMarketPlace
+    function mira() external view override returns (address) {
+        return _mira;
+    }
+
+    function _payCSBWithRoyalty(
+        address to,
+        uint256 amount,
+        address royaltyReceiver,
+        uint256 royaltyAmount
+    ) internal {
+        require(msg.value >= amount, "NotEnoughFunds");
+        // pay CSB
+        if (royaltyReceiver != address(0)) {
+            // slither-disable-next-line arbitrary-send-eth
+            payable(royaltyReceiver).transfer(royaltyAmount);
+            // slither-disable-next-line arbitrary-send-eth
+            payable(to).transfer(amount - royaltyAmount);
+        } else {
+            // slither-disable-next-line arbitrary-send-eth
+            payable(to).transfer(amount);
+        }
+    }
+
+    function _payERC20WithRoyalty(
         address from,
         address to,
         address token,
@@ -337,30 +371,12 @@ contract MarketPlace is IMarketPlace, Context, ReentrancyGuard, Initializable, M
         address royaltyReceiver,
         uint256 royaltyAmount
     ) internal {
-        if (token == Constants.NATIVE_CSB) {
-            require(msg.value >= amount, "NotEnoughFunds");
-
-            // pay CSB
-            if (royaltyReceiver != address(0)) {
-                payable(royaltyReceiver).transfer(royaltyAmount);
-                // slither-disable-next-line arbitrary-send-eth
-                payable(to).transfer(amount - royaltyAmount);
-            } else {
-                // slither-disable-next-line arbitrary-send-eth
-                payable(to).transfer(amount);
-            }
+        // pay ERC20
+        if (royaltyReceiver != address(0)) {
+            IERC20(token).safeTransferFrom(from, royaltyReceiver, royaltyAmount);
+            IERC20(token).safeTransferFrom(from, to, amount - royaltyAmount);
         } else {
-            // refund CSB
-            if (msg.value > 0) {
-                payable(from).transfer(msg.value);
-            }
-            // pay ERC20
-            if (royaltyReceiver != address(0)) {
-                IERC20(token).safeTransferFrom(from, royaltyReceiver, royaltyAmount);
-                IERC20(token).safeTransferFrom(from, to, amount - royaltyAmount);
-            } else {
-                IERC20(token).safeTransferFrom(from, to, amount);
-            }
+            IERC20(token).safeTransferFrom(from, to, amount);
         }
     }
 

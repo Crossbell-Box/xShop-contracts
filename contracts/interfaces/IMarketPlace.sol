@@ -5,10 +5,11 @@ import {DataTypes} from "../libraries/DataTypes.sol";
 
 interface IMarketPlace {
     /**
-     * @notice Initializes the MarketPlace, setting the WCSB address.
-     * @param wcsb_ The address of WCSB.
+     * @notice Initializes the MarketPlace, setting the WCSB contract address.
+     * @param wcsb_ The address of WCSB contract.
+     * @param mira_ The address of MIRA contract.
      */
-    function initialize(address wcsb_) external;
+    function initialize(address wcsb_, address mira_) external;
 
     /**
      * @notice Creates an ask order for an NFT.
@@ -134,4 +135,16 @@ interface IMarketPlace {
         uint256 tokenId,
         address owner
     ) external view returns (DataTypes.Order memory);
+
+    /**
+     * @notice Returns the address of WCSB contract.
+     * @return The address of WCSB contract.
+     */
+    function wcsb() external view returns (address);
+
+    /**
+     * @notice Returns the address of MIRA contract.
+     * @return The address of MIRA contract.
+     */
+    function mira() external view returns (address);
 }
