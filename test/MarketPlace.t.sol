@@ -464,6 +464,38 @@ contract MarketPlaceTest is Test, EmitExpecter {
         uint256 tokenId = 1;
         address payToken = address(mira);
         uint256 deadline = block.timestamp + 10;
+
+        //  create ask order
+        vm.startPrank(alice);
+        market.ask(nftAddress, tokenId, payToken, price, deadline);
+        // prepare
+        nft.setApprovalForAll(address(market), true);
+        vm.stopPrank();
+
+        // expect event
+        expectEmit(CheckAll);
+        emit Events.AskMatched(alice, nftAddress, tokenId, bob, payToken, price, address(0), 0);
+        // accept ask
+        vm.prank(bob);
+        mira.send(address(market), price, abi.encode(nftAddress, tokenId, alice));
+
+        // check csb balance
+        assertEq(mira.balanceOf(alice), price);
+        assertEq(mira.balanceOf(bob), INITIAL_MIRA_BALANCE - price);
+
+        // check ask order
+        _assertEmptyOrder(nftAddress, tokenId, alice, true);
+    }
+
+    function testAcceptAskWithRoraltyWithERC777SendHook(uint256 price, uint96 percentage) public {
+        vm.assume(price > 1);
+        vm.assume(price < 10 ether);
+        vm.assume(percentage <= MAX_ROYALTY);
+
+        address nftAddress = address(nft);
+        uint256 tokenId = 1;
+        address payToken = address(mira);
+        uint256 deadline = block.timestamp + 10;
         address royaltyReceiver = address(0x5555);
         uint256 feeAmount = (price * percentage) / 10000;
 
