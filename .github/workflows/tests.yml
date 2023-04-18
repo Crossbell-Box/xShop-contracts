@@ -36,6 +36,7 @@ jobs:
         run: |
           lcov --remove lcov.info 'test/*' -o lcov.info
           lcov --remove lcov.info 'contracts/upgradeability/*' -o lcov.info
+          lcov --remove lcov.info 'contracts/mocks/*' -o lcov.info
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:

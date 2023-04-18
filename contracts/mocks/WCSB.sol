@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: UNLICENSED
 // Copyright (C) 2015, 2016, 2017 Dapphub
 
 // This program is free software: you can redistribute it and/or modify
@@ -13,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* solhint-disable */
-pragma solidity 0.8.16;
+pragma solidity 0.8.18;
 
 contract WCSB {
     string public name = "Wrapped CSB";

@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // slither-disable-start naming-convention
-pragma solidity 0.8.16;
+pragma solidity 0.8.18;
 
 import {DataTypes} from "../libraries/DataTypes.sol";
 
 contract MarketPlaceStorage {
-    // solhint-disable-next-line var-name-mixedcase
-    address public WCSB;
+    address internal _wcsb;
+    address internal _mira;
 
     //  @notice nftAddress -> tokenId -> owner -> Order
     mapping(address => mapping(uint256 => mapping(address => DataTypes.Order))) internal _askOrders;
