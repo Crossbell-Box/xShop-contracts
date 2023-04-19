@@ -169,6 +169,11 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
     }
 
     /// @inheritdoc ISwap
+    function getOrder(uint256 orderId) external view override returns (DataTypes.SellOrder memory) {
+        return _orders[orderId];
+    }
+
+    /// @inheritdoc ISwap
     function wcsb() external view override returns (address) {
         return _wcsb;
     }

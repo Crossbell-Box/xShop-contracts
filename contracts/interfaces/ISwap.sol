@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.18;
 
+import "../libraries/DataTypes.sol";
+
 interface ISwap {
     /**
      * @notice Initializes the MarketPlace, setting the WCSB contract address.
@@ -45,6 +47,13 @@ interface ISwap {
      * @param orderId The order id to accept.
      */
     function acceptOrder(uint256 orderId) external payable;
+
+    /**
+     * @notice Returns the SellOrder struct of a given order id.
+     * @param orderId The order id to get.
+     * @return order The SellOrder struct.
+     */
+    function getOrder(uint256 orderId) external view returns (DataTypes.SellOrder memory);
 
     /**
      * @notice Returns the address of WCSB contract.
