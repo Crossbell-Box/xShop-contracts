@@ -11,8 +11,9 @@ import {IERC777} from "@openzeppelin/contracts/token/ERC777/IERC777.sol";
 import {IERC777Recipient} from "@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol";
 import {IERC1820Registry} from "@openzeppelin/contracts/utils/introspection/IERC1820Registry.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract Swap is ISwap, Context, IERC777Recipient, Initializable {
+contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     address internal _wcsb; //wrapped CSB.
@@ -22,6 +23,9 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
 
     uint8 public constant SELL_MIRA = 1;
     uint8 public constant SELL_CSB = 2;
+
+    uint256 public constant OPERATION_TYPE_ACCEPT_ORDER = 1;
+    uint256 public constant OPERATION_TYPE_SELL_MIRA = 2;
 
     IERC1820Registry public constant ERC1820_REGISTRY =
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
@@ -52,13 +56,19 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
     }
 
     /**
-     * @dev Called by an {IERC777} token contract whenever tokens are being
+     * @notice Called by an {IERC777} token contract whenever tokens are being
      * moved or created into a registered account `to` (this contract). <br>
      *
      * The userData/operatorData should be an abi encoded bytes of two `uint256`,
      * the first uint256 represents operation type. <br>
      * opType = 1: accept an order.<br>
      * opType = 2: sell MIRA for CSB.
+     * @param operator The address performing the send or mint operation.
+     * @param from The address sending the tokens.
+     * @param to The address of the recipient.
+     * @param amount The amount of tokens being transferred.
+     * @param userData The data provided by the token holder.
+     * @param operatorData The data provided by the operator (if any).
      */
     /// @inheritdoc IERC777Recipient
     function tokensReceived(
@@ -75,10 +85,10 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
 
         bytes memory data = userData.length > 0 ? userData : operatorData;
         (uint256 opType, uint256 value) = abi.decode(data, (uint256, uint256));
-        if (opType == 1) {
+        if (opType == OPERATION_TYPE_ACCEPT_ORDER) {
             // accept an order
             _acceptOrder(value, from, amount);
-        } else if (opType == 2) {
+        } else if (opType == OPERATION_TYPE_SELL_MIRA) {
             // sell MIRA for CSB
             _sellMIRA(from, amount, value);
         } else {
@@ -136,10 +146,17 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable {
     }
 
     /// @inheritdoc ISwap
-    function cancelOrder(uint256 orderId) external override {
-        require(_orders[orderId].owner == _msgSender(), "NotOrderOwner");
+    function cancelOrder(uint256 orderId) external override nonReentrant {
+        DataTypes.SellOrder memory order = _orders[orderId];
+        require(order.owner == _msgSender(), "NotOrderOwner");
 
         delete _orders[orderId];
+
+        if (order.orderType == SELL_MIRA) {
+            IERC20(_mira).safeTransfer(order.owner, order.miraAmount);
+        } else if (order.orderType == SELL_CSB) {
+            payable(order.owner).transfer(order.csbAmount);
+        }
 
         emit Events.SellOrderCanceled(orderId);
     }
