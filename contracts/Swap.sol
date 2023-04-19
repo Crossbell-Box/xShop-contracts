@@ -108,11 +108,10 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
         address owner,
         uint256 miraAmount,
         uint256 expectedCsbAmount
-    ) internal returns (uint256 orderId) {
+    ) internal nonReentrant returns (uint256 orderId) {
         require(miraAmount >= _minMira, "InvalidMiraAmount");
 
-        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
-
+        // create sell order
         unchecked {
             orderId = ++_orderCount;
         }
@@ -122,6 +121,9 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
             miraAmount: miraAmount,
             csbAmount: expectedCsbAmount
         });
+
+        // transfer MIRA to this contract
+        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
 
         emit Events.SellMIRA(owner, miraAmount, expectedCsbAmount, orderId);
     }
@@ -176,26 +178,32 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
         return _mira;
     }
 
-    function _acceptOrder(uint256 orderId, address buyer, uint256 erc777Amount) internal {
+    // slither-disable-next-line arbitrary-send-eth
+    function _acceptOrder(
+        uint256 orderId,
+        address buyer,
+        uint256 erc777Amount
+    ) internal nonReentrant {
         DataTypes.SellOrder memory order = _orders[orderId];
+
+        // delete order first
+        delete _orders[orderId];
+
+        // transfer tokens
         if (order.orderType == SELL_MIRA) {
             require(msg.value >= order.csbAmount, "InvalidCSBAmount");
 
-            // transfer tokens
             IERC20(_mira).safeTransfer(buyer, order.miraAmount);
             payable(order.owner).transfer(order.csbAmount);
         } else if (order.orderType == SELL_CSB) {
             if (erc777Amount > 0) {
                 require(erc777Amount >= order.miraAmount, "InvalidMiraAmount");
             }
-            // transfer tokens
             payable(buyer).transfer(order.csbAmount);
             IERC20(_mira).safeTransfer(order.owner, order.miraAmount);
         } else {
             revert("InvalidOrderType");
         }
-
-        delete _orders[orderId];
 
         emit Events.SellOrderMatched(orderId, buyer);
     }
