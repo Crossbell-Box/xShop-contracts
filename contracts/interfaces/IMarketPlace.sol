@@ -56,6 +56,7 @@ interface IMarketPlace {
     /**
      * @notice Accepts an ask order.
      * Emits the `OrdersMatched` event.
+     * @dev The amount of CSB to send must be specified in the `msg.value`.
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
      * @param user The owner of ask order, as well as the  owner of the NFT.
