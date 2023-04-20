@@ -9,6 +9,7 @@ import {Events} from "../contracts/libraries/Events.sol";
 import {MiraToken} from "../contracts/mocks/MiraToken.sol";
 import {WCSB} from "../contracts/mocks/WCSB.sol";
 import {EmitExpecter} from "./EmitExpecter.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SwapTest is Test, EmitExpecter {
     MiraToken mira;
@@ -19,11 +20,16 @@ contract SwapTest is Test, EmitExpecter {
     address public constant bob = address(0x2222);
     address public constant admin = address(0x3333);
 
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
     uint256 public constant MIN_CSB = 10 ether;
     uint256 public constant MIN_MIRA = 100 ether;
 
     uint256 public constant INITIAL_MIRA_BALANCE = 100 ether;
     uint256 public constant INITIAL_CSB_BALANCE = 100 ether;
+
+    event Paused(address account);
+    event Unpaused(address account);
 
     function setUp() public {
         // deploy erc1820
@@ -56,5 +62,80 @@ contract SwapTest is Test, EmitExpecter {
         // reinit
         vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
         swap.initialize(address(0x4), address(0x4), MIN_CSB, MIN_MIRA, admin);
+    }
+
+    function testPause() public {
+        // expect events
+        expectEmit(CheckAll);
+        emit Paused(admin);
+        vm.prank(admin);
+        swap.pause();
+
+        // check paused
+        assertEq(swap.paused(), true);
+    }
+
+    function testPauseFail() public {
+        // case 1: caller is not admin
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        swap.pause();
+        // check paused
+        assertEq(swap.paused(), false);
+
+        // pause gateway
+        vm.startPrank(admin);
+        swap.pause();
+        // case 2: gateway has been paused
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        swap.pause();
+        vm.stopPrank();
+    }
+
+    function testUnpause() public {
+        vm.prank(admin);
+        swap.pause();
+        // check paused
+        assertEq(swap.paused(), true);
+
+        // expect events
+        expectEmit(CheckAll);
+        emit Unpaused(admin);
+        vm.prank(admin);
+        swap.unpause();
+
+        // check paused
+        assertEq(swap.paused(), false);
+    }
+
+    function testUnpauseFail() public {
+        // case 1: gateway not paused
+        vm.expectRevert(abi.encodePacked("Pausable: not paused"));
+        swap.unpause();
+        // check paused
+        assertEq(swap.paused(), false);
+
+        // case 2: caller is not admin
+        vm.prank(admin);
+        swap.pause();
+        // check paused
+        assertEq(swap.paused(), true);
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        swap.unpause();
+        // check paused
+        assertEq(swap.paused(), true);
     }
 }
