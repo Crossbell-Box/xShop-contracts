@@ -38,14 +38,14 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
     function initialize(
         address wcsb_,
         address mira_,
-        uint256 minMira_,
-        uint256 minCsb_
+        uint256 minCsb_,
+        uint256 minMira_
     ) external override initializer {
         _wcsb = wcsb_;
         _mira = mira_;
 
-        _minMira = minMira_;
         _minCsb = minCsb_;
+        _minMira = minMira_;
 
         // register interfaces
         ERC1820_REGISTRY.setInterfaceImplementer(
