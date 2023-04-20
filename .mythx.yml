@@ -7,7 +7,7 @@ analyze:
   mode: standard
   async: true
   create-group: true
-  group-name: "@crossbell/brige-contractcrossbell-marketplace-contracts"
+  group-name: "@crossbell/crossbell-marketplace-contracts"
   solc: 0.8.18
   remappings:
     - "@openzeppelin/=node_modules/@openzeppelin/"
