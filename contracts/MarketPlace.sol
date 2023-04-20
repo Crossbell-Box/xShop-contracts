@@ -16,6 +16,8 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+import {AccessControlEnumerable} from "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 contract MarketPlace is
     IMarketPlace,
@@ -23,12 +25,16 @@ contract MarketPlace is
     ReentrancyGuard,
     Initializable,
     IERC777Recipient,
+    Pausable,
+    AccessControlEnumerable,
     MarketPlaceStorage
 {
     using SafeERC20 for IERC20;
 
     bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     IERC1820Registry public constant ERC1820_REGISTRY =
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
@@ -111,7 +117,7 @@ contract MarketPlace is
     }
 
     /// @inheritdoc IMarketPlace
-    function initialize(address wcsb_, address mira_) external override initializer {
+    function initialize(address wcsb_, address mira_, address admin) external override initializer {
         _wcsb = wcsb_;
         _mira = mira_;
 
@@ -121,6 +127,19 @@ contract MarketPlace is
             TOKENS_RECIPIENT_INTERFACE_HASH,
             address(this)
         );
+
+        // grants `ADMIN_ROLE`
+        _setupRole(ADMIN_ROLE, admin);
+    }
+
+    /// @inheritdoc IMarketPlace
+    function pause() external override whenNotPaused onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    /// @inheritdoc IMarketPlace
+    function unpause() external override whenPaused onlyRole(ADMIN_ROLE) {
+        _unpause();
     }
 
     /**
@@ -162,6 +181,7 @@ contract MarketPlace is
     )
         external
         override
+        whenNotPaused
         askNotExists(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
@@ -193,6 +213,7 @@ contract MarketPlace is
     )
         external
         override
+        whenNotPaused
         askExists(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
@@ -222,7 +243,7 @@ contract MarketPlace is
         address nftAddress,
         uint256 tokenId,
         address user
-    ) external payable override nonReentrant validAsk(nftAddress, tokenId, user) {
+    ) external payable override nonReentrant whenNotPaused validAsk(nftAddress, tokenId, user) {
         _acceptAsk(nftAddress, tokenId, user, _msgSender(), 0);
     }
 
@@ -236,6 +257,7 @@ contract MarketPlace is
     )
         external
         override
+        whenNotPaused
         bidNotExists(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
@@ -276,6 +298,7 @@ contract MarketPlace is
     )
         external
         override
+        whenNotPaused
         validBid(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
@@ -295,7 +318,7 @@ contract MarketPlace is
         address nftAddress,
         uint256 tokenId,
         address user
-    ) external override nonReentrant validBid(nftAddress, tokenId, user) {
+    ) external override nonReentrant whenNotPaused validBid(nftAddress, tokenId, user) {
         DataTypes.Order memory bidOrder = _bidOrders[nftAddress][tokenId][user];
 
         (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
@@ -391,7 +414,7 @@ contract MarketPlace is
         address user,
         address buyer,
         uint256 erc777Amount
-    ) internal {
+    ) internal whenNotPaused {
         DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
 
         (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(

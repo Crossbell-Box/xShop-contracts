@@ -8,8 +8,23 @@ interface IMarketPlace {
      * @notice Initializes the MarketPlace, setting the WCSB contract address.
      * @param wcsb_ The address of WCSB contract.
      * @param mira_ The address of MIRA contract.
+     * @param admin The address of the contract admin.
      */
-    function initialize(address wcsb_, address mira_) external;
+    function initialize(address wcsb_, address mira_, address admin) external;
+
+    /**
+     * @notice Pauses interaction with the contract.
+     * Requirements:
+     * - The caller must have the ADMIN_ROLE.
+     */
+    function pause() external;
+
+    /**
+     * @notice Resumes interaction with the contract.
+     * Requirements:
+     * - The caller must have the ADMIN_ROLE.
+     */
+    function unpause() external;
 
     /**
      * @notice Creates an ask order for an NFT.

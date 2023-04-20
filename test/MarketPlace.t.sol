@@ -20,9 +20,11 @@ contract MarketPlaceTest is Test, EmitExpecter {
     NFT1155 nft1155;
 
     // ask accounts
-    address public alice = address(0x1111);
+    address public constant alice = address(0x1111);
     // bid accounts
-    address public bob = address(0x2222);
+    address public constant bob = address(0x2222);
+
+    address public constant admin = address(0x3333);
 
     uint256 public constant MAX_ROYALTY = 10000;
     uint256 public constant INITIAL_MIRA_BALANCE = 100 ether;
@@ -42,7 +44,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
         mira = new MiraToken("MIRA", "MIRA", address(this));
         nft = new NFT("NFt", "NFT");
         nft1155 = new NFT1155();
-        market.initialize(address(wcsb), address(mira));
+        market.initialize(address(wcsb), address(mira), admin);
 
         nft.mint(alice);
         nft1155.mint(alice);
@@ -58,7 +60,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     function testInitFail() public {
         // reinit
         vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
-        market.initialize(address(0x4), address(0x4));
+        market.initialize(address(0x4), address(0x4), admin);
     }
 
     function testAskFail() public {
