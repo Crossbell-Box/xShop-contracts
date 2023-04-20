@@ -1,0 +1,18 @@
+# Run me by typing `mythx analyze` in the directory of the yml file! :)
+
+ci: true # make the workflow fail on high severity issues
+confirm: true #  automatic confirmation of multiple file submissions (equivalent to --yes)
+
+analyze:
+  mode: standard
+  async: true
+  create-group: true
+  group-name: "@crossbell/brige-contractcrossbell-marketplace-contracts"
+  solc: 0.8.18
+  remappings:
+    - "@openzeppelin/=node_modules/@openzeppelin/"
+    - "ds-test/=lib/forge-std/lib/ds-test/src/"
+    - "forge-std/=lib/forge-std/src/"
+  targets:
+    - contracts/MarketPlace.sol
+    - contracts/Swap.sol
