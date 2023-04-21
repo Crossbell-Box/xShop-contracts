@@ -12,18 +12,30 @@ import {IERC777Recipient} from "@openzeppelin/contracts/token/ERC777/IERC777Reci
 import {IERC1820Registry} from "@openzeppelin/contracts/utils/introspection/IERC1820Registry.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
+import {AccessControlEnumerable} from "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
-contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuard {
+contract Swap is
+    ISwap,
+    Context,
+    IERC777Recipient,
+    Initializable,
+    ReentrancyGuard,
+    Pausable,
+    AccessControlEnumerable
+{
     using SafeERC20 for IERC20;
 
     address internal _wcsb; //wrapped CSB.
     address internal _mira; // mira token address
-    uint256 internal _minMira; // minimum MIRA amount to sell
     uint256 internal _minCsb; // minimum CSB amount to sell
+    uint256 internal _minMira; // minimum MIRA amount to sell
+
+    mapping(uint256 => DataTypes.SellOrder) internal _orders;
+    uint256 internal _orderCount;
 
     uint8 public constant SELL_MIRA = 1;
     uint8 public constant SELL_CSB = 2;
-
     uint256 public constant OPERATION_TYPE_ACCEPT_ORDER = 1;
     uint256 public constant OPERATION_TYPE_SELL_MIRA = 2;
 
@@ -31,17 +43,19 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
     bytes32 public constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
-    mapping(uint256 => DataTypes.SellOrder) internal _orders;
-    uint256 internal _orderCount;
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
+    constructor() {
+        _disableInitializers();
+    }
 
     /// @inheritdoc ISwap
     function initialize(
-        address wcsb_,
         address mira_,
         uint256 minCsb_,
-        uint256 minMira_
+        uint256 minMira_,
+        address admin
     ) external override initializer {
-        _wcsb = wcsb_;
         _mira = mira_;
 
         _minCsb = minCsb_;
@@ -53,6 +67,19 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
             TOKENS_RECIPIENT_INTERFACE_HASH,
             address(this)
         );
+
+        // grants `ADMIN_ROLE`
+        _setupRole(ADMIN_ROLE, admin);
+    }
+
+    /// @inheritdoc ISwap
+    function pause() external override whenNotPaused onlyRole(ADMIN_ROLE) {
+        _pause();
+    }
+
+    /// @inheritdoc ISwap
+    function unpause() external override whenPaused onlyRole(ADMIN_ROLE) {
+        _unpause();
     }
 
     /**
@@ -84,15 +111,17 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
         require(amount > 0, "InvalidAmount");
 
         bytes memory data = userData.length > 0 ? userData : operatorData;
-        (uint256 opType, uint256 value) = abi.decode(data, (uint256, uint256));
-        if (opType == OPERATION_TYPE_ACCEPT_ORDER) {
-            // accept an order
-            _acceptOrder(value, from, amount);
-        } else if (opType == OPERATION_TYPE_SELL_MIRA) {
-            // sell MIRA for CSB
-            _sellMIRA(from, amount, value);
-        } else {
-            revert("InvalidData");
+        if (data.length > 0) {
+            (uint256 opType, uint256 value) = abi.decode(data, (uint256, uint256));
+            if (opType == OPERATION_TYPE_ACCEPT_ORDER) {
+                // accept an order
+                _acceptOrder(value, from, amount);
+            } else if (opType == OPERATION_TYPE_SELL_MIRA) {
+                // sell MIRA for CSB
+                _sellMIRA(from, amount, value);
+            } else {
+                revert("InvalidData");
+            }
         }
     }
 
@@ -104,34 +133,10 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
         orderId = _sellMIRA(_msgSender(), miraAmount, expectedCsbAmount);
     }
 
-    function _sellMIRA(
-        address owner,
-        uint256 miraAmount,
-        uint256 expectedCsbAmount
-    ) internal nonReentrant returns (uint256 orderId) {
-        require(miraAmount >= _minMira, "InvalidMiraAmount");
-
-        // create sell order
-        unchecked {
-            orderId = ++_orderCount;
-        }
-        _orders[orderId] = DataTypes.SellOrder({
-            owner: owner,
-            orderType: SELL_MIRA,
-            miraAmount: miraAmount,
-            csbAmount: expectedCsbAmount
-        });
-
-        // transfer MIRA to this contract
-        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
-
-        emit Events.SellMIRA(owner, miraAmount, expectedCsbAmount, orderId);
-    }
-
     /// @inheritdoc ISwap
     function sellCSB(
         uint256 expectedMiraAmount
-    ) external payable override returns (uint256 orderId) {
+    ) external payable override whenNotPaused returns (uint256 orderId) {
         require(msg.value >= _minCsb, "InvalidCSBAmount");
 
         unchecked {
@@ -174,13 +179,32 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
     }
 
     /// @inheritdoc ISwap
-    function wcsb() external view override returns (address) {
-        return _wcsb;
-    }
-
-    /// @inheritdoc ISwap
     function mira() external view override returns (address) {
         return _mira;
+    }
+
+    function _sellMIRA(
+        address owner,
+        uint256 miraAmount,
+        uint256 expectedCsbAmount
+    ) internal nonReentrant whenNotPaused returns (uint256 orderId) {
+        require(miraAmount >= _minMira, "InvalidMiraAmount");
+
+        // create sell order
+        unchecked {
+            orderId = ++_orderCount;
+        }
+        _orders[orderId] = DataTypes.SellOrder({
+            owner: owner,
+            orderType: SELL_MIRA,
+            miraAmount: miraAmount,
+            csbAmount: expectedCsbAmount
+        });
+
+        // transfer MIRA to this contract
+        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
+
+        emit Events.SellMIRA(owner, miraAmount, expectedCsbAmount, orderId);
     }
 
     // slither-disable-next-line arbitrary-send-eth
@@ -188,7 +212,7 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
         uint256 orderId,
         address buyer,
         uint256 erc777Amount
-    ) internal nonReentrant {
+    ) internal nonReentrant whenNotPaused {
         DataTypes.SellOrder memory order = _orders[orderId];
 
         // delete order first
@@ -201,11 +225,15 @@ contract Swap is ISwap, Context, IERC777Recipient, Initializable, ReentrancyGuar
             IERC20(_mira).safeTransfer(buyer, order.miraAmount);
             payable(order.owner).transfer(order.csbAmount);
         } else if (order.orderType == SELL_CSB) {
+            // transfer MIRA to order owner
             if (erc777Amount > 0) {
                 require(erc777Amount >= order.miraAmount, "InvalidMiraAmount");
+                IERC20(_mira).safeTransfer(order.owner, order.miraAmount);
+            } else {
+                IERC20(_mira).safeTransferFrom(buyer, order.owner, order.miraAmount);
             }
+            // transfer CSB to buyer
             payable(buyer).transfer(order.csbAmount);
-            IERC20(_mira).safeTransfer(order.owner, order.miraAmount);
         } else {
             revert("InvalidOrderType");
         }

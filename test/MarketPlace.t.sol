@@ -8,11 +8,15 @@ import {DataTypes} from "../contracts/libraries/DataTypes.sol";
 import {Events} from "../contracts/libraries/Events.sol";
 import {MiraToken} from "../contracts/mocks/MiraToken.sol";
 import {WCSB} from "../contracts/mocks/WCSB.sol";
-
 import {NFT, NFT1155} from "../contracts/mocks/NFT.sol";
 import {EmitExpecter} from "./EmitExpecter.sol";
+import {
+    TransparentUpgradeableProxy
+} from "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MarketPlaceTest is Test, EmitExpecter {
+    TransparentUpgradeableProxy public proxyMarketPlace;
     MarketPlace market;
     WCSB wcsb;
     MiraToken mira;
@@ -20,13 +24,21 @@ contract MarketPlaceTest is Test, EmitExpecter {
     NFT1155 nft1155;
 
     // ask accounts
-    address public alice = address(0x1111);
+    address public constant alice = address(0x1111);
     // bid accounts
-    address public bob = address(0x2222);
+    address public constant bob = address(0x2222);
+
+    address public constant admin = address(0x3333);
+    address public constant proxyOwner = address(0x4444);
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     uint256 public constant MAX_ROYALTY = 10000;
     uint256 public constant INITIAL_MIRA_BALANCE = 100 ether;
     uint256 public constant INITIAL_CSB_BALANCE = 100 ether;
+
+    event Paused(address account);
+    event Unpaused(address account);
 
     function setUp() public {
         // deploy erc1820
@@ -37,12 +49,15 @@ contract MarketPlaceTest is Test, EmitExpecter {
             )
         );
 
-        market = new MarketPlace();
         wcsb = new WCSB();
         mira = new MiraToken("MIRA", "MIRA", address(this));
         nft = new NFT("NFt", "NFT");
         nft1155 = new NFT1155();
-        market.initialize(address(wcsb), address(mira));
+
+        market = new MarketPlace();
+        proxyMarketPlace = new TransparentUpgradeableProxy(address(market), proxyOwner, "");
+        market = MarketPlace(address(proxyMarketPlace));
+        market.initialize(address(wcsb), address(mira), admin);
 
         nft.mint(alice);
         nft1155.mint(alice);
@@ -58,7 +73,82 @@ contract MarketPlaceTest is Test, EmitExpecter {
     function testInitFail() public {
         // reinit
         vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
-        market.initialize(address(0x4), address(0x4));
+        market.initialize(address(0x4), address(0x4), admin);
+    }
+
+    function testPause() public {
+        // expect events
+        expectEmit(CheckAll);
+        emit Paused(admin);
+        vm.prank(admin);
+        market.pause();
+
+        // check paused
+        assertEq(market.paused(), true);
+    }
+
+    function testPauseFail() public {
+        // case 1: caller is not admin
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        market.pause();
+        // check paused
+        assertEq(market.paused(), false);
+
+        // pause gateway
+        vm.startPrank(admin);
+        market.pause();
+        // case 2: gateway has been paused
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        market.pause();
+        vm.stopPrank();
+    }
+
+    function testUnpause() public {
+        vm.prank(admin);
+        market.pause();
+        // check paused
+        assertEq(market.paused(), true);
+
+        // expect events
+        expectEmit(CheckAll);
+        emit Unpaused(admin);
+        vm.prank(admin);
+        market.unpause();
+
+        // check paused
+        assertEq(market.paused(), false);
+    }
+
+    function testUnpauseFail() public {
+        // case 1: gateway not paused
+        vm.expectRevert(abi.encodePacked("Pausable: not paused"));
+        market.unpause();
+        // check paused
+        assertEq(market.paused(), false);
+
+        // case 2: caller is not admin
+        vm.prank(admin);
+        market.pause();
+        // check paused
+        assertEq(market.paused(), true);
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        market.unpause();
+        // check paused
+        assertEq(market.paused(), true);
     }
 
     function testAskFail() public {
