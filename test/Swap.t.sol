@@ -238,8 +238,9 @@ contract SwapTest is Test, EmitExpecter {
         _checkSellOrder(1, address(0), 0, 0, 0);
     }
 
-    function acceptOrderSellCSB(uint256 csbAmount, uint256 expectedMiraAmount) public {
+    function testAcceptOrderSellCSB(uint256 csbAmount, uint256 expectedMiraAmount) public {
         vm.assume(csbAmount < INITIAL_CSB_BALANCE && csbAmount > MIN_CSB);
+        vm.assume(expectedMiraAmount < INITIAL_MIRA_BALANCE);
 
         // bob sells CSB
         vm.prank(bob);
@@ -252,9 +253,9 @@ contract SwapTest is Test, EmitExpecter {
         expectEmit(CheckAll);
         emit Approval(alice, address(swap), 0);
         expectEmit(CheckAll);
-        emit Sent(address(swap), alice, address(swap), expectedMiraAmount, "", "");
+        emit Sent(address(swap), alice, bob, expectedMiraAmount, "", "");
         expectEmit(CheckAll);
-        emit Transfer(alice, address(swap), expectedMiraAmount);
+        emit Transfer(alice, bob, expectedMiraAmount);
         expectEmit(CheckAll);
         emit Events.SellOrderMatched(1, alice);
         swap.acceptOrder(1);
@@ -271,8 +272,9 @@ contract SwapTest is Test, EmitExpecter {
         _checkSellOrder(1, address(0), 0, 0, 0);
     }
 
-    function acceptOrderSellMIRA(uint256 miraAmount, uint256 expectedCsbAmount) public {
+    function testAcceptOrderSellMIRA(uint256 miraAmount, uint256 expectedCsbAmount) public {
         vm.assume(miraAmount < INITIAL_CSB_BALANCE && miraAmount > MIN_MIRA);
+        vm.assume(expectedCsbAmount < INITIAL_CSB_BALANCE);
 
         // alice sells MIRA
         vm.startPrank(alice);

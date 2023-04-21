@@ -129,30 +129,6 @@ contract Swap is
         orderId = _sellMIRA(_msgSender(), miraAmount, expectedCsbAmount);
     }
 
-    function _sellMIRA(
-        address owner,
-        uint256 miraAmount,
-        uint256 expectedCsbAmount
-    ) internal nonReentrant whenNotPaused returns (uint256 orderId) {
-        require(miraAmount >= _minMira, "InvalidMiraAmount");
-
-        // create sell order
-        unchecked {
-            orderId = ++_orderCount;
-        }
-        _orders[orderId] = DataTypes.SellOrder({
-            owner: owner,
-            orderType: SELL_MIRA,
-            miraAmount: miraAmount,
-            csbAmount: expectedCsbAmount
-        });
-
-        // transfer MIRA to this contract
-        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
-
-        emit Events.SellMIRA(owner, miraAmount, expectedCsbAmount, orderId);
-    }
-
     /// @inheritdoc ISwap
     function sellCSB(
         uint256 expectedMiraAmount
@@ -203,6 +179,30 @@ contract Swap is
         return _mira;
     }
 
+    function _sellMIRA(
+        address owner,
+        uint256 miraAmount,
+        uint256 expectedCsbAmount
+    ) internal nonReentrant whenNotPaused returns (uint256 orderId) {
+        require(miraAmount >= _minMira, "InvalidMiraAmount");
+
+        // create sell order
+        unchecked {
+            orderId = ++_orderCount;
+        }
+        _orders[orderId] = DataTypes.SellOrder({
+            owner: owner,
+            orderType: SELL_MIRA,
+            miraAmount: miraAmount,
+            csbAmount: expectedCsbAmount
+        });
+
+        // transfer MIRA to this contract
+        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
+
+        emit Events.SellMIRA(owner, miraAmount, expectedCsbAmount, orderId);
+    }
+
     // slither-disable-next-line arbitrary-send-eth
     function _acceptOrder(
         uint256 orderId,
@@ -221,11 +221,15 @@ contract Swap is
             IERC20(_mira).safeTransfer(buyer, order.miraAmount);
             payable(order.owner).transfer(order.csbAmount);
         } else if (order.orderType == SELL_CSB) {
+            // transfer MIRA to order owner
             if (erc777Amount > 0) {
                 require(erc777Amount >= order.miraAmount, "InvalidMiraAmount");
+                IERC20(_mira).safeTransfer(order.owner, order.miraAmount);
+            } else {
+                IERC20(_mira).safeTransferFrom(buyer, order.owner, order.miraAmount);
             }
+            // transfer CSB to buyer
             payable(buyer).transfer(order.csbAmount);
-            IERC20(_mira).safeTransfer(order.owner, order.miraAmount);
         } else {
             revert("InvalidOrderType");
         }
