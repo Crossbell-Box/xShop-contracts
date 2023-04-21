@@ -205,6 +205,26 @@ contract SwapTest is Test, EmitExpecter {
         _checkSellOrder(1, address(alice), SELL_MIRA, miraAmount, expectedCsbAmount);
     }
 
+    function testSellMIRAFailInvalidAmount(uint256 miraAmount) public {
+        vm.assume(miraAmount < MIN_MIRA);
+
+        vm.expectRevert(abi.encodePacked("InvalidMiraAmount"));
+        // sell MIRA
+        vm.prank(alice);
+        swap.sellMIRA(miraAmount, 1);
+    }
+
+    function testSellMIRAFailInsufficientBalance(uint256 miraAmount) public {
+        vm.assume(miraAmount > INITIAL_MIRA_BALANCE);
+
+        // sell MIRA
+        vm.startPrank(alice);
+        mira.approve(address(swap), miraAmount);
+        vm.expectRevert(abi.encodePacked("ERC777: transfer amount exceeds balance"));
+        swap.sellMIRA(miraAmount, 1);
+        vm.stopPrank();
+    }
+
     function testCancelOrderWithSellMIRA(uint256 miraAmount) public {
         vm.assume(miraAmount < INITIAL_CSB_BALANCE && miraAmount > MIN_MIRA);
 
@@ -245,6 +265,15 @@ contract SwapTest is Test, EmitExpecter {
         assertEq(address(swap).balance, csbAmount);
         // check sell order
         _checkSellOrder(1, address(bob), SELL_CSB, expectedMiraAmount, csbAmount);
+    }
+
+    function testSellCSBFailInvalidAmount(uint256 csbAmount) public {
+        vm.assume(csbAmount < MIN_CSB);
+
+        // sell CSB
+        vm.expectRevert(abi.encodePacked("InvalidCSBAmount"));
+        vm.prank(bob);
+        swap.sellCSB{value: csbAmount}(1);
     }
 
     function testCancelOrderWithSellCSB(uint256 csbAmount) public {
@@ -300,6 +329,11 @@ contract SwapTest is Test, EmitExpecter {
         assertEq(mira.balanceOf(address(swap)), 0);
         // check sell order
         _checkSellOrder(1, address(0), 0, 0, 0);
+    }
+
+    function testCancelOrderFailNotOwner() public {
+        vm.expectRevert(abi.encodePacked("NotOrderOwner"));
+        swap.cancelOrder(1);
     }
 
     function testAcceptOrderSellMIRA(uint256 miraAmount, uint256 expectedCsbAmount) public {
@@ -370,6 +404,48 @@ contract SwapTest is Test, EmitExpecter {
         assertEq(mira.balanceOf(address(swap)), 0);
         // check sell order
         _checkSellOrder(1, address(0), 0, 0, 0);
+    }
+
+    function testAcceptOrderFailInvalidCSBAmount(uint256 expectedCsbAmount) public {
+        vm.assume(expectedCsbAmount > 1 && expectedCsbAmount < INITIAL_CSB_BALANCE);
+
+        // alice sells MIRA
+        vm.prank(alice);
+        mira.send(address(swap), MIN_MIRA, abi.encode(OPERATION_TYPE_SELL_MIRA, expectedCsbAmount));
+
+        vm.expectRevert(abi.encodePacked("InvalidCSBAmount"));
+        vm.prank(bob);
+        swap.acceptOrder{value: expectedCsbAmount - 1}(1);
+    }
+
+    function testAcceptOrderFailInvalidMiraAmount(uint256 expectedMiraAmount) public {
+        vm.assume(expectedMiraAmount > 1 && expectedMiraAmount < INITIAL_MIRA_BALANCE);
+
+        // bob sells CSB
+        vm.prank(bob);
+        swap.sellCSB{value: MIN_CSB}(expectedMiraAmount);
+
+        vm.expectRevert(abi.encodePacked("InvalidMiraAmount"));
+        vm.prank(alice);
+        mira.send(
+            address(swap),
+            expectedMiraAmount - 1,
+            abi.encode(OPERATION_TYPE_ACCEPT_ORDER, uint256(1))
+        );
+    }
+
+    function testAcceptOrderFailInvalidOrderType() public {}
+
+    function testTokensReceivedFailInvalidAmount() public {
+        vm.expectRevert(abi.encodePacked("InvalidAmount"));
+        vm.prank(alice);
+        mira.send(address(swap), 0, "");
+    }
+
+    function testTokensReceivedFailInvalidData() public {
+        vm.expectRevert(abi.encodePacked("InvalidData"));
+        vm.prank(alice);
+        mira.send(address(swap), 1, abi.encode(uint256(10), uint256(1)));
     }
 
     function _checkSellOrder(
