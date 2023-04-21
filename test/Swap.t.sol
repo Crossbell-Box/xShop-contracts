@@ -33,7 +33,8 @@ contract SwapTest is Test, EmitExpecter {
 
     uint256 public constant MIN_MIRA = 100 ether;
     uint256 public constant MIN_CSB = 10 ether;
-
+    uint256 public constant OPERATION_TYPE_ACCEPT_ORDER = 1;
+    uint256 public constant OPERATION_TYPE_SELL_MIRA = 2;
     uint256 public constant INITIAL_MIRA_BALANCE = MIN_MIRA * 100;
     uint256 public constant INITIAL_CSB_BALANCE = MIN_CSB * 100;
 
@@ -174,6 +175,28 @@ contract SwapTest is Test, EmitExpecter {
         emit Events.SellMIRA(alice, miraAmount, expectedCsbAmount, 1);
         swap.sellMIRA(miraAmount, expectedCsbAmount);
         vm.stopPrank();
+
+        // check MIRA balance
+        assertEq(mira.balanceOf(address(alice)), INITIAL_MIRA_BALANCE - miraAmount);
+        assertEq(mira.balanceOf(address(swap)), miraAmount);
+        // check sell order
+        _checkSellOrder(1, address(alice), SELL_MIRA, miraAmount, expectedCsbAmount);
+    }
+
+    function testSellMIRAWithSend(uint256 miraAmount, uint256 expectedCsbAmount) public {
+        vm.assume(miraAmount < INITIAL_CSB_BALANCE && miraAmount > MIN_MIRA);
+
+        bytes memory data = abi.encode(OPERATION_TYPE_SELL_MIRA, expectedCsbAmount);
+
+        // expect event
+        expectEmit(CheckAll);
+        emit Sent(alice, alice, address(swap), miraAmount, data, "");
+        expectEmit(CheckAll);
+        emit Transfer(alice, address(swap), miraAmount);
+        expectEmit(CheckAll);
+        emit Events.SellMIRA(alice, miraAmount, expectedCsbAmount, 1);
+        vm.prank(alice);
+        mira.send(address(swap), miraAmount, data);
 
         // check MIRA balance
         assertEq(mira.balanceOf(address(alice)), INITIAL_MIRA_BALANCE - miraAmount);
