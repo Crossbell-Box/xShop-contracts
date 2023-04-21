@@ -149,15 +149,18 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="marketplace"><a class="header" href="#marketplace">MarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/MarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/MarketPlace.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
-<a href="/contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, IERC777Recipient, <a href="/contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
+<a href="/contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, IERC777Recipient, Pausable, AccessControlEnumerable, <a href="/contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
 <h3 id="interface_id_erc721"><a class="header" href="#interface_id_erc721">INTERFACE_ID_ERC721</a></h3>
 <pre><code class="language-solidity">bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 </code></pre>
 <h3 id="interface_id_erc2981"><a class="header" href="#interface_id_erc2981">INTERFACE_ID_ERC2981</a></h3>
 <pre><code class="language-solidity">bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
+</code></pre>
+<h3 id="admin_role"><a class="header" href="#admin_role">ADMIN_ROLE</a></h3>
+<pre><code class="language-solidity">bytes32 public constant ADMIN_ROLE = keccak256(&quot;ADMIN_ROLE&quot;);
 </code></pre>
 <h3 id="erc1820_registry"><a class="header" href="#erc1820_registry">ERC1820_REGISTRY</a></h3>
 <pre><code class="language-solidity">IERC1820Registry public constant ERC1820_REGISTRY = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
@@ -193,16 +196,36 @@
 <h3 id="validprice"><a class="header" href="#validprice">validPrice</a></h3>
 <pre><code class="language-solidity">modifier validPrice(uint256 price);
 </code></pre>
+<h3 id="constructor"><a class="header" href="#constructor">constructor</a></h3>
+<pre><code class="language-solidity">constructor();
+</code></pre>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
-<pre><code class="language-solidity">function initialize(address wcsb_, address mira_) external override initializer;
+<pre><code class="language-solidity">function initialize(address wcsb_, address mira_, address admin) external override initializer;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
 <tr><td><code>mira_</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
+<tr><td><code>admin</code></td><td><code>address</code></td><td>The address of the contract admin.</td></tr>
 </tbody></table>
 </div>
+<h3 id="pause"><a class="header" href="#pause">pause</a></h3>
+<p>Pauses interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function pause() external override whenNotPaused onlyRole(ADMIN_ROLE);
+</code></pre>
+<h3 id="unpause"><a class="header" href="#unpause">unpause</a></h3>
+<p>Resumes interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function unpause() external override whenPaused onlyRole(ADMIN_ROLE);
+</code></pre>
 <h3 id="tokensreceived"><a class="header" href="#tokensreceived">tokensReceived</a></h3>
 <p><em>Called by an {IERC777} token contract whenever tokens are being
 moved or created into a registered account <code>to</code> (this contract). <br>
@@ -223,6 +246,7 @@ Emits the <code>AskCreated</code> event.</p>
 <pre><code class="language-solidity">function ask(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     askNotExists(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -243,6 +267,7 @@ Emits the <code>AskUpdated</code> event.</p>
 <pre><code class="language-solidity">function updateAsk(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     askExists(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -280,6 +305,7 @@ Emits the <code>OrdersMatched</code> event.</p>
     payable
     override
     nonReentrant
+    whenNotPaused
     validAsk(nftAddress, tokenId, user);
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -295,6 +321,7 @@ Emits the <code>BidCreated</code> event.</p>
 <pre><code class="language-solidity">function bid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     bidNotExists(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -329,6 +356,7 @@ Emits the <code>BidUpdated</code> event.</p>
 <pre><code class="language-solidity">function updateBid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     validBid(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -350,6 +378,7 @@ Emits the <code>OrdersMatched</code> event.</p>
     external
     override
     nonReentrant
+    whenNotPaused
     validBid(nftAddress, tokenId, user);
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -419,7 +448,9 @@ Emits the <code>OrdersMatched</code> event.</p>
 ) internal;
 </code></pre>
 <h3 id="_acceptask"><a class="header" href="#_acceptask">_acceptAsk</a></h3>
-<pre><code class="language-solidity">function _acceptAsk(address nftAddress, uint256 tokenId, address user, address buyer, uint256 erc777Amount) internal;
+<pre><code class="language-solidity">function _acceptAsk(address nftAddress, uint256 tokenId, address user, address buyer, uint256 erc777Amount)
+    internal
+    whenNotPaused;
 </code></pre>
 <h3 id="_paycsbwithroyalty"><a class="header" href="#_paycsbwithroyalty">_payCSBWithRoyalty</a></h3>
 <pre><code class="language-solidity">function _payCSBWithRoyalty(address to, uint256 amount, address royaltyReceiver, uint256 royaltyAmount) internal;

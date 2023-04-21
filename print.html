@@ -173,24 +173,41 @@
 <li><a href="contracts/interfaces/IWCSB.sol/interface.IWCSB.html">IWCSB</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ierc20mintable"><a class="header" href="#ierc20mintable">IERC20Mintable</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <h3 id="mint"><a class="header" href="#mint">mint</a></h3>
 <pre><code class="language-solidity">function mint(address to, uint256 amount) external;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
 <h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
-<pre><code class="language-solidity">function initialize(address wcsb_, address mira_) external;
+<pre><code class="language-solidity">function initialize(address wcsb_, address mira_, address admin) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
 <tr><td><code>mira_</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
+<tr><td><code>admin</code></td><td><code>address</code></td><td>The address of the contract admin.</td></tr>
 </tbody></table>
 </div>
+<h3 id="pause"><a class="header" href="#pause">pause</a></h3>
+<p>Pauses interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function pause() external;
+</code></pre>
+<h3 id="unpause"><a class="header" href="#unpause">unpause</a></h3>
+<p>Resumes interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function unpause() external;
+</code></pre>
 <h3 id="ask"><a class="header" href="#ask">ask</a></h3>
 <p>Creates an ask order for an NFT.
 Emits the <code>AskCreated</code> event.</p>
@@ -340,20 +357,36 @@ Emits the <code>OrdersMatched</code> event.</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="iswap"><a class="header" href="#iswap">ISwap</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/interfaces/ISwap.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/interfaces/ISwap.sol">Git Source</a></p>
 <h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
 <h3 id="initialize-1"><a class="header" href="#initialize-1">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
-<pre><code class="language-solidity">function initialize(address wcsb_, address mira_, uint256 minCsb_, uint256 minMira_) external;
+<pre><code class="language-solidity">function initialize(address mira_, uint256 minCsb_, uint256 minMira_, address admin) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
 <tr><td><code>mira_</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 <tr><td><code>minCsb_</code></td><td><code>uint256</code></td><td>The minimum amount of CSB to sell.</td></tr>
 <tr><td><code>minMira_</code></td><td><code>uint256</code></td><td>The minimum amount of MIRA to sell.</td></tr>
+<tr><td><code>admin</code></td><td><code>address</code></td><td>The address of the contract admin.</td></tr>
 </tbody></table>
 </div>
+<h3 id="pause-1"><a class="header" href="#pause-1">pause</a></h3>
+<p>Pauses interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function pause() external;
+</code></pre>
+<h3 id="unpause-1"><a class="header" href="#unpause-1">unpause</a></h3>
+<p>Resumes interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function unpause() external;
+</code></pre>
 <h3 id="sellmira"><a class="header" href="#sellmira">sellMIRA</a></h3>
 <p>Sells MIRA for CSB.
 Creates a SellOrder and emits the <code>SellMIRA</code> event.</p>
@@ -420,15 +453,6 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>DataTypes.SellOrder</code></td><td>order The SellOrder struct.</td></tr>
 </tbody></table>
 </div>
-<h3 id="wcsb-1"><a class="header" href="#wcsb-1">wcsb</a></h3>
-<p>Returns the address of WCSB contract.</p>
-<pre><code class="language-solidity">function wcsb() external view returns (address);
-</code></pre>
-<p><strong>Returns</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
-</tbody></table>
-</div>
 <h3 id="mira-1"><a class="header" href="#mira-1">mira</a></h3>
 <p>Returns the address of MIRA contract.</p>
 <pre><code class="language-solidity">function mira() external view returns (address);
@@ -438,7 +462,7 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="iwcsb"><a class="header" href="#iwcsb">IWCSB</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/interfaces/IWCSB.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/interfaces/IWCSB.sol">Git Source</a></p>
 <h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
 <h3 id="deposit"><a class="header" href="#deposit">deposit</a></h3>
 <pre><code class="language-solidity">function deposit() external payable;
@@ -455,7 +479,7 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <li><a href="contracts/libraries/Events.sol/library.Events.html">Events</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/libraries/DataTypes.sol">Git Source</a></p>
 <p>A standard library of data types.</p>
 <h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
@@ -479,7 +503,7 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/libraries/Events.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/libraries/Events.sol">Git Source</a></p>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
 <h3 id="askcreated"><a class="header" href="#askcreated">AskCreated</a></h3>
 <p>Emitted when an ask order is created.</p>
@@ -579,7 +603,7 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <li><a href="contracts/mocks/WCSB.sol/contract.WCSB.html">WCSB</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="miratoken"><a class="header" href="#miratoken">MiraToken</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/mocks/MiraToken.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/mocks/MiraToken.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 AccessControlEnumerable, <a href="contracts/mocks/MiraToken.sol//contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a>, ERC777</p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
@@ -625,7 +649,7 @@ Requirements:</p>
 <pre><code class="language-solidity">function _burn(address, uint256, bytes memory, bytes memory) internal pure override;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="nft"><a class="header" href="#nft">NFT</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/mocks/NFT.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/mocks/NFT.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC721Enumerable, ERC2981</p>
 <h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
@@ -655,7 +679,7 @@ ERC721Enumerable, ERC2981</p>
 <pre><code class="language-solidity">function totalSupply() public view override returns (uint256);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="nft1155"><a class="header" href="#nft1155">NFT1155</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/mocks/NFT.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/mocks/NFT.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC1155</p>
 <h2 id="functions-6"><a class="header" href="#functions-6">Functions</a></h2>
@@ -665,8 +689,8 @@ ERC1155</p>
 <h3 id="mint-3"><a class="header" href="#mint-3">mint</a></h3>
 <pre><code class="language-solidity">function mint(address to) public;
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="wcsb-2"><a class="header" href="#wcsb-2">WCSB</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/mocks/WCSB.sol">Git Source</a></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="wcsb-1"><a class="header" href="#wcsb-1">WCSB</a></h1>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/mocks/WCSB.sol">Git Source</a></p>
 <h2 id="state-variables-2"><a class="header" href="#state-variables-2">State Variables</a></h2>
 <h3 id="name"><a class="header" href="#name">name</a></h3>
 <pre><code class="language-solidity">string public name = &quot;Wrapped CSB&quot;;
@@ -723,7 +747,7 @@ ERC1155</p>
 <li><a href="contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplacestorage"><a class="header" href="#marketplacestorage">MarketPlaceStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
 <h2 id="state-variables-3"><a class="header" href="#state-variables-3">State Variables</a></h2>
 <h3 id="_wcsb"><a class="header" href="#_wcsb">_wcsb</a></h3>
 <pre><code class="language-solidity">address internal _wcsb;
@@ -742,7 +766,7 @@ ERC1155</p>
 <li><a href="contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transparentupgradeableproxy"><a class="header" href="#transparentupgradeableproxy">TransparentUpgradeableProxy</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC1967Proxy</p>
 <p>*This contract implements a proxy that is upgradeable by an admin.
@@ -815,15 +839,18 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.</e
 <pre><code class="language-solidity">function _beforeFallback() internal virtual override;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplace"><a class="header" href="#marketplace">MarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/MarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/MarketPlace.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
-<a href="contracts/MarketPlace.sol//contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, IERC777Recipient, <a href="contracts/MarketPlace.sol//contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
+<a href="contracts/MarketPlace.sol//contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, IERC777Recipient, Pausable, AccessControlEnumerable, <a href="contracts/MarketPlace.sol//contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
 <h2 id="state-variables-4"><a class="header" href="#state-variables-4">State Variables</a></h2>
 <h3 id="interface_id_erc721"><a class="header" href="#interface_id_erc721">INTERFACE_ID_ERC721</a></h3>
 <pre><code class="language-solidity">bytes4 public constant INTERFACE_ID_ERC721 = 0x80ac58cd;
 </code></pre>
 <h3 id="interface_id_erc2981"><a class="header" href="#interface_id_erc2981">INTERFACE_ID_ERC2981</a></h3>
 <pre><code class="language-solidity">bytes4 public constant INTERFACE_ID_ERC2981 = 0x2a55205a;
+</code></pre>
+<h3 id="admin_role"><a class="header" href="#admin_role">ADMIN_ROLE</a></h3>
+<pre><code class="language-solidity">bytes32 public constant ADMIN_ROLE = keccak256(&quot;ADMIN_ROLE&quot;);
 </code></pre>
 <h3 id="erc1820_registry"><a class="header" href="#erc1820_registry">ERC1820_REGISTRY</a></h3>
 <pre><code class="language-solidity">IERC1820Registry public constant ERC1820_REGISTRY = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
@@ -859,16 +886,36 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.</e
 <h3 id="validprice"><a class="header" href="#validprice">validPrice</a></h3>
 <pre><code class="language-solidity">modifier validPrice(uint256 price);
 </code></pre>
+<h3 id="constructor-4"><a class="header" href="#constructor-4">constructor</a></h3>
+<pre><code class="language-solidity">constructor();
+</code></pre>
 <h3 id="initialize-2"><a class="header" href="#initialize-2">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
-<pre><code class="language-solidity">function initialize(address wcsb_, address mira_) external override initializer;
+<pre><code class="language-solidity">function initialize(address wcsb_, address mira_, address admin) external override initializer;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
 <tr><td><code>mira_</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
+<tr><td><code>admin</code></td><td><code>address</code></td><td>The address of the contract admin.</td></tr>
 </tbody></table>
 </div>
+<h3 id="pause-2"><a class="header" href="#pause-2">pause</a></h3>
+<p>Pauses interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function pause() external override whenNotPaused onlyRole(ADMIN_ROLE);
+</code></pre>
+<h3 id="unpause-2"><a class="header" href="#unpause-2">unpause</a></h3>
+<p>Resumes interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function unpause() external override whenPaused onlyRole(ADMIN_ROLE);
+</code></pre>
 <h3 id="tokensreceived"><a class="header" href="#tokensreceived">tokensReceived</a></h3>
 <p><em>Called by an {IERC777} token contract whenever tokens are being
 moved or created into a registered account <code>to</code> (this contract). <br>
@@ -889,6 +936,7 @@ Emits the <code>AskCreated</code> event.</p>
 <pre><code class="language-solidity">function ask(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     askNotExists(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -909,6 +957,7 @@ Emits the <code>AskUpdated</code> event.</p>
 <pre><code class="language-solidity">function updateAsk(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     askExists(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -946,6 +995,7 @@ Emits the <code>OrdersMatched</code> event.</p>
     payable
     override
     nonReentrant
+    whenNotPaused
     validAsk(nftAddress, tokenId, user);
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -961,6 +1011,7 @@ Emits the <code>BidCreated</code> event.</p>
 <pre><code class="language-solidity">function bid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     bidNotExists(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -995,6 +1046,7 @@ Emits the <code>BidUpdated</code> event.</p>
 <pre><code class="language-solidity">function updateBid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
     external
     override
+    whenNotPaused
     validBid(nftAddress, tokenId, _msgSender())
     validPayToken(payToken)
     validDeadline(deadline)
@@ -1016,6 +1068,7 @@ Emits the <code>OrdersMatched</code> event.</p>
     external
     override
     nonReentrant
+    whenNotPaused
     validBid(nftAddress, tokenId, user);
 </code></pre>
 <p><strong>Parameters</strong></p>
@@ -1055,7 +1108,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 <tr><td><code>owner</code></td><td><code>address</code></td><td>The owner who creates the order.</td></tr>
 </tbody></table>
 </div>
-<h3 id="wcsb-3"><a class="header" href="#wcsb-3">wcsb</a></h3>
+<h3 id="wcsb-2"><a class="header" href="#wcsb-2">wcsb</a></h3>
 <p>Returns the address of WCSB contract.</p>
 <pre><code class="language-solidity">function wcsb() external view override returns (address);
 </code></pre>
@@ -1085,7 +1138,9 @@ Emits the <code>OrdersMatched</code> event.</p>
 ) internal;
 </code></pre>
 <h3 id="_acceptask"><a class="header" href="#_acceptask">_acceptAsk</a></h3>
-<pre><code class="language-solidity">function _acceptAsk(address nftAddress, uint256 tokenId, address user, address buyer, uint256 erc777Amount) internal;
+<pre><code class="language-solidity">function _acceptAsk(address nftAddress, uint256 tokenId, address user, address buyer, uint256 erc777Amount)
+    internal
+    whenNotPaused;
 </code></pre>
 <h3 id="_paycsbwithroyalty"><a class="header" href="#_paycsbwithroyalty">_payCSBWithRoyalty</a></h3>
 <pre><code class="language-solidity">function _payCSBWithRoyalty(address to, uint256 amount, address royaltyReceiver, uint256 royaltyAmount) internal;
@@ -1120,9 +1175,9 @@ Emits the <code>OrdersMatched</code> event.</p>
 <pre><code class="language-solidity">function _now() internal view virtual returns (uint256);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="swap"><a class="header" href="#swap">Swap</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/3c6f7eaa73b7e047095464de71a761d50a357d45/contracts/Swap.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/7cebd4cf272299aff7342c314cf2594b32ea8995/contracts/Swap.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
-<a href="contracts/Swap.sol//contracts/interfaces/ISwap.sol/interface.ISwap.html">ISwap</a>, Context, IERC777Recipient, Initializable, ReentrancyGuard</p>
+<a href="contracts/Swap.sol//contracts/interfaces/ISwap.sol/interface.ISwap.html">ISwap</a>, Context, IERC777Recipient, Initializable, ReentrancyGuard, Pausable, AccessControlEnumerable</p>
 <h2 id="state-variables-5"><a class="header" href="#state-variables-5">State Variables</a></h2>
 <h3 id="_wcsb-1"><a class="header" href="#_wcsb-1">_wcsb</a></h3>
 <pre><code class="language-solidity">address internal _wcsb;
@@ -1130,11 +1185,17 @@ Emits the <code>OrdersMatched</code> event.</p>
 <h3 id="_mira-1"><a class="header" href="#_mira-1">_mira</a></h3>
 <pre><code class="language-solidity">address internal _mira;
 </code></pre>
+<h3 id="_mincsb"><a class="header" href="#_mincsb">_minCsb</a></h3>
+<pre><code class="language-solidity">uint256 internal _minCsb;
+</code></pre>
 <h3 id="_minmira"><a class="header" href="#_minmira">_minMira</a></h3>
 <pre><code class="language-solidity">uint256 internal _minMira;
 </code></pre>
-<h3 id="_mincsb"><a class="header" href="#_mincsb">_minCsb</a></h3>
-<pre><code class="language-solidity">uint256 internal _minCsb;
+<h3 id="_orders"><a class="header" href="#_orders">_orders</a></h3>
+<pre><code class="language-solidity">mapping(uint256 =&gt; DataTypes.SellOrder) internal _orders;
+</code></pre>
+<h3 id="_ordercount"><a class="header" href="#_ordercount">_orderCount</a></h3>
+<pre><code class="language-solidity">uint256 internal _orderCount;
 </code></pre>
 <h3 id="sell_mira"><a class="header" href="#sell_mira">SELL_MIRA</a></h3>
 <pre><code class="language-solidity">uint8 public constant SELL_MIRA = 1;
@@ -1154,25 +1215,41 @@ Emits the <code>OrdersMatched</code> event.</p>
 <h3 id="tokens_recipient_interface_hash-1"><a class="header" href="#tokens_recipient_interface_hash-1">TOKENS_RECIPIENT_INTERFACE_HASH</a></h3>
 <pre><code class="language-solidity">bytes32 public constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256(&quot;ERC777TokensRecipient&quot;);
 </code></pre>
-<h3 id="_orders"><a class="header" href="#_orders">_orders</a></h3>
-<pre><code class="language-solidity">mapping(uint256 =&gt; DataTypes.SellOrder) internal _orders;
-</code></pre>
-<h3 id="_ordercount"><a class="header" href="#_ordercount">_orderCount</a></h3>
-<pre><code class="language-solidity">uint256 internal _orderCount;
+<h3 id="admin_role-1"><a class="header" href="#admin_role-1">ADMIN_ROLE</a></h3>
+<pre><code class="language-solidity">bytes32 public constant ADMIN_ROLE = keccak256(&quot;ADMIN_ROLE&quot;);
 </code></pre>
 <h2 id="functions-10"><a class="header" href="#functions-10">Functions</a></h2>
+<h3 id="constructor-5"><a class="header" href="#constructor-5">constructor</a></h3>
+<pre><code class="language-solidity">constructor();
+</code></pre>
 <h3 id="initialize-3"><a class="header" href="#initialize-3">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
-<pre><code class="language-solidity">function initialize(address wcsb_, address mira_, uint256 minCsb_, uint256 minMira_) external override initializer;
+<pre><code class="language-solidity">function initialize(address mira_, uint256 minCsb_, uint256 minMira_, address admin) external override initializer;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>wcsb_</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
 <tr><td><code>mira_</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 <tr><td><code>minCsb_</code></td><td><code>uint256</code></td><td>The minimum amount of CSB to sell.</td></tr>
 <tr><td><code>minMira_</code></td><td><code>uint256</code></td><td>The minimum amount of MIRA to sell.</td></tr>
+<tr><td><code>admin</code></td><td><code>address</code></td><td>The address of the contract admin.</td></tr>
 </tbody></table>
 </div>
+<h3 id="pause-3"><a class="header" href="#pause-3">pause</a></h3>
+<p>Pauses interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function pause() external override whenNotPaused onlyRole(ADMIN_ROLE);
+</code></pre>
+<h3 id="unpause-3"><a class="header" href="#unpause-3">unpause</a></h3>
+<p>Resumes interaction with the contract.
+Requirements:</p>
+<ul>
+<li>The caller must have the ADMIN_ROLE.</li>
+</ul>
+<pre><code class="language-solidity">function unpause() external override whenPaused onlyRole(ADMIN_ROLE);
+</code></pre>
 <h3 id="tokensreceived-1"><a class="header" href="#tokensreceived-1">tokensReceived</a></h3>
 <p>Called by an {IERC777} token contract whenever tokens are being
 moved or created into a registered account <code>to</code> (this contract). <br>
@@ -1215,17 +1292,11 @@ Creates a SellOrder and emits the <code>SellMIRA</code> event.</p>
 <tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The new created order id.</td></tr>
 </tbody></table>
 </div>
-<h3 id="_sellmira"><a class="header" href="#_sellmira">_sellMIRA</a></h3>
-<pre><code class="language-solidity">function _sellMIRA(address owner, uint256 miraAmount, uint256 expectedCsbAmount)
-    internal
-    nonReentrant
-    returns (uint256 orderId);
-</code></pre>
 <h3 id="sellcsb-2"><a class="header" href="#sellcsb-2">sellCSB</a></h3>
 <p>Sells CSB for MIRA.
 Creates a SellOrder and emits the <code>SellCSB</code> event.</p>
 <p><em>The amount of CSB to sell must be specified in the <code>msg.value</code>.<br></em></p>
-<pre><code class="language-solidity">function sellCSB(uint256 expectedMiraAmount) external payable override returns (uint256 orderId);
+<pre><code class="language-solidity">function sellCSB(uint256 expectedMiraAmount) external payable override whenNotPaused returns (uint256 orderId);
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -1271,15 +1342,6 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>DataTypes.SellOrder</code></td><td>order The SellOrder struct.</td></tr>
 </tbody></table>
 </div>
-<h3 id="wcsb-4"><a class="header" href="#wcsb-4">wcsb</a></h3>
-<p>Returns the address of WCSB contract.</p>
-<pre><code class="language-solidity">function wcsb() external view override returns (address);
-</code></pre>
-<p><strong>Returns</strong></p>
-<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of WCSB contract.</td></tr>
-</tbody></table>
-</div>
 <h3 id="mira-3"><a class="header" href="#mira-3">mira</a></h3>
 <p>Returns the address of MIRA contract.</p>
 <pre><code class="language-solidity">function mira() external view override returns (address);
@@ -1289,8 +1351,15 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 </tbody></table>
 </div>
+<h3 id="_sellmira"><a class="header" href="#_sellmira">_sellMIRA</a></h3>
+<pre><code class="language-solidity">function _sellMIRA(address owner, uint256 miraAmount, uint256 expectedCsbAmount)
+    internal
+    nonReentrant
+    whenNotPaused
+    returns (uint256 orderId);
+</code></pre>
 <h3 id="_acceptorder"><a class="header" href="#_acceptorder">_acceptOrder</a></h3>
-<pre><code class="language-solidity">function _acceptOrder(uint256 orderId, address buyer, uint256 erc777Amount) internal nonReentrant;
+<pre><code class="language-solidity">function _acceptOrder(uint256 orderId, address buyer, uint256 erc777Amount) internal nonReentrant whenNotPaused;
 </code></pre>
 
                     </main>
