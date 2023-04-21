@@ -45,6 +45,10 @@ contract Swap is
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
+    constructor() {
+        _disableInitializers();
+    }
+
     /// @inheritdoc ISwap
     function initialize(
         address mira_,

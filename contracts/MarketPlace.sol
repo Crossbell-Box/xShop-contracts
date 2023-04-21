@@ -116,6 +116,10 @@ contract MarketPlace is
         _;
     }
 
+    constructor() {
+        _disableInitializers();
+    }
+
     /// @inheritdoc IMarketPlace
     function initialize(address wcsb_, address mira_, address admin) external override initializer {
         _wcsb = wcsb_;

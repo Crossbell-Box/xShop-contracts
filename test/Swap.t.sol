@@ -9,9 +9,13 @@ import {Events} from "../contracts/libraries/Events.sol";
 import {MiraToken} from "../contracts/mocks/MiraToken.sol";
 import {WCSB} from "../contracts/mocks/WCSB.sol";
 import {EmitExpecter} from "./EmitExpecter.sol";
+import {
+    TransparentUpgradeableProxy
+} from "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SwapTest is Test, EmitExpecter {
+    TransparentUpgradeableProxy public proxySwap;
     MiraToken mira;
     Swap swap;
 
@@ -20,6 +24,7 @@ contract SwapTest is Test, EmitExpecter {
     // alice owns MIRA, she can sell MIRA and accepts sell order of CSB
     address public constant bob = address(0x2222);
     address public constant admin = address(0x3333);
+    address public constant proxyOwner = address(0x4444);
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
@@ -54,9 +59,11 @@ contract SwapTest is Test, EmitExpecter {
             )
         );
 
-        swap = new Swap();
-
         mira = new MiraToken("MIRA", "MIRA", address(this));
+
+        swap = new Swap();
+        proxySwap = new TransparentUpgradeableProxy(address(swap), proxyOwner, "");
+        swap = Swap(address(proxySwap));
         swap.initialize(address(mira), MIN_CSB, MIN_MIRA, admin);
 
         mira.mint(alice, INITIAL_MIRA_BALANCE);

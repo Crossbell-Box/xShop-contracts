@@ -10,9 +10,13 @@ import {MiraToken} from "../contracts/mocks/MiraToken.sol";
 import {WCSB} from "../contracts/mocks/WCSB.sol";
 import {NFT, NFT1155} from "../contracts/mocks/NFT.sol";
 import {EmitExpecter} from "./EmitExpecter.sol";
+import {
+    TransparentUpgradeableProxy
+} from "../contracts/upgradeability/TransparentUpgradeableProxy.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MarketPlaceTest is Test, EmitExpecter {
+    TransparentUpgradeableProxy public proxyMarketPlace;
     MarketPlace market;
     WCSB wcsb;
     MiraToken mira;
@@ -25,6 +29,8 @@ contract MarketPlaceTest is Test, EmitExpecter {
     address public constant bob = address(0x2222);
 
     address public constant admin = address(0x3333);
+    address public constant proxyOwner = address(0x4444);
+
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
     uint256 public constant MAX_ROYALTY = 10000;
@@ -43,11 +49,14 @@ contract MarketPlaceTest is Test, EmitExpecter {
             )
         );
 
-        market = new MarketPlace();
         wcsb = new WCSB();
         mira = new MiraToken("MIRA", "MIRA", address(this));
         nft = new NFT("NFt", "NFT");
         nft1155 = new NFT1155();
+
+        market = new MarketPlace();
+        proxyMarketPlace = new TransparentUpgradeableProxy(address(market), proxyOwner, "");
+        market = MarketPlace(address(proxyMarketPlace));
         market.initialize(address(wcsb), address(mira), admin);
 
         nft.mint(alice);
