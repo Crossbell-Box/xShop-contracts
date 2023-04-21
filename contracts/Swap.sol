@@ -47,13 +47,11 @@ contract Swap is
 
     /// @inheritdoc ISwap
     function initialize(
-        address wcsb_,
         address mira_,
         uint256 minCsb_,
         uint256 minMira_,
         address admin
     ) external override initializer {
-        _wcsb = wcsb_;
         _mira = mira_;
 
         _minCsb = minCsb_;
@@ -109,15 +107,17 @@ contract Swap is
         require(amount > 0, "InvalidAmount");
 
         bytes memory data = userData.length > 0 ? userData : operatorData;
-        (uint256 opType, uint256 value) = abi.decode(data, (uint256, uint256));
-        if (opType == OPERATION_TYPE_ACCEPT_ORDER) {
-            // accept an order
-            _acceptOrder(value, from, amount);
-        } else if (opType == OPERATION_TYPE_SELL_MIRA) {
-            // sell MIRA for CSB
-            _sellMIRA(from, amount, value);
-        } else {
-            revert("InvalidData");
+        if (data.length > 0) {
+            (uint256 opType, uint256 value) = abi.decode(data, (uint256, uint256));
+            if (opType == OPERATION_TYPE_ACCEPT_ORDER) {
+                // accept an order
+                _acceptOrder(value, from, amount);
+            } else if (opType == OPERATION_TYPE_SELL_MIRA) {
+                // sell MIRA for CSB
+                _sellMIRA(from, amount, value);
+            } else {
+                revert("InvalidData");
+            }
         }
     }
 
@@ -196,11 +196,6 @@ contract Swap is
     /// @inheritdoc ISwap
     function getOrder(uint256 orderId) external view override returns (DataTypes.SellOrder memory) {
         return _orders[orderId];
-    }
-
-    /// @inheritdoc ISwap
-    function wcsb() external view override returns (address) {
-        return _wcsb;
     }
 
     /// @inheritdoc ISwap

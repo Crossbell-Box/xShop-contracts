@@ -13,23 +13,37 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SwapTest is Test, EmitExpecter {
     MiraToken mira;
-    WCSB wcsb;
     Swap swap;
 
+    // bob owns CSB, he can sell CSB and accepts sell order of MIRA
     address public constant alice = address(0x1111);
+    // alice owns MIRA, she can sell MIRA and accepts sell order of CSB
     address public constant bob = address(0x2222);
     address public constant admin = address(0x3333);
 
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    uint256 public constant MIN_CSB = 10 ether;
-    uint256 public constant MIN_MIRA = 100 ether;
+    uint8 public constant SELL_MIRA = 1;
+    uint8 public constant SELL_CSB = 2;
 
-    uint256 public constant INITIAL_MIRA_BALANCE = 100 ether;
-    uint256 public constant INITIAL_CSB_BALANCE = 100 ether;
+    uint256 public constant MIN_MIRA = 100 ether;
+    uint256 public constant MIN_CSB = 10 ether;
+
+    uint256 public constant INITIAL_MIRA_BALANCE = MIN_MIRA * 100;
+    uint256 public constant INITIAL_CSB_BALANCE = MIN_CSB * 100;
 
     event Paused(address account);
     event Unpaused(address account);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Sent(
+        address indexed operator,
+        address indexed from,
+        address indexed to,
+        uint256 amount,
+        bytes data,
+        bytes operatorData
+    );
 
     function setUp() public {
         // deploy erc1820
@@ -41,17 +55,15 @@ contract SwapTest is Test, EmitExpecter {
         );
 
         swap = new Swap();
-        wcsb = new WCSB();
 
         mira = new MiraToken("MIRA", "MIRA", address(this));
-        swap.initialize(address(wcsb), address(mira), MIN_CSB, MIN_MIRA, admin);
+        swap.initialize(address(mira), MIN_CSB, MIN_MIRA, admin);
 
         mira.mint(alice, INITIAL_MIRA_BALANCE);
         vm.deal(bob, INITIAL_CSB_BALANCE);
     }
 
     function testSetupStates() public {
-        assertEq(address(swap.wcsb()), address(wcsb));
         assertEq(address(swap.mira()), address(mira));
 
         assertEq(vm.load(address(swap), bytes32(uint256(7))), bytes32(MIN_CSB));
@@ -61,7 +73,7 @@ contract SwapTest is Test, EmitExpecter {
     function testInitFail() public {
         // reinit
         vm.expectRevert(abi.encodePacked("Initializable: contract is already initialized"));
-        swap.initialize(address(0x4), address(0x4), MIN_CSB, MIN_MIRA, admin);
+        swap.initialize(address(0x4), MIN_CSB, MIN_MIRA, admin);
     }
 
     function testPause() public {
@@ -137,5 +149,171 @@ contract SwapTest is Test, EmitExpecter {
         swap.unpause();
         // check paused
         assertEq(swap.paused(), true);
+    }
+
+    function testSellMIRA(uint256 miraAmount, uint256 expectedCsbAmount) public {
+        vm.assume(miraAmount < INITIAL_CSB_BALANCE && miraAmount > MIN_MIRA);
+
+        vm.startPrank(alice);
+        mira.approve(address(swap), miraAmount);
+        // expect event
+        expectEmit(CheckAll);
+        emit Approval(alice, address(swap), 0);
+        expectEmit(CheckAll);
+        emit Sent(address(swap), alice, address(swap), miraAmount, "", "");
+        expectEmit(CheckAll);
+        emit Transfer(alice, address(swap), miraAmount);
+        expectEmit(CheckAll);
+        emit Events.SellMIRA(alice, miraAmount, expectedCsbAmount, 1);
+        swap.sellMIRA(miraAmount, expectedCsbAmount);
+        vm.stopPrank();
+
+        // check MIRA balance
+        assertEq(mira.balanceOf(address(alice)), INITIAL_MIRA_BALANCE - miraAmount);
+        assertEq(mira.balanceOf(address(swap)), miraAmount);
+        // check sell order
+        _checkSellOrder(1, address(alice), SELL_MIRA, miraAmount, expectedCsbAmount);
+    }
+
+    function testCancelOrderWithSellMIRA(uint256 miraAmount) public {
+        vm.assume(miraAmount < INITIAL_CSB_BALANCE && miraAmount > MIN_MIRA);
+
+        // sell MIRA
+        vm.startPrank(alice);
+        mira.approve(address(swap), miraAmount);
+        swap.sellMIRA(miraAmount, 1);
+
+        // expect event
+        expectEmit(CheckAll);
+        emit Sent(address(swap), address(swap), alice, miraAmount, "", "");
+        expectEmit(CheckAll);
+        emit Transfer(address(swap), alice, miraAmount);
+        expectEmit(CheckAll);
+        emit Events.SellOrderCanceled(1);
+        // cancel order
+        swap.cancelOrder(1);
+        vm.stopPrank();
+
+        // check MIRA balance
+        assertEq(mira.balanceOf(address(alice)), INITIAL_MIRA_BALANCE);
+        assertEq(mira.balanceOf(address(swap)), 0);
+        // check sell order
+        _checkSellOrder(1, address(0), 0, 0, 0);
+    }
+
+    function testSellCSB(uint256 csbAmount, uint256 expectedMiraAmount) public {
+        vm.assume(csbAmount < INITIAL_CSB_BALANCE && csbAmount > MIN_CSB);
+
+        // expect event
+        expectEmit(CheckAll);
+        emit Events.SellCSB(bob, csbAmount, expectedMiraAmount, 1);
+        vm.prank(bob);
+        swap.sellCSB{value: csbAmount}(expectedMiraAmount);
+
+        // check CSB balance
+        assertEq(bob.balance, INITIAL_CSB_BALANCE - csbAmount);
+        assertEq(address(swap).balance, csbAmount);
+        // check sell order
+        _checkSellOrder(1, address(bob), SELL_CSB, expectedMiraAmount, csbAmount);
+    }
+
+    function testCancelOrderWithSellCSB(uint256 csbAmount) public {
+        vm.assume(csbAmount < INITIAL_CSB_BALANCE && csbAmount > MIN_CSB);
+
+        // sell CSB
+        vm.startPrank(bob);
+        swap.sellCSB{value: csbAmount}(1);
+
+        // expect event
+        expectEmit(CheckAll);
+        emit Events.SellOrderCanceled(1);
+        // cancel order
+        swap.cancelOrder(1);
+        vm.stopPrank();
+
+        // check CSB balance
+        assertEq(bob.balance, INITIAL_CSB_BALANCE);
+        assertEq(address(swap).balance, 0);
+        // check sell order
+        _checkSellOrder(1, address(0), 0, 0, 0);
+    }
+
+    function acceptOrderSellCSB(uint256 csbAmount, uint256 expectedMiraAmount) public {
+        vm.assume(csbAmount < INITIAL_CSB_BALANCE && csbAmount > MIN_CSB);
+
+        // bob sells CSB
+        vm.prank(bob);
+        swap.sellCSB{value: csbAmount}(expectedMiraAmount);
+
+        // alice accepts bob's order
+        vm.startPrank(alice);
+        mira.approve(address(swap), expectedMiraAmount);
+        // expect event
+        expectEmit(CheckAll);
+        emit Approval(alice, address(swap), 0);
+        expectEmit(CheckAll);
+        emit Sent(address(swap), alice, address(swap), expectedMiraAmount, "", "");
+        expectEmit(CheckAll);
+        emit Transfer(alice, address(swap), expectedMiraAmount);
+        expectEmit(CheckAll);
+        emit Events.SellOrderMatched(1, alice);
+        swap.acceptOrder(1);
+
+        // check CSB balance
+        assertEq(alice.balance, csbAmount);
+        assertEq(bob.balance, INITIAL_CSB_BALANCE - csbAmount);
+        assertEq(address(swap).balance, 0);
+        // check MIRA balance
+        assertEq(mira.balanceOf(address(alice)), INITIAL_MIRA_BALANCE - expectedMiraAmount);
+        assertEq(mira.balanceOf(address(bob)), expectedMiraAmount);
+        assertEq(mira.balanceOf(address(swap)), 0);
+        // check sell order
+        _checkSellOrder(1, address(0), 0, 0, 0);
+    }
+
+    function acceptOrderSellMIRA(uint256 miraAmount, uint256 expectedCsbAmount) public {
+        vm.assume(miraAmount < INITIAL_CSB_BALANCE && miraAmount > MIN_MIRA);
+
+        // alice sells MIRA
+        vm.startPrank(alice);
+        mira.approve(address(swap), miraAmount);
+        swap.sellMIRA(miraAmount, expectedCsbAmount);
+        vm.stopPrank();
+
+        // bob accepts alice's sell order
+        // expect event
+        expectEmit(CheckAll);
+        emit Sent(address(swap), address(swap), bob, miraAmount, "", "");
+        expectEmit(CheckAll);
+        emit Transfer(address(swap), bob, miraAmount);
+        expectEmit(CheckAll);
+        emit Events.SellOrderMatched(1, bob);
+        vm.prank(bob);
+        swap.acceptOrder{value: expectedCsbAmount}(1);
+
+        // check CSB balance
+        assertEq(alice.balance, expectedCsbAmount);
+        assertEq(bob.balance, INITIAL_CSB_BALANCE - expectedCsbAmount);
+        assertEq(address(swap).balance, 0);
+        // check MIRA balance
+        assertEq(mira.balanceOf(address(alice)), INITIAL_MIRA_BALANCE - miraAmount);
+        assertEq(mira.balanceOf(address(bob)), miraAmount);
+        assertEq(mira.balanceOf(address(swap)), 0);
+        // check sell order
+        _checkSellOrder(1, address(0), 0, 0, 0);
+    }
+
+    function _checkSellOrder(
+        uint256 orderId,
+        address owner,
+        uint8 orderType,
+        uint256 miraAmount,
+        uint256 csbAmount
+    ) internal {
+        DataTypes.SellOrder memory order = swap.getOrder(orderId);
+        assertEq(order.owner, owner);
+        assertEq(order.orderType, orderType);
+        assertEq(order.miraAmount, miraAmount);
+        assertEq(order.csbAmount, csbAmount);
     }
 }
