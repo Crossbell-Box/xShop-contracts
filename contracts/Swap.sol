@@ -217,6 +217,7 @@ contract Swap is
         uint256 erc777Amount
     ) internal nonReentrant whenNotPaused {
         DataTypes.SellOrder memory order = _orders[orderId];
+        require(order.owner != address(0), "InvalidOrder");
 
         // delete order first
         delete _orders[orderId];

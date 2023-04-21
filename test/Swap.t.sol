@@ -434,7 +434,11 @@ contract SwapTest is Test, EmitExpecter {
         );
     }
 
-    function testAcceptOrderFailInvalidOrderType() public {}
+    function testAcceptOrderFailInvalidOrder() public {
+        vm.expectRevert(abi.encodePacked("InvalidOrder"));
+        vm.prank(alice);
+        mira.send(address(swap), 1, abi.encode(OPERATION_TYPE_ACCEPT_ORDER, uint256(1)));
+    }
 
     function testTokensReceivedFailInvalidAmount() public {
         vm.expectRevert(abi.encodePacked("InvalidAmount"));
