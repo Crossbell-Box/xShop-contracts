@@ -335,6 +335,43 @@ contract SwapTest is Test, EmitExpecter {
         _checkSellOrder(1, address(0), 0, 0, 0);
     }
 
+    function testAcceptOrderSellCSBWithSend(uint256 csbAmount, uint256 expectedMiraAmount) public {
+        vm.assume(csbAmount < INITIAL_CSB_BALANCE && csbAmount > MIN_CSB);
+        vm.assume(expectedMiraAmount < INITIAL_MIRA_BALANCE && expectedMiraAmount > 0);
+
+        // bob sells CSB
+        vm.prank(bob);
+        swap.sellCSB{value: csbAmount}(expectedMiraAmount);
+
+        bytes memory data = abi.encode(OPERATION_TYPE_ACCEPT_ORDER, 1);
+
+        // alice accepts bob's order
+        // expect event
+        expectEmit(CheckAll);
+        emit Sent(alice, alice, address(swap), expectedMiraAmount, data, "");
+        expectEmit(CheckAll);
+        emit Transfer(alice, address(swap), expectedMiraAmount);
+        expectEmit(CheckAll);
+        emit Sent(address(swap), address(swap), bob, expectedMiraAmount, "", "");
+        expectEmit(CheckAll);
+        emit Transfer(address(swap), bob, expectedMiraAmount);
+        expectEmit(CheckAll);
+        emit Events.SellOrderMatched(1, alice);
+        vm.prank(alice);
+        mira.send(address(swap), expectedMiraAmount, data);
+
+        // check CSB balance
+        assertEq(alice.balance, csbAmount);
+        assertEq(bob.balance, INITIAL_CSB_BALANCE - csbAmount);
+        assertEq(address(swap).balance, 0);
+        // check MIRA balance
+        assertEq(mira.balanceOf(address(alice)), INITIAL_MIRA_BALANCE - expectedMiraAmount);
+        assertEq(mira.balanceOf(address(bob)), expectedMiraAmount);
+        assertEq(mira.balanceOf(address(swap)), 0);
+        // check sell order
+        _checkSellOrder(1, address(0), 0, 0, 0);
+    }
+
     function _checkSellOrder(
         uint256 orderId,
         address owner,
