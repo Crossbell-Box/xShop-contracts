@@ -325,11 +325,15 @@ contract MarketPlace is
     ) external override nonReentrant whenNotPaused validBid(nftAddress, tokenId, user) {
         DataTypes.Order memory bidOrder = _bidOrders[nftAddress][tokenId][user];
 
+        // delete order
+        delete _bidOrders[nftAddress][tokenId][user];
+
         (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
             nftAddress,
             tokenId,
             bidOrder.price
         );
+
         // pay to msg.sender
         _payERC20WithRoyalty(
             bidOrder.owner,
@@ -352,8 +356,6 @@ contract MarketPlace is
             royaltyReceiver,
             royaltyAmount
         );
-
-        delete _bidOrders[nftAddress][tokenId][user];
     }
 
     /// @inheritdoc IMarketPlace
@@ -421,6 +423,9 @@ contract MarketPlace is
     ) internal whenNotPaused {
         DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
 
+        // delete ask order
+        delete _askOrders[nftAddress][tokenId][user];
+
         (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
             nftAddress,
             tokenId,
@@ -451,8 +456,6 @@ contract MarketPlace is
             royaltyReceiver,
             royaltyAmount
         );
-
-        delete _askOrders[nftAddress][tokenId][user];
     }
 
     function _payCSBWithRoyalty(

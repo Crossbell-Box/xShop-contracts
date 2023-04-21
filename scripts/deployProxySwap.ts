@@ -9,10 +9,9 @@ async function main() {
     // update these addresses when deploying
     const proxyOwner = "0xc72cE0090718502f08506c4592F18f13094d4CE3";
     const admin = "0x4BCe096F44b90B812420637068dC215C1C3C8B54";
-    const wcsb = "0x781e5f82f1CfC2bCcBfe0CFC24DB903718D34a2D";
     const mira = "0xb402548B1f3fE59211B19832C5b659bB4d4Abd42";
     const minMira = ethers.utils.parseEther("100");
-    const minCsb = ethers.utils.parseEther("1");
+    const minCsb = ethers.utils.parseEther("0.1");
 
     const Swap = await ethers.getContractFactory("Swap");
     const swap = await Swap.deploy();
@@ -22,7 +21,7 @@ async function main() {
     const proxySwap = await Proxy.deploy(swap.address, proxyOwner, "0x");
     await proxySwap.deployed();
 
-    await Swap.attach(proxySwap.address).initialize(wcsb, mira, minCsb, minMira, admin);
+    await Swap.attach(proxySwap.address).initialize(mira, minCsb, minMira, admin);
 
     console.log("swap deployed to:", swap.address);
     console.log("proxySwap deployed to:", proxySwap.address);
