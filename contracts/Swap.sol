@@ -118,7 +118,7 @@ contract Swap is
                 _acceptOrder(value, from, amount);
             } else if (opType == OPERATION_TYPE_SELL_MIRA) {
                 // sell MIRA for CSB
-                _sellMIRA(from, amount, value);
+                _sellMIRA(from, amount, value, true);
             } else {
                 revert("InvalidData");
             }
@@ -130,7 +130,7 @@ contract Swap is
         uint256 miraAmount,
         uint256 expectedCsbAmount
     ) external override returns (uint256 orderId) {
-        orderId = _sellMIRA(_msgSender(), miraAmount, expectedCsbAmount);
+        orderId = _sellMIRA(_msgSender(), miraAmount, expectedCsbAmount, false);
     }
 
     /// @inheritdoc ISwap
@@ -186,7 +186,8 @@ contract Swap is
     function _sellMIRA(
         address owner,
         uint256 miraAmount,
-        uint256 expectedCsbAmount
+        uint256 expectedCsbAmount,
+        bool onTokensReceived
     ) internal nonReentrant whenNotPaused returns (uint256 orderId) {
         require(miraAmount >= _minMira, "InvalidMiraAmount");
 
@@ -202,7 +203,9 @@ contract Swap is
         });
 
         // transfer MIRA to this contract
-        IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
+        if (!onTokensReceived) {
+            IERC20(_mira).safeTransferFrom(owner, address(this), miraAmount);
+        }
 
         emit Events.SellMIRA(owner, miraAmount, expectedCsbAmount, orderId);
     }
@@ -214,6 +217,7 @@ contract Swap is
         uint256 erc777Amount
     ) internal nonReentrant whenNotPaused {
         DataTypes.SellOrder memory order = _orders[orderId];
+        require(order.owner != address(0), "InvalidOrder");
 
         // delete order first
         delete _orders[orderId];
