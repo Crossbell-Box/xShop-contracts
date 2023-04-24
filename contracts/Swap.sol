@@ -114,7 +114,7 @@ contract Swap is
         if (data.length > 0) {
             (uint256 opType, uint256 value) = abi.decode(data, (uint256, uint256));
             if (opType == OPERATION_TYPE_ACCEPT_ORDER) {
-                // accept an order
+                // accept a `sellCSB` order
                 _acceptOrder(value, from, amount);
             } else if (opType == OPERATION_TYPE_SELL_MIRA) {
                 // sell MIRA for CSB
@@ -153,7 +153,7 @@ contract Swap is
     }
 
     /// @inheritdoc ISwap
-    function cancelOrder(uint256 orderId) external override nonReentrant {
+    function cancelOrder(uint256 orderId) external override whenNotPaused nonReentrant {
         DataTypes.SellOrder memory order = _orders[orderId];
         require(order.owner == _msgSender(), "NotOrderOwner");
 
@@ -225,8 +225,9 @@ contract Swap is
         // transfer tokens
         if (order.orderType == SELL_MIRA) {
             require(msg.value >= order.csbAmount, "InvalidCSBAmount");
-
+            // transfer MIRA to buyer
             IERC20(_mira).safeTransfer(buyer, order.miraAmount);
+            // transfer CSB to order owner
             payable(order.owner).transfer(order.csbAmount);
         } else if (order.orderType == SELL_CSB) {
             // transfer MIRA to order owner

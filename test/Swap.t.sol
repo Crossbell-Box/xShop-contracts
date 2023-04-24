@@ -449,7 +449,36 @@ contract SwapTest is Test, EmitExpecter {
     function testTokensReceivedFailInvalidData() public {
         vm.expectRevert(abi.encodePacked("InvalidData"));
         vm.prank(alice);
-        mira.send(address(swap), 1, abi.encode(uint256(10), uint256(1)));
+        mira.send(address(swap), 1, abi.encode(uint256(10), uint256(3)));
+    }
+
+    function testCantDoAnythingWhenPaused() public {
+        vm.prank(admin);
+        swap.pause();
+
+        vm.startPrank(bob);
+        // sell CSB
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        swap.sellCSB{value: MIN_CSB}(MIN_MIRA);
+
+        // accept order
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        swap.acceptOrder(1);
+
+        // cancel order
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        swap.cancelOrder(1);
+        vm.stopPrank();
+
+        vm.startPrank(alice);
+        // sell MIRA
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        swap.sellMIRA(MIN_MIRA, MIN_CSB);
+
+        // accept order with sending MIRA
+        vm.expectRevert(abi.encodePacked("Pausable: paused"));
+        mira.send(address(swap), MIN_MIRA, abi.encode(OPERATION_TYPE_ACCEPT_ORDER, uint256(1)));
+        vm.stopPrank();
     }
 
     function _checkSellOrder(
