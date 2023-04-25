@@ -73,9 +73,8 @@ contract SwapTest is Test, EmitExpecter {
 
     function testSetupStates() public {
         assertEq(address(swap.mira()), address(mira));
-
-        assertEq(vm.load(address(swap), bytes32(uint256(7))), bytes32(MIN_CSB));
-        assertEq(vm.load(address(swap), bytes32(uint256(8))), bytes32(MIN_MIRA));
+        assertEq(swap.getMinCsb(), MIN_CSB);
+        assertEq(swap.getMinMira(), MIN_MIRA);
     }
 
     function testInitFail() public {
@@ -157,6 +156,52 @@ contract SwapTest is Test, EmitExpecter {
         swap.unpause();
         // check paused
         assertEq(swap.paused(), true);
+    }
+
+    function testSetMinMira() public {
+        vm.prank(admin);
+        swap.setMinMira(MIN_MIRA + 1);
+
+        // check min MIRA
+        assertEq(swap.getMinMira(), MIN_MIRA + 1);
+    }
+
+    function testSetMinMiraFailNotAdmin() public {
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        swap.setMinMira(MIN_MIRA + 1);
+
+        // check min MIRA
+        assertEq(swap.getMinMira(), MIN_MIRA);
+    }
+
+    function testSetMinCsb() public {
+        vm.prank(admin);
+        swap.setMinCsb(MIN_CSB + 1);
+
+        // check min CSB
+        assertEq(swap.getMinCsb(), MIN_CSB + 1);
+    }
+
+    function testSetMinCsbFailNotAdmin() public {
+        vm.expectRevert(
+            abi.encodePacked(
+                "AccessControl: account ",
+                Strings.toHexString(address(this)),
+                " is missing role ",
+                Strings.toHexString(uint256(ADMIN_ROLE), 32)
+            )
+        );
+        swap.setMinCsb(MIN_CSB + 1);
+
+        // check min CSB
+        assertEq(swap.getMinCsb(), MIN_CSB);
     }
 
     function testSellMIRA(uint256 miraAmount, uint256 expectedCsbAmount) public {

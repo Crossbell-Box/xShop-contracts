@@ -26,7 +26,6 @@ contract Swap is
 {
     using SafeERC20 for IERC20;
 
-    address internal _wcsb; //wrapped CSB.
     address internal _mira; // mira token address
     uint256 internal _minCsb; // minimum CSB amount to sell
     uint256 internal _minMira; // minimum MIRA amount to sell
@@ -80,6 +79,16 @@ contract Swap is
     /// @inheritdoc ISwap
     function unpause() external override whenPaused onlyRole(ADMIN_ROLE) {
         _unpause();
+    }
+
+    /// @inheritdoc ISwap
+    function setMinMira(uint256 minMira_) external override onlyRole(ADMIN_ROLE) {
+        _minMira = minMira_;
+    }
+
+    /// @inheritdoc ISwap
+    function setMinCsb(uint256 minCsb_) external override onlyRole(ADMIN_ROLE) {
+        _minCsb = minCsb_;
     }
 
     /**
@@ -181,6 +190,16 @@ contract Swap is
     /// @inheritdoc ISwap
     function mira() external view override returns (address) {
         return _mira;
+    }
+
+    /// @inheritdoc ISwap
+    function getMinMira() external view override returns (uint256) {
+        return _minMira;
+    }
+
+    /// @inheritdoc ISwap
+    function getMinCsb() external view override returns (uint256) {
+        return _minCsb;
     }
 
     function _sellMIRA(

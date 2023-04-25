@@ -28,6 +28,18 @@ interface ISwap {
     function unpause() external;
 
     /**
+     * @notice Sets the minimum amount of MIRA to sell.
+     * @param minMira_ The minimum amount of MIRA to sell.
+     */
+    function setMinMira(uint256 minMira_) external;
+
+    /**
+     * @notice Sets the minimum amount of CSB to sell.
+     * @param minCsb_ The minimum amount of CSB to sell.
+     */
+    function setMinCsb(uint256 minCsb_) external;
+
+    /**
      * @notice Sells MIRA for CSB.
      * Creates a SellOrder and emits the `SellMIRA` event.
      * @param miraAmount The amount of MIRA to sell.
@@ -74,4 +86,16 @@ interface ISwap {
      * @return The address of MIRA contract.
      */
     function mira() external view returns (address);
+
+    /**
+     * @notice Returns the minimum amount of MIRA to sell.
+     * @return The minimum amount of MIRA to sell.
+     */
+    function getMinMira() external view returns (uint256);
+
+    /**
+     * @notice Returns the minimum amount of CSB to sell.
+     * @return The minimum amount of CSB to sell.
+     */
+    function getMinCsb() external view returns (uint256);
 }
