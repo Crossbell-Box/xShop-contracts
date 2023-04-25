@@ -173,13 +173,13 @@
 <li><a href="contracts/interfaces/IWCSB.sol/interface.IWCSB.html">IWCSB</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="ierc20mintable"><a class="header" href="#ierc20mintable">IERC20Mintable</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/interfaces/IERC20Mintable.sol">Git Source</a></p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <h3 id="mint"><a class="header" href="#mint">mint</a></h3>
 <pre><code class="language-solidity">function mint(address to, uint256 amount) external;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
 <h2 id="functions-1"><a class="header" href="#functions-1">Functions</a></h2>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
@@ -357,7 +357,7 @@ Emits the <code>OrdersMatched</code> event.</p>
 <tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="iswap"><a class="header" href="#iswap">ISwap</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/interfaces/ISwap.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/interfaces/ISwap.sol">Git Source</a></p>
 <h2 id="functions-2"><a class="header" href="#functions-2">Functions</a></h2>
 <h3 id="initialize-1"><a class="header" href="#initialize-1">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
@@ -387,6 +387,24 @@ Requirements:</p>
 </ul>
 <pre><code class="language-solidity">function unpause() external;
 </code></pre>
+<h3 id="setminmira"><a class="header" href="#setminmira">setMinMira</a></h3>
+<p>Sets the minimum amount of MIRA to sell.</p>
+<pre><code class="language-solidity">function setMinMira(uint256 minMira_) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>minMira_</code></td><td><code>uint256</code></td><td>The minimum amount of MIRA to sell.</td></tr>
+</tbody></table>
+</div>
+<h3 id="setmincsb"><a class="header" href="#setmincsb">setMinCsb</a></h3>
+<p>Sets the minimum amount of CSB to sell.</p>
+<pre><code class="language-solidity">function setMinCsb(uint256 minCsb_) external;
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>minCsb_</code></td><td><code>uint256</code></td><td>The minimum amount of CSB to sell.</td></tr>
+</tbody></table>
+</div>
 <h3 id="sellmira"><a class="header" href="#sellmira">sellMIRA</a></h3>
 <p>Sells MIRA for CSB.
 Creates a SellOrder and emits the <code>SellMIRA</code> event.</p>
@@ -461,8 +479,26 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
 </tbody></table>
+</div>
+<h3 id="getminmira"><a class="header" href="#getminmira">getMinMira</a></h3>
+<p>Returns the minimum amount of MIRA to sell.</p>
+<pre><code class="language-solidity">function getMinMira() external view returns (uint256);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>The minimum amount of MIRA to sell.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getmincsb"><a class="header" href="#getmincsb">getMinCsb</a></h3>
+<p>Returns the minimum amount of CSB to sell.</p>
+<pre><code class="language-solidity">function getMinCsb() external view returns (uint256);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>The minimum amount of CSB to sell.</td></tr>
+</tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="iwcsb"><a class="header" href="#iwcsb">IWCSB</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/interfaces/IWCSB.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/interfaces/IWCSB.sol">Git Source</a></p>
 <h2 id="functions-3"><a class="header" href="#functions-3">Functions</a></h2>
 <h3 id="deposit"><a class="header" href="#deposit">deposit</a></h3>
 <pre><code class="language-solidity">function deposit() external payable;
@@ -479,7 +515,7 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <li><a href="contracts/libraries/Events.sol/library.Events.html">Events</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="datatypes"><a class="header" href="#datatypes">DataTypes</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/libraries/DataTypes.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/libraries/DataTypes.sol">Git Source</a></p>
 <p>A standard library of data types.</p>
 <h2 id="structs"><a class="header" href="#structs">Structs</a></h2>
 <h3 id="order"><a class="header" href="#order">Order</a></h3>
@@ -503,7 +539,7 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="events"><a class="header" href="#events">Events</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/libraries/Events.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/libraries/Events.sol">Git Source</a></p>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
 <h3 id="askcreated"><a class="header" href="#askcreated">AskCreated</a></h3>
 <p>Emitted when an ask order is created.</p>
@@ -603,7 +639,7 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <li><a href="contracts/mocks/WCSB.sol/contract.WCSB.html">WCSB</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="miratoken"><a class="header" href="#miratoken">MiraToken</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/mocks/MiraToken.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/mocks/MiraToken.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 AccessControlEnumerable, <a href="contracts/mocks/MiraToken.sol//contracts/interfaces/IERC20Mintable.sol/interface.IERC20Mintable.html">IERC20Mintable</a>, ERC777</p>
 <h2 id="state-variables"><a class="header" href="#state-variables">State Variables</a></h2>
@@ -649,7 +685,7 @@ Requirements:</p>
 <pre><code class="language-solidity">function _burn(address, uint256, bytes memory, bytes memory) internal pure override;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="nft"><a class="header" href="#nft">NFT</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/mocks/NFT.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/mocks/NFT.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC721Enumerable, ERC2981</p>
 <h2 id="state-variables-1"><a class="header" href="#state-variables-1">State Variables</a></h2>
@@ -679,7 +715,7 @@ ERC721Enumerable, ERC2981</p>
 <pre><code class="language-solidity">function totalSupply() public view override returns (uint256);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="nft1155"><a class="header" href="#nft1155">NFT1155</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/mocks/NFT.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/mocks/NFT.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC1155</p>
 <h2 id="functions-6"><a class="header" href="#functions-6">Functions</a></h2>
@@ -690,7 +726,7 @@ ERC1155</p>
 <pre><code class="language-solidity">function mint(address to) public;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="wcsb-1"><a class="header" href="#wcsb-1">WCSB</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/mocks/WCSB.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/mocks/WCSB.sol">Git Source</a></p>
 <h2 id="state-variables-2"><a class="header" href="#state-variables-2">State Variables</a></h2>
 <h3 id="name"><a class="header" href="#name">name</a></h3>
 <pre><code class="language-solidity">string public name = &quot;Wrapped CSB&quot;;
@@ -747,7 +783,7 @@ ERC1155</p>
 <li><a href="contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplacestorage"><a class="header" href="#marketplacestorage">MarketPlaceStorage</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/storage/MarketPlaceStorage.sol">Git Source</a></p>
 <h2 id="state-variables-3"><a class="header" href="#state-variables-3">State Variables</a></h2>
 <h3 id="_wcsb"><a class="header" href="#_wcsb">_wcsb</a></h3>
 <pre><code class="language-solidity">address internal _wcsb;
@@ -766,7 +802,7 @@ ERC1155</p>
 <li><a href="contracts/upgradeability/TransparentUpgradeableProxy.sol/contract.TransparentUpgradeableProxy.html">TransparentUpgradeableProxy</a></li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="transparentupgradeableproxy"><a class="header" href="#transparentupgradeableproxy">TransparentUpgradeableProxy</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/upgradeability/TransparentUpgradeableProxy.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 ERC1967Proxy</p>
 <p>*This contract implements a proxy that is upgradeable by an admin.
@@ -839,7 +875,7 @@ NOTE: Only the admin can call this function. See {ProxyAdmin-upgradeAndCall}.</e
 <pre><code class="language-solidity">function _beforeFallback() internal virtual override;
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="marketplace"><a class="header" href="#marketplace">MarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/MarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/MarketPlace.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="contracts/MarketPlace.sol//contracts/interfaces/IMarketPlace.sol/interface.IMarketPlace.html">IMarketPlace</a>, Context, ReentrancyGuard, Initializable, IERC777Recipient, Pausable, AccessControlEnumerable, <a href="contracts/MarketPlace.sol//contracts/storage/MarketPlaceStorage.sol/contract.MarketPlaceStorage.html">MarketPlaceStorage</a></p>
 <h2 id="state-variables-4"><a class="header" href="#state-variables-4">State Variables</a></h2>
@@ -1175,13 +1211,10 @@ Emits the <code>OrdersMatched</code> event.</p>
 <pre><code class="language-solidity">function _now() internal view virtual returns (uint256);
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="swap"><a class="header" href="#swap">Swap</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/72fc89ac4f5cb8bee1d68413b4b2a28ccb46dbe5/contracts/Swap.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/40cc4440e5174faaee3c81476707dbb93513e728/contracts/Swap.sol">Git Source</a></p>
 <p><strong>Inherits:</strong>
 <a href="contracts/Swap.sol//contracts/interfaces/ISwap.sol/interface.ISwap.html">ISwap</a>, Context, IERC777Recipient, Initializable, ReentrancyGuard, Pausable, AccessControlEnumerable</p>
 <h2 id="state-variables-5"><a class="header" href="#state-variables-5">State Variables</a></h2>
-<h3 id="_wcsb-1"><a class="header" href="#_wcsb-1">_wcsb</a></h3>
-<pre><code class="language-solidity">address internal _wcsb;
-</code></pre>
 <h3 id="_mira-1"><a class="header" href="#_mira-1">_mira</a></h3>
 <pre><code class="language-solidity">address internal _mira;
 </code></pre>
@@ -1250,6 +1283,24 @@ Requirements:</p>
 </ul>
 <pre><code class="language-solidity">function unpause() external override whenPaused onlyRole(ADMIN_ROLE);
 </code></pre>
+<h3 id="setminmira-1"><a class="header" href="#setminmira-1">setMinMira</a></h3>
+<p>Sets the minimum amount of MIRA to sell.</p>
+<pre><code class="language-solidity">function setMinMira(uint256 minMira_) external override onlyRole(ADMIN_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>minMira_</code></td><td><code>uint256</code></td><td>The minimum amount of MIRA to sell.</td></tr>
+</tbody></table>
+</div>
+<h3 id="setmincsb-1"><a class="header" href="#setmincsb-1">setMinCsb</a></h3>
+<p>Sets the minimum amount of CSB to sell.</p>
+<pre><code class="language-solidity">function setMinCsb(uint256 minCsb_) external override onlyRole(ADMIN_ROLE);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>minCsb_</code></td><td><code>uint256</code></td><td>The minimum amount of CSB to sell.</td></tr>
+</tbody></table>
+</div>
 <h3 id="tokensreceived-1"><a class="header" href="#tokensreceived-1">tokensReceived</a></h3>
 <p>Called by an {IERC777} token contract whenever tokens are being
 moved or created into a registered account <code>to</code> (this contract). <br>
@@ -1349,6 +1400,24 @@ Deletes a given SellOrder and emits the <code>SellOrderMatched</code> event.</p>
 <p><strong>Returns</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
 <tr><td><code>&lt;none&gt;</code></td><td><code>address</code></td><td>The address of MIRA contract.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getminmira-1"><a class="header" href="#getminmira-1">getMinMira</a></h3>
+<p>Returns the minimum amount of MIRA to sell.</p>
+<pre><code class="language-solidity">function getMinMira() external view override returns (uint256);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>The minimum amount of MIRA to sell.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getmincsb-1"><a class="header" href="#getmincsb-1">getMinCsb</a></h3>
+<p>Returns the minimum amount of CSB to sell.</p>
+<pre><code class="language-solidity">function getMinCsb() external view override returns (uint256);
+</code></pre>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>&lt;none&gt;</code></td><td><code>uint256</code></td><td>The minimum amount of CSB to sell.</td></tr>
 </tbody></table>
 </div>
 <h3 id="_sellmira"><a class="header" href="#_sellmira">_sellMIRA</a></h3>
