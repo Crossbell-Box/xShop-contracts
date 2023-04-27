@@ -674,7 +674,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.prank(alice);
         market.ask(address(nft), 1, address(mira), price, block.timestamp + 10);
 
-        vm.expectRevert(abi.encodePacked("NotEnougERC777Funds"));
+        vm.expectRevert(abi.encodePacked("NotEnoughERC777Funds"));
         vm.prank(bob);
         mira.send(address(market), price - 1, abi.encode(address(nft), 1, alice));
     }
