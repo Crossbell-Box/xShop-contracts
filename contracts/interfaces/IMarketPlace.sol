@@ -74,7 +74,7 @@ interface IMarketPlace {
      * @dev The amount of CSB to send must be specified in the `msg.value`.
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT.
-     * @param user The owner of ask order, as well as the  owner of the NFT.
+     * @param user The owner of ask order, as well as the owner of the NFT.
      */
     function acceptAsk(address nftAddress, uint256 tokenId, address user) external payable;
 

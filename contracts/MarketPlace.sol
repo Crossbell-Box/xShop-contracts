@@ -485,7 +485,7 @@ contract MarketPlace is
         uint256 royaltyAmount,
         uint256 erc777Amount
     ) internal {
-        require(erc777Amount >= amount, "NotEnougERC777Funds");
+        require(erc777Amount >= amount, "NotEnoughERC777Funds");
         // pay ERC777
         if (royaltyReceiver != address(0)) {
             IERC20(token).safeTransfer(royaltyReceiver, royaltyAmount);
