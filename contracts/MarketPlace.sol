@@ -43,61 +43,56 @@ contract MarketPlace is
     modifier askNotExists(
         address nftAddress,
         uint256 tokenId,
-        address user
+        address owner
     ) {
-        DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
-        require(askOrder.deadline == 0, "AskExists");
+        require(_askOrders[nftAddress][tokenId][owner].deadline == 0, "AskExists");
         _;
     }
 
     modifier askExists(
         address nftAddress,
         uint256 tokenId,
-        address user
+        address owner
     ) {
-        DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
-        require(askOrder.deadline > 0, "AskNotExists");
+        require(_askOrders[nftAddress][tokenId][owner].deadline > 0, "AskNotExists");
         _;
     }
 
     modifier validAsk(
         address nftAddress,
         uint256 tokenId,
-        address user
+        address owner
     ) {
-        DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
-        require(askOrder.deadline >= _now(), "AskExpiredOrNotExists");
+        require(_askOrders[nftAddress][tokenId][owner].deadline >= _now(), "AskExpiredOrNotExists");
         _;
     }
 
     modifier bidNotExists(
         address nftAddress,
         uint256 tokenId,
-        address user
+        address owner
     ) {
-        DataTypes.Order memory bidOrder = _bidOrders[nftAddress][tokenId][user];
-        require(bidOrder.deadline == 0, "BidExists");
+        require(_bidOrders[nftAddress][tokenId][owner].deadline == 0, "BidExists");
         _;
     }
 
     modifier bidExists(
         address nftAddress,
         uint256 tokenId,
-        address user
+        address owner
     ) {
-        DataTypes.Order memory bidOrder = _bidOrders[nftAddress][tokenId][user];
-        require(bidOrder.deadline > 0, "BidNotExists");
+        require(_bidOrders[nftAddress][tokenId][owner].deadline > 0, "BidNotExists");
         _;
     }
 
     modifier validBid(
         address nftAddress,
         uint256 tokenId,
-        address user
+        address owner
     ) {
-        DataTypes.Order memory bidOrder = _bidOrders[nftAddress][tokenId][user];
-        require(bidOrder.deadline != 0, "BidNotExists");
-        require(bidOrder.deadline >= _now(), "BidExpired");
+        uint256 deadline = _bidOrders[nftAddress][tokenId][owner].deadline;
+        require(deadline != 0, "BidNotExists");
+        require(deadline >= _now(), "BidExpired");
         _;
     }
 
@@ -150,6 +145,8 @@ contract MarketPlace is
      * @dev Called by an {IERC777} token contract whenever tokens are being
      * moved or created into a registered account `to` (this contract). <br>
      *
+     * Users can directly send MIRA tokens to this contract to accept an ask order,
+     * the `tokensReceived` method will be called by MIRA token.
      * The userData/operatorData should be an abi encoded bytes of `address`, `uint256`
      * and `address`,  which represents `nftAddress`, `tokenId` and `user` with total length 72.
      */
