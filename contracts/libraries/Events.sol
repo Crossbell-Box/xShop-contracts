@@ -29,13 +29,18 @@ library Events {
      * @param price The new sale price for the NFT.
      * @param deadline The expiration timestamp of the ask order.
      */
-    event AskUpdated(uint256 indexed orderId, address payToken, uint256 price, uint256 deadline);
+    event AskUpdated(
+        uint256 indexed orderId,
+        address indexed payToken,
+        uint256 indexed price,
+        uint256 deadline
+    );
 
     /**
      * @notice Emitted when an ask order is canceled.
      * @param orderId The id of the ask order.
      */
-    event AskCanceled(uint256 orderId);
+    event AskCanceled(uint256 indexed orderId);
 
     /**
      * @notice Emitted when a bid order is created.
@@ -70,7 +75,12 @@ library Events {
      * @param price The new bid price for the NFT.
      * @param deadline The expiration timestamp of the bid order.
      */
-    event BidUpdated(uint256 indexed orderId, address payToken, uint256 price, uint256 deadline);
+    event BidUpdated(
+        uint256 indexed orderId,
+        address indexed payToken,
+        uint256 indexed price,
+        uint256 deadline
+    );
 
     /**
      * @notice Emitted when a ask order is accepted(matched).

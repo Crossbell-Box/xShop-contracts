@@ -263,7 +263,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testCancelBidFail() public {
-        vm.expectRevert(abi.encodePacked("NotBidOwner"));
+        vm.expectRevert(abi.encodePacked("NotBidOwnerOrNotExists"));
         market.cancelBid(1);
     }
 
@@ -287,7 +287,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
     function testUpdateBidFail() public {
         // nft contract not exists
-        vm.expectRevert(abi.encodePacked("NotBidOwner"));
+        vm.expectRevert(abi.encodePacked("NotBidOwnerOrNotExists"));
         market.updateBid(1, address(wcsb), 2, block.timestamp + 10);
 
         vm.startPrank(alice);
@@ -331,7 +331,7 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         // not owner(actually the same as notExisted)
         vm.prank(bob);
-        vm.expectRevert(abi.encodePacked("NotAskOwner"));
+        vm.expectRevert(abi.encodePacked("NotAskOwnerOrNotExists"));
         market.updateAsk(1, address(wcsb), 1, expiration);
 
         vm.startPrank(alice);
@@ -365,8 +365,8 @@ contract MarketPlaceTest is Test, EmitExpecter {
     }
 
     function testCancelAskFail() public {
-        // NotAskOwner
-        vm.expectRevert(abi.encodePacked("NotAskOwner"));
+        // NotAskOwnerOrNotExists
+        vm.expectRevert(abi.encodePacked("NotAskOwnerOrNotExists"));
         market.cancelAsk(1);
     }
 
