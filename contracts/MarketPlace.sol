@@ -172,13 +172,13 @@ contract MarketPlace is
         validDeadline(deadline)
         validPrice(price)
     {
-        DataTypes.Order storage askOrder = _askOrders[orderId];
-        require(askOrder.owner == _msgSender(), "NotAskOwner");
+        DataTypes.Order storage order = _askOrders[orderId];
+        require(order.owner == _msgSender(), "NotAskOwnerOrNotExists");
 
         // update ask order
-        askOrder.payToken = payToken;
-        askOrder.price = price;
-        askOrder.deadline = deadline;
+        order.payToken = payToken;
+        order.price = price;
+        order.deadline = deadline;
 
         emit Events.AskUpdated(orderId, payToken, price, deadline);
     }
@@ -186,7 +186,7 @@ contract MarketPlace is
     /// @inheritdoc IMarketPlace
     function cancelAsk(uint256 orderId) external override {
         DataTypes.Order storage order = _askOrders[orderId];
-        require(order.owner == _msgSender(), "NotAskOwner");
+        require(order.owner == _msgSender(), "NotAskOwnerOrNotExists");
 
         // delete ask order
         delete _askOrderIds[order.nftAddress][order.tokenId][_msgSender()];
@@ -247,7 +247,7 @@ contract MarketPlace is
     /// @inheritdoc IMarketPlace
     function cancelBid(uint256 orderId) external override {
         DataTypes.Order storage order = _bidOrders[orderId];
-        require(order.owner == _msgSender(), "NotBidOwner");
+        require(order.owner == _msgSender(), "NotBidOwnerOrNotExists");
 
         // delete order
         delete _bidOrderIds[order.nftAddress][order.tokenId][_msgSender()];
@@ -271,7 +271,7 @@ contract MarketPlace is
         validPrice(price)
     {
         DataTypes.Order storage order = _bidOrders[orderId];
-        require(order.owner == _msgSender(), "NotBidOwner");
+        require(order.owner == _msgSender(), "NotBidOwnerOrNotExists");
 
         // update buy order
         order.payToken = payToken;
