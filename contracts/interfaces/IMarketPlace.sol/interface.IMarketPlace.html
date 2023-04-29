@@ -149,7 +149,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="imarketplace"><a class="header" href="#imarketplace">IMarketPlace</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/932e5c571cca1dfccb20d304dcfe469f1b41d30a/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/744d45a3ed40404ba40fa44834770bafb0e7f192/contracts/interfaces/IMarketPlace.sol">Git Source</a></p>
 <h2 id="functions"><a class="header" href="#functions">Functions</a></h2>
 <h3 id="initialize"><a class="header" href="#initialize">initialize</a></h3>
 <p>Initializes the MarketPlace, setting the WCSB contract address.</p>
@@ -181,7 +181,9 @@ Requirements:</p>
 <h3 id="ask"><a class="header" href="#ask">ask</a></h3>
 <p>Creates an ask order for an NFT.
 Emits the <code>AskCreated</code> event.</p>
-<pre><code class="language-solidity">function ask(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
+<pre><code class="language-solidity">function ask(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
+    external
+    returns (uint256 orderId);
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -192,15 +194,19 @@ Emits the <code>AskCreated</code> event.</p>
 <tr><td><code>deadline</code></td><td><code>uint256</code></td><td>The expiration timestamp of the ask order.</td></tr>
 </tbody></table>
 </div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the new generated ask order.</td></tr>
+</tbody></table>
+</div>
 <h3 id="updateask"><a class="header" href="#updateask">updateAsk</a></h3>
 <p>Updates an ask order.
 Emits the <code>AskUpdated</code> event.</p>
-<pre><code class="language-solidity">function updateAsk(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
+<pre><code class="language-solidity">function updateAsk(uint256 orderId, address payToken, uint256 price, uint256 deadline) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>nftAddress</code></td><td><code>address</code></td><td>The contract address of the NFT.</td></tr>
-<tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT.</td></tr>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the ask order to be updated.</td></tr>
 <tr><td><code>payToken</code></td><td><code>address</code></td><td>The ERC20 token address for buyers to pay.</td></tr>
 <tr><td><code>price</code></td><td><code>uint256</code></td><td>The new sale price for the NFT.</td></tr>
 <tr><td><code>deadline</code></td><td><code>uint256</code></td><td>The new expiration timestamp of the ask order.</td></tr>
@@ -209,31 +215,30 @@ Emits the <code>AskUpdated</code> event.</p>
 <h3 id="cancelask"><a class="header" href="#cancelask">cancelAsk</a></h3>
 <p>Cancels an ask order.
 Emits the <code>AskCanceled</code> event.</p>
-<pre><code class="language-solidity">function cancelAsk(address nftAddress, uint256 tokenId) external;
+<pre><code class="language-solidity">function cancelAsk(uint256 orderId) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>nftAddress</code></td><td><code>address</code></td><td>The contract address of the NFT.</td></tr>
-<tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT.</td></tr>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the ask order to be canceled.</td></tr>
 </tbody></table>
 </div>
 <h3 id="acceptask"><a class="header" href="#acceptask">acceptAsk</a></h3>
 <p>Accepts an ask order.
 Emits the <code>OrdersMatched</code> event.</p>
 <p><em>The amount of CSB to send must be specified in the <code>msg.value</code>.</em></p>
-<pre><code class="language-solidity">function acceptAsk(address nftAddress, uint256 tokenId, address user) external payable;
+<pre><code class="language-solidity">function acceptAsk(uint256 orderId) external payable;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>nftAddress</code></td><td><code>address</code></td><td>The contract address of the NFT.</td></tr>
-<tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT.</td></tr>
-<tr><td><code>user</code></td><td><code>address</code></td><td>The owner of ask order, as well as the owner of the NFT.</td></tr>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the ask order to be accepted.</td></tr>
 </tbody></table>
 </div>
 <h3 id="bid"><a class="header" href="#bid">bid</a></h3>
 <p>Creates a bid order for an NFT.
 Emits the <code>BidCreated</code> event.</p>
-<pre><code class="language-solidity">function bid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
+<pre><code class="language-solidity">function bid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline)
+    external
+    returns (uint256 orderId);
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -244,26 +249,29 @@ Emits the <code>BidCreated</code> event.</p>
 <tr><td><code>deadline</code></td><td><code>uint256</code></td><td>The expiration timestamp of the bid order.</td></tr>
 </tbody></table>
 </div>
+<p><strong>Returns</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the new generated bid order.</td></tr>
+</tbody></table>
+</div>
 <h3 id="cancelbid"><a class="header" href="#cancelbid">cancelBid</a></h3>
 <p>Cancels a bid order.
 Emits the <code>BidCanceled</code> event.</p>
-<pre><code class="language-solidity">function cancelBid(address nftAddress, uint256 tokenId) external;
+<pre><code class="language-solidity">function cancelBid(uint256 orderId) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>nftAddress</code></td><td><code>address</code></td><td>The contract address of the NFT.</td></tr>
-<tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT.</td></tr>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the bid order to be canceled.</td></tr>
 </tbody></table>
 </div>
 <h3 id="updatebid"><a class="header" href="#updatebid">updateBid</a></h3>
 <p>Updates a bid order.
 Emits the <code>BidUpdated</code> event.</p>
-<pre><code class="language-solidity">function updateBid(address nftAddress, uint256 tokenId, address payToken, uint256 price, uint256 deadline) external;
+<pre><code class="language-solidity">function updateBid(uint256 orderId, address payToken, uint256 price, uint256 deadline) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>nftAddress</code></td><td><code>address</code></td><td>The contract address of the NFT.</td></tr>
-<tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT.</td></tr>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the bid order to be updated.</td></tr>
 <tr><td><code>payToken</code></td><td><code>address</code></td><td>The ERC20 token address for buyers to pay.</td></tr>
 <tr><td><code>price</code></td><td><code>uint256</code></td><td>The new bid price for the NFT.</td></tr>
 <tr><td><code>deadline</code></td><td><code>uint256</code></td><td>The new expiration timestamp of the ask order.</td></tr>
@@ -272,21 +280,34 @@ Emits the <code>BidUpdated</code> event.</p>
 <h3 id="acceptbid"><a class="header" href="#acceptbid">acceptBid</a></h3>
 <p>Accepts a bid order.
 Emits the <code>OrdersMatched</code> event.</p>
-<pre><code class="language-solidity">function acceptBid(address nftAddress, uint256 tokenId, address user) external;
+<pre><code class="language-solidity">function acceptBid(uint256 orderId) external;
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
-<tr><td><code>nftAddress</code></td><td><code>address</code></td><td>The contract address of the NFT.</td></tr>
-<tr><td><code>tokenId</code></td><td><code>uint256</code></td><td>The token id of the NFT.</td></tr>
-<tr><td><code>user</code></td><td><code>address</code></td><td>The owner of bid order.</td></tr>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the bid order to be accepted.</td></tr>
 </tbody></table>
 </div>
 <h3 id="getaskorder"><a class="header" href="#getaskorder">getAskOrder</a></h3>
-<p>Gets an ask order.</p>
-<pre><code class="language-solidity">function getAskOrder(address nftAddress, uint256 tokenId, address owner)
-    external
-    view
-    returns (DataTypes.Order memory);
+<p>Gets the detail info of an ask order.</p>
+<pre><code class="language-solidity">function getAskOrder(uint256 orderId) external view returns (DataTypes.Order memory);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the ask order to query.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getbidorder"><a class="header" href="#getbidorder">getBidOrder</a></h3>
+<p>Gets the detail info of a bid order.</p>
+<pre><code class="language-solidity">function getBidOrder(uint256 orderId) external view returns (DataTypes.Order memory);
+</code></pre>
+<p><strong>Parameters</strong></p>
+<div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+<tr><td><code>orderId</code></td><td><code>uint256</code></td><td>The id of the bid order to query.</td></tr>
+</tbody></table>
+</div>
+<h3 id="getaskorderid"><a class="header" href="#getaskorderid">getAskOrderId</a></h3>
+<p>Gets ID of an ask order .</p>
+<pre><code class="language-solidity">function getAskOrderId(address nftAddress, uint256 tokenId, address owner) external view returns (uint256 orderId);
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
@@ -295,12 +316,9 @@ Emits the <code>OrdersMatched</code> event.</p>
 <tr><td><code>owner</code></td><td><code>address</code></td><td>The owner who creates the order.</td></tr>
 </tbody></table>
 </div>
-<h3 id="getbidorder"><a class="header" href="#getbidorder">getBidOrder</a></h3>
-<p>Gets a bid order.</p>
-<pre><code class="language-solidity">function getBidOrder(address nftAddress, uint256 tokenId, address owner)
-    external
-    view
-    returns (DataTypes.Order memory);
+<h3 id="getbidorderid"><a class="header" href="#getbidorderid">getBidOrderId</a></h3>
+<p>Gets ID of a bid order.</p>
+<pre><code class="language-solidity">function getBidOrderId(address nftAddress, uint256 tokenId, address owner) external view returns (uint256 orderId);
 </code></pre>
 <p><strong>Parameters</strong></p>
 <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
