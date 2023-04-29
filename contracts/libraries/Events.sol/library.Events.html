@@ -149,7 +149,7 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="events"><a class="header" href="#events">Events</a></h1>
-<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/744d45a3ed40404ba40fa44834770bafb0e7f192/contracts/libraries/Events.sol">Git Source</a></p>
+<p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/blob/b8b5251003e1daaaed020a6d4460230233beaab7/contracts/libraries/Events.sol">Git Source</a></p>
 <h2 id="events-1"><a class="header" href="#events-1">Events</a></h2>
 <h3 id="askcreated"><a class="header" href="#askcreated">AskCreated</a></h3>
 <p>Emitted when an ask order is created.</p>
@@ -165,11 +165,11 @@
 </code></pre>
 <h3 id="askupdated"><a class="header" href="#askupdated">AskUpdated</a></h3>
 <p>Emitted when an ask order is updated.</p>
-<pre><code class="language-solidity">event AskUpdated(uint256 indexed orderId, address payToken, uint256 price, uint256 deadline);
+<pre><code class="language-solidity">event AskUpdated(uint256 indexed orderId, address indexed payToken, uint256 indexed price, uint256 deadline);
 </code></pre>
 <h3 id="askcanceled"><a class="header" href="#askcanceled">AskCanceled</a></h3>
 <p>Emitted when an ask order is canceled.</p>
-<pre><code class="language-solidity">event AskCanceled(uint256 orderId);
+<pre><code class="language-solidity">event AskCanceled(uint256 indexed orderId);
 </code></pre>
 <h3 id="bidcreated"><a class="header" href="#bidcreated">BidCreated</a></h3>
 <p>Emitted when a bid order is created.</p>
@@ -189,7 +189,7 @@
 </code></pre>
 <h3 id="bidupdated"><a class="header" href="#bidupdated">BidUpdated</a></h3>
 <p>Emitted when a bid order is updated.</p>
-<pre><code class="language-solidity">event BidUpdated(uint256 indexed orderId, address payToken, uint256 price, uint256 deadline);
+<pre><code class="language-solidity">event BidUpdated(uint256 indexed orderId, address indexed payToken, uint256 indexed price, uint256 deadline);
 </code></pre>
 <h3 id="askmatched"><a class="header" href="#askmatched">AskMatched</a></h3>
 <p>Emitted when a ask order is accepted(matched).</p>
