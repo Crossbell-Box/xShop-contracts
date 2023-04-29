@@ -161,7 +161,10 @@ contract MarketPlaceTest is Test, EmitExpecter {
         vm.prank(alice);
         uint256 orderId = market.ask(address(nft), 1, address(wcsb), 1, expiration);
 
+        // check order id
         assertEq(orderId, 1);
+        assertEq(market.getAskOrderId(address(nft), 1, alice), orderId);
+
         DataTypes.Order memory order = market.getAskOrder(orderId);
         // check ask order
         _matchOrder(order, alice, address(nft), 1, address(wcsb), 1, expiration);
@@ -209,6 +212,8 @@ contract MarketPlaceTest is Test, EmitExpecter {
 
         // check bid order
         assertEq(orderId, 1);
+        assertEq(market.getBidOrderId(address(nft), 1, bob), orderId);
+
         DataTypes.Order memory order = market.getBidOrder(orderId);
         // check ask order
         _matchOrder(order, bob, address(nft), 1, address(wcsb), 1, expiration);
