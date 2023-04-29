@@ -34,6 +34,7 @@ interface IMarketPlace {
      * @param payToken The ERC20 token address for buyers to pay.
      * @param price The sale price for the NFT.
      * @param deadline The expiration timestamp of the ask order.
+     * @return orderId The id of the new generated ask order.
      */
     function ask(
         address nftAddress,
@@ -41,42 +42,32 @@ interface IMarketPlace {
         address payToken,
         uint256 price,
         uint256 deadline
-    ) external;
+    ) external returns (uint256 orderId);
 
     /**
      * @notice Updates an ask order.
      * Emits the `AskUpdated` event.
-     * @param nftAddress The contract address of the NFT.
-     * @param tokenId The token id of the NFT.
+     * @param orderId The id of the ask order to be updated.
      * @param payToken The ERC20 token address for buyers to pay.
      * @param price The new sale price for the NFT.
      * @param deadline The new expiration timestamp of the ask order.
      */
-    function updateAsk(
-        address nftAddress,
-        uint256 tokenId,
-        address payToken,
-        uint256 price,
-        uint256 deadline
-    ) external;
+    function updateAsk(uint256 orderId, address payToken, uint256 price, uint256 deadline) external;
 
     /**
      * @notice Cancels an ask order.
      * Emits the `AskCanceled` event.
-     * @param nftAddress The contract address of the NFT.
-     * @param tokenId The token id of the NFT.
+     * @param orderId The id of the ask order to be canceled.
      */
-    function cancelAsk(address nftAddress, uint256 tokenId) external;
+    function cancelAsk(uint256 orderId) external;
 
     /**
      * @notice Accepts an ask order.
      * Emits the `OrdersMatched` event.
      * @dev The amount of CSB to send must be specified in the `msg.value`.
-     * @param nftAddress The contract address of the NFT.
-     * @param tokenId The token id of the NFT.
-     * @param user The owner of ask order, as well as the owner of the NFT.
+     * @param orderId The id of the ask order to be accepted.
      */
-    function acceptAsk(address nftAddress, uint256 tokenId, address user) external payable;
+    function acceptAsk(uint256 orderId) external payable;
 
     /**
      * @notice Creates a bid order for an NFT.
@@ -86,6 +77,7 @@ interface IMarketPlace {
      * @param payToken The ERC20 token address for buyers to pay.
      * @param price The bid price for the NFT.
      * @param deadline The expiration timestamp of the bid order.
+     * @return orderId The id of the new generated bid order.
      */
     function bid(
         address nftAddress,
@@ -93,65 +85,67 @@ interface IMarketPlace {
         address payToken,
         uint256 price,
         uint256 deadline
-    ) external;
+    ) external returns (uint256 orderId);
 
     /**
      * @notice Cancels a bid order.
      * Emits the `BidCanceled` event.
-     * @param nftAddress The contract address of the NFT.
-     * @param tokenId The token id of the NFT.
+     * @param orderId The id of the bid order to be canceled.
      */
-    function cancelBid(address nftAddress, uint256 tokenId) external;
+    function cancelBid(uint256 orderId) external;
 
     /**
      * @notice Updates a bid order.
      * Emits the `BidUpdated` event.
-     * @param nftAddress The contract address of the NFT.
-     * @param tokenId The token id of the NFT.
+     * @param orderId The id of the bid order to be updated.
      * @param payToken The ERC20 token address for buyers to pay.
      * @param price The new bid price for the NFT.
      * @param deadline The new expiration timestamp of the ask order.
      */
-    function updateBid(
-        address nftAddress,
-        uint256 tokenId,
-        address payToken,
-        uint256 price,
-        uint256 deadline
-    ) external;
+    function updateBid(uint256 orderId, address payToken, uint256 price, uint256 deadline) external;
 
     /**
      * @notice Accepts a bid order.
      * Emits the `OrdersMatched` event.
-     * @param nftAddress The contract address of the NFT.
-     * @param tokenId The token id of the NFT.
-     * @param user The owner of bid order.
+     * @param orderId The id of the bid order to be accepted.
      */
-    function acceptBid(address nftAddress, uint256 tokenId, address user) external;
+    function acceptBid(uint256 orderId) external;
 
     /**
-     * @notice Gets an ask order.
+     * @notice Gets the detail info of an ask order.
+     * @param orderId The id of the ask order to query.
+     */
+    function getAskOrder(uint256 orderId) external view returns (DataTypes.Order memory);
+
+    /**
+     * @notice Gets the detail info of a bid order.
+     * @param orderId The id of the bid order to query.
+     */
+    function getBidOrder(uint256 orderId) external view returns (DataTypes.Order memory);
+
+    /**
+     * @notice Gets ID of an ask order .
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT to be sold.
      * @param owner The owner who creates the order.
      */
-    function getAskOrder(
+    function getAskOrderId(
         address nftAddress,
         uint256 tokenId,
         address owner
-    ) external view returns (DataTypes.Order memory);
+    ) external view returns (uint256 orderId);
 
     /**
-     * @notice Gets a bid order.
+     * @notice Gets ID of a bid order.
      * @param nftAddress The contract address of the NFT.
      * @param tokenId The token id of the NFT to bid.
      * @param owner The owner who creates the order.
      */
-    function getBidOrder(
+    function getBidOrderId(
         address nftAddress,
         uint256 tokenId,
         address owner
-    ) external view returns (DataTypes.Order memory);
+    ) external view returns (uint256 orderId);
 
     /**
      * @notice Returns the address of WCSB contract.
