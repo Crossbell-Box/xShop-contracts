@@ -40,62 +40,6 @@ contract MarketPlace is
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
     bytes32 public constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
-    modifier askNotExists(
-        address nftAddress,
-        uint256 tokenId,
-        address owner
-    ) {
-        require(_askOrders[nftAddress][tokenId][owner].deadline == 0, "AskExists");
-        _;
-    }
-
-    modifier askExists(
-        address nftAddress,
-        uint256 tokenId,
-        address owner
-    ) {
-        require(_askOrders[nftAddress][tokenId][owner].deadline > 0, "AskNotExists");
-        _;
-    }
-
-    modifier validAsk(
-        address nftAddress,
-        uint256 tokenId,
-        address owner
-    ) {
-        require(_askOrders[nftAddress][tokenId][owner].deadline >= _now(), "AskExpiredOrNotExists");
-        _;
-    }
-
-    modifier bidNotExists(
-        address nftAddress,
-        uint256 tokenId,
-        address owner
-    ) {
-        require(_bidOrders[nftAddress][tokenId][owner].deadline == 0, "BidExists");
-        _;
-    }
-
-    modifier bidExists(
-        address nftAddress,
-        uint256 tokenId,
-        address owner
-    ) {
-        require(_bidOrders[nftAddress][tokenId][owner].deadline > 0, "BidNotExists");
-        _;
-    }
-
-    modifier validBid(
-        address nftAddress,
-        uint256 tokenId,
-        address owner
-    ) {
-        uint256 deadline = _bidOrders[nftAddress][tokenId][owner].deadline;
-        require(deadline != 0, "BidNotExists");
-        require(deadline >= _now(), "BidExpired");
-        _;
-    }
-
     modifier validPayToken(address payToken) {
         require(payToken == _wcsb || payToken == _mira, "InvalidPayToken");
         _;
@@ -147,8 +91,8 @@ contract MarketPlace is
      *
      * Users can directly send MIRA tokens to this contract to accept an ask order,
      * the `tokensReceived` method will be called by MIRA token.
-     * The userData/operatorData should be an abi encoded bytes of `address`, `uint256`
-     * and `address`,  which represents `nftAddress`, `tokenId` and `user` with total length 72.
+     * The userData/operatorData should be an abi encoded bytes of `uint256`,
+     * which represents `orderId` of the ask order.
      */
     /// @inheritdoc IERC777Recipient
     function tokensReceived(
@@ -163,13 +107,9 @@ contract MarketPlace is
         require(address(this) == to, "InvalidReceiver");
 
         bytes memory data = userData.length > 0 ? userData : operatorData;
-        // abi encoded bytes of (nftAddress, tokenId, user)
-        // slither-disable-next-line variable-scope
-        (address nftAddress, uint256 tokenId, address user) = abi.decode(
-            data,
-            (address, uint256, address)
-        );
-        _acceptAsk(nftAddress, tokenId, user, from, amount);
+        // abi encoded bytes of uint256 `orderId`
+        uint256 orderId = abi.decode(data, (uint256));
+        _acceptAsk(orderId, from, amount);
     }
 
     /// @inheritdoc IMarketPlace
@@ -183,16 +123,22 @@ contract MarketPlace is
         external
         override
         whenNotPaused
-        askNotExists(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
         validPrice(price)
+        returns (uint256 orderId)
     {
         require(IERC165(nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
         require(IERC721(nftAddress).ownerOf(tokenId) == _msgSender(), "NotERC721TokenOwner");
+        require(_askOrderIds[nftAddress][tokenId][_msgSender()] == 0, "AskExists");
+
+        unchecked {
+            orderId = ++_askOrderCount;
+        }
 
         // save sell order
-        _askOrders[nftAddress][tokenId][_msgSender()] = DataTypes.Order(
+        _askOrderIds[nftAddress][tokenId][_msgSender()] = orderId;
+        _askOrders[orderId] = DataTypes.Order(
             _msgSender(),
             nftAddress,
             tokenId,
@@ -201,13 +147,20 @@ contract MarketPlace is
             deadline
         );
 
-        emit Events.AskCreated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
+        emit Events.AskCreated(
+            orderId,
+            _msgSender(),
+            nftAddress,
+            tokenId,
+            payToken,
+            price,
+            deadline
+        );
     }
 
     /// @inheritdoc IMarketPlace
     function updateAsk(
-        address nftAddress,
-        uint256 tokenId,
+        uint256 orderId,
         address payToken,
         uint256 price,
         uint256 deadline
@@ -215,37 +168,36 @@ contract MarketPlace is
         external
         override
         whenNotPaused
-        askExists(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
         validPrice(price)
     {
-        DataTypes.Order storage askOrder = _askOrders[nftAddress][tokenId][_msgSender()];
+        DataTypes.Order storage askOrder = _askOrders[orderId];
+        require(askOrder.owner == _msgSender(), "NotAskOwner");
+
         // update ask order
         askOrder.payToken = payToken;
         askOrder.price = price;
         askOrder.deadline = deadline;
 
-        emit Events.AskUpdated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
+        emit Events.AskUpdated(orderId, payToken, price, deadline);
     }
 
     /// @inheritdoc IMarketPlace
-    function cancelAsk(
-        address nftAddress,
-        uint256 tokenId
-    ) external override askExists(nftAddress, tokenId, _msgSender()) {
-        delete _askOrders[nftAddress][tokenId][_msgSender()];
+    function cancelAsk(uint256 orderId) external override {
+        DataTypes.Order storage order = _askOrders[orderId];
+        require(order.owner == _msgSender(), "NotAskOwner");
 
-        emit Events.AskCanceled(_msgSender(), nftAddress, tokenId);
+        // delete ask order
+        delete _askOrderIds[order.nftAddress][order.tokenId][_msgSender()];
+        delete _askOrders[orderId];
+
+        emit Events.AskCanceled(orderId);
     }
 
     /// @inheritdoc IMarketPlace
-    function acceptAsk(
-        address nftAddress,
-        uint256 tokenId,
-        address user
-    ) external payable override nonReentrant whenNotPaused validAsk(nftAddress, tokenId, user) {
-        _acceptAsk(nftAddress, tokenId, user, _msgSender(), 0);
+    function acceptAsk(uint256 orderId) external payable override nonReentrant whenNotPaused {
+        _acceptAsk(orderId, _msgSender(), 0);
     }
 
     /// @inheritdoc IMarketPlace
@@ -259,15 +211,20 @@ contract MarketPlace is
         external
         override
         whenNotPaused
-        bidNotExists(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
         validPrice(price)
+        returns (uint256 orderId)
     {
         require(IERC165(nftAddress).supportsInterface(INTERFACE_ID_ERC721), "TokenNotERC721");
+        require(_bidOrderIds[nftAddress][tokenId][_msgSender()] == 0, "BidExists");
 
         // save buy order
-        _bidOrders[nftAddress][tokenId][_msgSender()] = DataTypes.Order(
+        unchecked {
+            orderId = ++_bidOrderCount;
+        }
+        _bidOrderIds[nftAddress][tokenId][_msgSender()] = orderId;
+        _bidOrders[orderId] = DataTypes.Order(
             _msgSender(),
             nftAddress,
             tokenId,
@@ -276,23 +233,32 @@ contract MarketPlace is
             deadline
         );
 
-        emit Events.BidCreated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
+        emit Events.BidCreated(
+            orderId,
+            _msgSender(),
+            nftAddress,
+            tokenId,
+            payToken,
+            price,
+            deadline
+        );
     }
 
     /// @inheritdoc IMarketPlace
-    function cancelBid(
-        address nftAddress,
-        uint256 tokenId
-    ) external override bidExists(nftAddress, tokenId, _msgSender()) {
-        delete _bidOrders[nftAddress][tokenId][_msgSender()];
+    function cancelBid(uint256 orderId) external override {
+        DataTypes.Order storage order = _bidOrders[orderId];
+        require(order.owner == _msgSender(), "NotBidOwner");
 
-        emit Events.BidCanceled(_msgSender(), nftAddress, tokenId);
+        // delete order
+        delete _bidOrderIds[order.nftAddress][order.tokenId][_msgSender()];
+        delete _bidOrders[orderId];
+
+        emit Events.BidCanceled(orderId);
     }
 
     /// @inheritdoc IMarketPlace
     function updateBid(
-        address nftAddress,
-        uint256 tokenId,
+        uint256 orderId,
         address payToken,
         uint256 price,
         uint256 deadline
@@ -300,77 +266,88 @@ contract MarketPlace is
         external
         override
         whenNotPaused
-        validBid(nftAddress, tokenId, _msgSender())
         validPayToken(payToken)
         validDeadline(deadline)
         validPrice(price)
     {
-        DataTypes.Order storage bidOrder = _bidOrders[nftAddress][tokenId][_msgSender()];
-        // update buy order
-        bidOrder.payToken = payToken;
-        bidOrder.price = price;
-        bidOrder.deadline = deadline;
+        DataTypes.Order storage order = _bidOrders[orderId];
+        require(order.owner == _msgSender(), "NotBidOwner");
 
-        emit Events.BidUpdated(_msgSender(), nftAddress, tokenId, payToken, price, deadline);
+        // update buy order
+        order.payToken = payToken;
+        order.price = price;
+        order.deadline = deadline;
+
+        emit Events.BidUpdated(orderId, payToken, price, deadline);
     }
 
     /// @inheritdoc IMarketPlace
-    function acceptBid(
-        address nftAddress,
-        uint256 tokenId,
-        address user
-    ) external override nonReentrant whenNotPaused validBid(nftAddress, tokenId, user) {
-        DataTypes.Order memory bidOrder = _bidOrders[nftAddress][tokenId][user];
+    function acceptBid(uint256 orderId) external override nonReentrant whenNotPaused {
+        DataTypes.Order memory order = _bidOrders[orderId];
+        // validate order
+        require(order.deadline >= _now(), "BidExpiredOrNotExists");
 
         // delete order
-        delete _bidOrders[nftAddress][tokenId][user];
+        delete _bidOrderIds[order.nftAddress][order.tokenId][order.owner];
+        delete _bidOrders[orderId];
 
         (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
-            nftAddress,
-            tokenId,
-            bidOrder.price
+            order.nftAddress,
+            order.tokenId,
+            order.price
         );
 
         // pay to msg.sender
         _payERC20WithRoyalty(
-            bidOrder.owner,
+            order.owner,
             _msgSender(),
-            bidOrder.payToken,
-            bidOrder.price,
+            order.payToken,
+            order.price,
             royaltyReceiver,
             royaltyAmount
         );
         // transfer nft
-        IERC721(nftAddress).safeTransferFrom(_msgSender(), user, tokenId);
+        IERC721(order.nftAddress).safeTransferFrom(_msgSender(), order.owner, order.tokenId);
 
         emit Events.BidMatched(
-            bidOrder.owner,
-            nftAddress,
-            tokenId,
+            orderId,
+            order.owner,
             _msgSender(),
-            bidOrder.payToken,
-            bidOrder.price,
+            order.nftAddress,
+            order.tokenId,
+            order.payToken,
+            order.price,
             royaltyReceiver,
             royaltyAmount
         );
     }
 
     /// @inheritdoc IMarketPlace
-    function getAskOrder(
-        address nftAddress,
-        uint256 tokenId,
-        address owner
-    ) external view override returns (DataTypes.Order memory) {
-        return _askOrders[nftAddress][tokenId][owner];
+    function getAskOrder(uint256 orderId) external view override returns (DataTypes.Order memory) {
+        return _askOrders[orderId];
     }
 
     /// @inheritdoc IMarketPlace
-    function getBidOrder(
+    function getBidOrder(uint256 orderId) external view override returns (DataTypes.Order memory) {
+        return _bidOrders[orderId];
+    }
+
+    /// @inheritdoc IMarketPlace
+    function getAskOrderId(
         address nftAddress,
         uint256 tokenId,
         address owner
-    ) external view override returns (DataTypes.Order memory) {
-        return _bidOrders[nftAddress][tokenId][owner];
+    ) external view override returns (uint256 orderId) {
+        return _askOrderIds[nftAddress][tokenId][owner];
+    }
+
+    /// @inheritdoc IMarketPlace
+    function getBidOrderId(
+        address nftAddress,
+        uint256 tokenId,
+        address owner
+    ) external view override returns (uint256 orderId) {
+        return _bidOrderIds[nftAddress][tokenId][owner];
     }
 
     /// @inheritdoc IMarketPlace
@@ -412,20 +389,20 @@ contract MarketPlace is
     }
 
     function _acceptAsk(
-        address nftAddress,
-        uint256 tokenId,
-        address user,
+        uint256 orderId,
         address buyer,
         uint256 erc777Amount
     ) internal whenNotPaused {
-        DataTypes.Order memory askOrder = _askOrders[nftAddress][tokenId][user];
+        DataTypes.Order memory askOrder = _askOrders[orderId];
+        require(askOrder.deadline >= _now(), "AskExpiredOrNotExists");
 
         // delete ask order
-        delete _askOrders[nftAddress][tokenId][user];
+        delete _askOrderIds[askOrder.nftAddress][askOrder.tokenId][askOrder.owner];
+        delete _askOrders[orderId];
 
         (address royaltyReceiver, uint256 royaltyAmount) = _royaltyInfo(
-            nftAddress,
-            tokenId,
+            askOrder.nftAddress,
+            askOrder.tokenId,
             askOrder.price
         );
 
@@ -441,13 +418,14 @@ contract MarketPlace is
         );
 
         // transfer nft
-        IERC721(nftAddress).safeTransferFrom(user, buyer, tokenId);
+        IERC721(askOrder.nftAddress).safeTransferFrom(askOrder.owner, buyer, askOrder.tokenId);
 
         emit Events.AskMatched(
+            orderId,
             askOrder.owner,
-            nftAddress,
-            tokenId,
             buyer,
+            askOrder.nftAddress,
+            askOrder.tokenId,
             askOrder.payToken,
             askOrder.price,
             royaltyReceiver,
