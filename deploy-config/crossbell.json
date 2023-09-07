@@ -1,11 +1,9 @@
 {
   "chainID": 3737,
-  "proxyAdminOwner": "0x5f603895B48F0C451af39bc7e0c587aE15718e4d",
-  "web3EntryTokenName": "Web3 Entry Character",
-  "web3EntryTokenSymbol": "WEC",
-  "linklistTokenName": "Link List Token",
-  "linklistTokenSymbol": "LLT",
-  "xsyncOperator": "0x0F588318A494e4508A121a32B6670b5494Ca3357",
-  "miraToken": "0xAfB95CC0BD320648B3E8Df6223d9CDD05EbeDC64",
-  "newbieVillaAdmin": "0x5f603895B48F0C451af39bc7e0c587aE15718e4d"
+  "proxyAdminOwner": "0xc72cE0090718502f08506c4592F18f13094d4CE3",
+  "admin": "0x4BCe096F44b90B812420637068dC215C1C3C8B54",
+  "wcsb": "0xff823B6138089Bea84E8d67fcb68f786e7Feb118",
+  "mira": "0xb402548B1f3fE59211B19832C5b659bB4d4Abd42",
+  "minCsb": 100000000000000000000,
+  "minMira": 100000000000000000000
 }

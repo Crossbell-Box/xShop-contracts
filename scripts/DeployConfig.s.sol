@@ -15,13 +15,11 @@ contract DeployConfig is Script {
 
     uint256 public chainID;
     address public proxyAdminOwner;
-    string public web3EntryTokenName;
-    string public web3EntryTokenSymbol;
-    string public linklistTokenName;
-    string public linklistTokenSymbol;
-    address public xsyncOperator;
-    address public miraToken;
-    address public newbieVillaAdmin;
+    address public admin;
+    address public wcsb;
+    address public mira;
+    uint256 public minCsb;
+    uint256 public minMira;
 
     constructor(string memory _path) {
         console.log("DeployConfig: reading file %s", _path);
@@ -36,12 +34,10 @@ contract DeployConfig is Script {
 
         chainID = stdJson.readUint(_json, "$.chainID");
         proxyAdminOwner = stdJson.readAddress(_json, "$.proxyAdminOwner");
-        web3EntryTokenName = stdJson.readString(_json, "$.web3EntryTokenName");
-        web3EntryTokenSymbol = stdJson.readString(_json, "$.web3EntryTokenSymbol");
-        linklistTokenName = stdJson.readString(_json, "$.linklistTokenName");
-        linklistTokenSymbol = stdJson.readString(_json, "$.linklistTokenSymbol");
-        xsyncOperator = stdJson.readAddress(_json, "$.xsyncOperator");
-        miraToken = stdJson.readAddress(_json, "$.miraToken");
-        newbieVillaAdmin = stdJson.readAddress(_json, "$.newbieVillaAdmin");
+        admin = stdJson.readAddress(_json, "$.admin");
+        wcsb = stdJson.readAddress(_json, "$.wcsb");
+        mira = stdJson.readAddress(_json, "$.mira");
+        minCsb = stdJson.readUint(_json, "$.minCsb");
+        minMira = stdJson.readUint(_json, "$.minMira");
     }
 }

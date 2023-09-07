@@ -30,7 +30,7 @@ contract Swap is
     uint256 internal _minCsb; // minimum CSB amount to sell
     uint256 internal _minMira; // minimum MIRA amount to sell
 
-    mapping(uint256 => DataTypes.SellOrder) internal _orders;
+    mapping(uint256 orderId => DataTypes.SellOrder sellOrder) internal _orders;
     uint256 internal _orderCount;
 
     uint8 public constant SELL_MIRA = 1;

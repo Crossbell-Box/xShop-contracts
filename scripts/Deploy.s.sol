@@ -4,16 +4,8 @@ pragma solidity 0.8.18;
 
 import {Deployer} from "./Deployer.sol";
 import {DeployConfig} from "./DeployConfig.s.sol";
-import {MintNFT} from "../contracts/MintNFT.sol";
-import {Web3Entry} from "../contracts/Web3Entry.sol";
-import {Linklist} from "../contracts/Linklist.sol";
-import {Periphery} from "../contracts/misc/Periphery.sol";
-import {NewbieVilla} from "../contracts/misc/NewbieVilla.sol";
-import {Tips} from "../contracts/misc/Tips.sol";
-import {TipsWithFee} from "../contracts/misc/TipsWithFee.sol";
-import {TipsWithConfig} from "../contracts/misc/TipsWithConfig.sol";
-import {LimitedMintModule} from "../contracts/modules/mint/LimitedMintModule.sol";
-import {ApprovalMintModule} from "../contracts/modules/mint/ApprovalMintModule.sol";
+import {MarketPlace} from "../contracts/MarketPlace.sol";
+import {Swap} from "../contracts/Swap.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {
     TransparentUpgradeableProxy
@@ -57,47 +49,24 @@ contract Deploy is Deployer {
         deployProxies();
 
         initialize();
-
-        // deploy mint modules
-        deployApprovalMintModule();
-        deployLimitedMintModule();
     }
 
     /// @notice Initialize all of the proxies
     function initialize() public {
-        initializeWeb3Entry();
-        initializeLinklist();
-        initializePeriphery();
-        initializeNewbieVilla();
-        initializeTips();
-        initializeTipsWithFee();
-        initializeTipsWithConfig();
+        initializeMarketPlace();
+        initializeSwap();
     }
 
     /// @notice Deploy all of the proxies
     function deployProxies() public {
-        deployProxy("Web3Entry");
-        deployProxy("Linklist");
-        deployProxy("Periphery");
-        deployProxy("NewbieVilla");
-        deployProxy("Tips");
-        deployProxy("TipsWithFee");
-        deployProxy("TipsWithConfig");
+        deployProxy("MarketPlace");
+        deployProxy("Swap");
     }
 
     /// @notice Deploy all of the logic contracts
     function deployImplementations() public {
-        deployWeb3Entry();
-        deployLinklist();
-        deployPeriphery();
-
-        deployMintNFTImpl();
-
-        deployNewbieVilla();
-
-        deployTips();
-        deployTipsWithFee();
-        deployTipsWithConfig();
+        deployMarketPlace();
+        deploySwap();
     }
 
     function deployProxy(string memory _name) public broadcast returns (address addr_) {
@@ -119,241 +88,53 @@ contract Deploy is Deployer {
         addr_ = address(proxy);
     }
 
-    function deployWeb3Entry() public broadcast returns (address addr_) {
-        Web3Entry web3Entry = new Web3Entry();
+    function deployMarketPlace() public broadcast returns (address addr_) {
+        MarketPlace marketPlace = new MarketPlace();
 
         // check states
-        require(
-            web3Entry.getLinklistContract() == address(0),
-            "web3Entry linklist should be address(0)"
-        );
-        require(web3Entry.totalSupply() == 0, "web3Entry totalSupply should be 0");
+        require(marketPlace.wcsb() == address(0), "marketPlace wcsb should be address(0)");
+        require(marketPlace.mira() == address(0), "marketPlace mira should be address(0)");
 
-        save("Web3Entry", address(web3Entry));
-        console.log("Web3Entry deployed at %s", address(web3Entry));
-        addr_ = address(web3Entry);
+        save("MarketPlace", address(marketPlace));
+        console.log("MarketPlace deployed at %s", address(marketPlace));
+        addr_ = address(marketPlace);
     }
 
-    function deployLinklist() public broadcast returns (address addr_) {
-        Linklist linklist = new Linklist();
+    function deploySwap() public broadcast returns (address addr_) {
+        Swap swap = new Swap();
 
         // check states
-        require(linklist.Web3Entry() == address(0), "linklist web3Entry should be address(0)");
-        require(linklist.totalSupply() == 0, "linklist totalSupply should be 0");
+        require(swap.mira() == address(0), "swap mira should be address(0)");
+        require(swap.getMinMira() == 0, "swap getMinMira should be 0");
+        require(swap.getMinCsb() == 0, "swap getMinCsb should be 0");
 
-        save("Linklist", address(linklist));
-        console.log("Linklist deployed at %s", address(linklist));
-        addr_ = address(linklist);
+        save("Swap", address(swap));
+        console.log("Swap deployed at %s", address(swap));
+        addr_ = address(swap);
     }
 
-    function deployPeriphery() public broadcast returns (address addr_) {
-        Periphery periphery = new Periphery();
+    function initializeMarketPlace() public broadcast {
+        MarketPlace marketPlaceProxy = MarketPlace(mustGetAddress("MarketPlaceProxy"));
+
+        marketPlaceProxy.initialize(cfg.wcsb(), cfg.mira(), cfg.admin());
 
         // check states
-        require(periphery.web3Entry() == address(0), "periphery web3Entry should be address(0)");
-        require(periphery.linklist() == address(0), "periphery linklist should be address(0)");
-
-        save("Periphery", address(periphery));
-        console.log("Periphery deployed at %s", address(periphery));
-        addr_ = address(periphery);
-    }
-
-    function deployNewbieVilla() public broadcast returns (address addr_) {
-        NewbieVilla newbieVilla = new NewbieVilla();
-
-        // check states
+        require(marketPlaceProxy.wcsb() == cfg.wcsb(), "marketPlace wcsb error");
+        require(marketPlaceProxy.mira() == cfg.mira(), "marketPlace mira error");
         require(
-            newbieVilla.web3Entry() == address(0),
-            "newbieVilla web3Entry should be address(0)"
-        );
-        require(
-            newbieVilla.xsyncOperator() == address(0),
-            "newbieVilla xsyncOperator should be address(0)"
-        );
-
-        save("NewbieVilla", address(newbieVilla));
-        console.log("NewbieVilla deployed at %s", address(newbieVilla));
-        addr_ = address(newbieVilla);
-    }
-
-    function deployTips() public broadcast returns (address addr_) {
-        Tips tips = new Tips();
-
-        // check states
-        require(tips.getWeb3Entry() == address(0), "tips web3Entry should be address(0)");
-        require(tips.getToken() == address(0), "tips getToken should be address(0)");
-
-        save("Tips", address(tips));
-        console.log("Tips deployed at %s", address(tips));
-        addr_ = address(tips);
-    }
-
-    function deployTipsWithFee() public broadcast returns (address addr_) {
-        TipsWithFee tips = new TipsWithFee();
-
-        // check states
-        require(tips.getWeb3Entry() == address(0), "tipsWithFee web3Entry should be address(0)");
-        require(tips.getToken() == address(0), "tipsWithFee getToken should be address(0)");
-
-        save("TipsWithFee", address(tips));
-        console.log("TipsWithFee deployed at %s", address(tips));
-        addr_ = address(tips);
-    }
-
-    function deployTipsWithConfig() public broadcast returns (address addr_) {
-        TipsWithConfig tips = new TipsWithConfig();
-
-        // check states
-        require(
-            tips.getWeb3Entry() == address(0),
-            "tipsWithConfig getWeb3Entry should be address(0)"
-        );
-
-        save("TipsWithConfig", address(tips));
-        console.log("TipsWithConfig deployed at %s", address(tips));
-        addr_ = address(tips);
-    }
-
-    function deployMintNFTImpl() public broadcast returns (address addr_) {
-        MintNFT nft = new MintNFT();
-
-        // check states
-        bytes32 web3EntrySlot = vm.load(address(nft), bytes32(uint256(15)));
-        require(
-            address(uint160(uint256(web3EntrySlot))) == address(0),
-            "MintNFT web3Entry should be address(0)"
-        );
-
-        save("MintNFT", address(nft));
-        console.log("MintNFT deployed at %s", address(nft));
-        addr_ = address(nft);
-    }
-
-    function deployApprovalMintModule() public broadcast returns (address addr_) {
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
-
-        ApprovalMintModule module = new ApprovalMintModule(web3EntryProxy);
-
-        save("ApprovalMintModule", address(module));
-        console.log("ApprovalMintModule deployed at %s", address(module));
-        addr_ = address(module);
-    }
-
-    function deployLimitedMintModule() public broadcast returns (address addr_) {
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
-
-        LimitedMintModule module = new LimitedMintModule(web3EntryProxy);
-
-        save("LimitedMintModule", address(module));
-        console.log("LimitedMintModule deployed at %s", address(module));
-        addr_ = address(module);
-    }
-
-    function initializeWeb3Entry() public broadcast {
-        Web3Entry web3EntryProxy = Web3Entry(mustGetAddress("Web3EntryProxy"));
-        address mintNFTImpl = mustGetAddress("MintNFT");
-        address linklistProxy = mustGetAddress("LinklistProxy");
-        address peripheryProxy = mustGetAddress("PeripheryProxy");
-        address newbieVillaProxy = mustGetAddress("NewbieVillaProxy");
-
-        web3EntryProxy.initialize(
-            cfg.web3EntryTokenName(),
-            cfg.web3EntryTokenSymbol(),
-            linklistProxy,
-            mintNFTImpl,
-            peripheryProxy,
-            newbieVillaProxy
-        );
-
-        // check states
-        require(
-            keccak256(abi.encodePacked(web3EntryProxy.name())) ==
-                keccak256(abi.encodePacked(cfg.web3EntryTokenName())),
-            "web3Entry name error"
-        );
-        require(
-            keccak256(abi.encodePacked(web3EntryProxy.symbol())) ==
-                keccak256(abi.encodePacked(cfg.web3EntryTokenSymbol())),
-            "web3Entry symbol error"
-        );
-        require(web3EntryProxy.getLinklistContract() == linklistProxy, "web3Entry linklist error");
-
-        bytes32 peripherySlot = vm.load(address(web3EntryProxy), bytes32(uint256(21)));
-        require(
-            address(uint160(uint256(peripherySlot))) == peripheryProxy,
-            "web3Entry periphery error"
-        );
-
-        bytes32 newbieVillaSlot = vm.load(address(web3EntryProxy), bytes32(uint256(27)));
-        require(
-            address(uint160(uint256(newbieVillaSlot))) == newbieVillaProxy,
-            "web3Entry newbieVilla error"
+            marketPlaceProxy.hasRole(marketPlaceProxy.ADMIN_ROLE(), cfg.admin()),
+            "marketPlace admin error"
         );
     }
 
-    function initializeLinklist() public broadcast {
-        Linklist linklistProxy = Linklist(mustGetAddress("LinklistProxy"));
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
+    function initializeSwap() public broadcast {
+        Swap swapProxy = Swap(mustGetAddress("SwapProxy"));
 
-        linklistProxy.initialize(
-            cfg.linklistTokenName(),
-            cfg.linklistTokenSymbol(),
-            web3EntryProxy
-        );
+        swapProxy.initialize(cfg.mira(), cfg.minCsb(), cfg.minMira(), cfg.admin());
 
-        require(linklistProxy.Web3Entry() == web3EntryProxy, "linklist web3Entry error");
-    }
-
-    function initializePeriphery() public broadcast {
-        Periphery peripheryProxy = Periphery(mustGetAddress("PeripheryProxy"));
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
-        address linklistProxy = mustGetAddress("LinklistProxy");
-
-        peripheryProxy.initialize(web3EntryProxy, linklistProxy);
-
-        require(peripheryProxy.web3Entry() == web3EntryProxy, "periphery web3Entry error");
-    }
-
-    function initializeNewbieVilla() public broadcast {
-        NewbieVilla newbieVillaProxy = NewbieVilla(mustGetAddress("NewbieVillaProxy"));
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
-        address tipsProxy = mustGetAddress("TipsProxy");
-
-        newbieVillaProxy.initialize(
-            web3EntryProxy,
-            cfg.xsyncOperator(),
-            cfg.miraToken(),
-            cfg.newbieVillaAdmin(),
-            tipsProxy
-        );
-
-        require(newbieVillaProxy.web3Entry() == web3EntryProxy, "newbieVilla web3Entry error");
-    }
-
-    function initializeTips() public broadcast {
-        Tips tipsProxy = Tips(mustGetAddress("TipsProxy"));
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
-
-        tipsProxy.initialize(web3EntryProxy, cfg.miraToken());
-
-        require(tipsProxy.getWeb3Entry() == web3EntryProxy, "tips getWeb3Entry error");
-    }
-
-    function initializeTipsWithFee() public broadcast {
-        TipsWithFee tipsProxy = TipsWithFee(mustGetAddress("TipsWithFeeProxy"));
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
-
-        tipsProxy.initialize(web3EntryProxy, cfg.miraToken());
-
-        require(tipsProxy.getWeb3Entry() == web3EntryProxy, "tipsWithFee getWeb3Entry error");
-    }
-
-    function initializeTipsWithConfig() public broadcast {
-        TipsWithConfig tipsProxy = TipsWithConfig(mustGetAddress("TipsWithConfigProxy"));
-        address web3EntryProxy = mustGetAddress("Web3EntryProxy");
-
-        tipsProxy.initialize(web3EntryProxy);
-
-        require(tipsProxy.getWeb3Entry() == web3EntryProxy, "tipsWithConfig getWeb3Entry error");
+        require(swapProxy.mira() == cfg.mira(), "swap mira error");
+        require(swapProxy.getMinMira() == cfg.minCsb(), "swap getMinMira error");
+        require(swapProxy.getMinCsb() == cfg.minMira(), "swap getMinCsb error");
+        require(swapProxy.hasRole(swapProxy.ADMIN_ROLE(), cfg.admin()), "swap admin error");
     }
 }
