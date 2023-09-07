@@ -170,21 +170,26 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h2 id="crossbell-nft-marketplace"><a class="header" href="#crossbell-nft-marketplace">Crossbell NFT MarketPlace</a></h2>
+                        <h2 id="crossbell-xshop-contracts"><a class="header" href="#crossbell-xshop-contracts">Crossbell xShop contracts</a></h2>
 <p><a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/docs.yml"><img src="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/docs.yml/badge.svg" alt="Docs" /></a>
 <a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/lint.yml"><img src="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/lint.yml/badge.svg" alt="lint" /></a>
 <a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/tests.yml"><img src="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/tests.yml/badge.svg" alt="tests" /></a>
 <a href="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/checks.yml"><img src="https://github.com/Crossbell-Box/crossbell-marketplace-contracts/actions/workflows/checks.yml/badge.svg" alt="checks" /></a>
 <a href="https://codecov.io/gh/Crossbell-Box/crossbell-marketplace-contracts"><img src="https://codecov.io/gh/Crossbell-Box/crossbell-marketplace-contracts/branch/main/graph/badge.svg?token=J5DF81HHEX" alt="codecov" /></a>
 <a href="https://docs.mythx.io/dashboard/github-badges"><img src="https://badgen.net/https/api.mythx.io/v1/projects/e7178a58-97ab-4362-a5ab-2caa3fbd3a64/badge/data?cache=300&amp;icon=https://raw.githubusercontent.com/ConsenSys/mythx-github-badge/main/logo_white.svg" alt="MythXBadge" /></a></p>
-<p><strong>Setup</strong></p>
-<pre><code class="language-bash">yarn
+<h2 id="-development"><a class="header" href="#-development">⚙ Development</a></h2>
+<p>Install foundry if you don't have one:</p>
+<pre><code class="language-shell"># install foundry
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
 </code></pre>
-<p><strong>Testing</strong></p>
-<pre><code class="language-bash">yarn test
+<p>Compile and run tests:</p>
+<pre><code class="language-shell">yarn
+yarn test
 </code></pre>
 <p><strong>Deploy</strong></p>
-<pre><code class="language-shell">npx hardhat run scripts/deployMarketPlace.ts
+<pre><code class="language-shell">forge script scripts/Deploy.s.sol:Deploy --private-key $PRIVATE_KEY --broadcast --legacy --rpc-url $RPC_URL --ffi                   
+forge script scripts/Deploy.s.sol:Deploy --sig 'sync()' --private-key $PRIVATE_KEY --broadcast --legacy --rpc-url $RPC_URL --ffi
 </code></pre>
 
                     </main>
