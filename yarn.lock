@@ -7087,9 +7087,9 @@ prettier@^2.8.3:
   integrity sha512-yPngTo3aXUUmyuTjeTUT75txrf+aMh9FiD7q9ZE/i6r0bPb22g4FsE6Y338PQX1bmfy08i9QQCB7/rcUAVntfw==
 
 prettier@^3.0.0-alpha.5:
-  version "3.0.0-alpha.6"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.0.0-alpha.6.tgz#c562f9f54966aff792c6920e6a29fbffd1ae07b6"
-  integrity sha512-AdbQSZ6Oo+iy9Ekzmsgno05P1uX2vqPkjOMJqRfP8hTe+m6iDw4Nt7bPFpWZ/HYCU+3f0P5U0o2ghxQwwkLH7A==
+  version "3.2.5"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-3.2.5.tgz#e52bc3090586e824964a8813b09aba6233b28368"
+  integrity sha512-3/GWa9aOC0YeD7LUfvOG2NiDyhOWRvt1k+rcKhOuYnMY24iiCphgneUfJDyFXd6rZCAnuLBv6UeAULtrhT/F4A==
 
 private@^0.1.6, private@^0.1.8:
   version "0.1.8"
